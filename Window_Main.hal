@@ -1,0 +1,1381 @@
+external inner function string 60 UserDefined(string,string);
+external inner function real VATZoneButtonsLabelsUKR(real,real,real,real);
+external inner function Boolean IsEnterprise();
+remote function Integer MailAcceptanceStatus(LongInt);
+external inner function Boolean HasMailTags();
+
+
+
+event DefineWindows
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+  record CYBlock CYb;
+
+  
+  SetLangMode(LangUkrainian,"UKR",0);
+  BlockLoad(CYb);
+    WindowBegin("Проект",PRDClass,CGview,-);// !!!!!!!!!
+  SetWRect(20,80,600,390);
+  UseView(PRVc);
+//  FormName(ProjectForm);
+  FormName(ProjectInfoForm);
+  Sizeable(-1,-1,0,0);
+  Tile(0,74,false,"",Code);
+  EditField(h=80,v=6,120,"Проект",St_i,Code,false,TSerSClass);
+  EditField(300,v,-210,"Старший",Normal,MotherCode,false,PRSClass);
+  EditField(-100,v,-40,"Тип",Normal,PRClass,false,PRClassSClass);
+  EditField(h,v+=20,-210,"Опис",Normal,Name,false,0);
+  EditField(-100,v,-40,"Фаза",Normal,PRStage,false,PRStageSClass);
+  TileButton(1,"Умови");
+  TileButton(2,"Учасники");
+  TileButton(3,"Платежі");
+  TileButton(4,"Час та придбання");  
+  TileButton(5,"Склад та матеріали");  
+  TileButton(6,"Акти/накл.");  
+  TileButton(7,"Текст");  
+  Tile(1,260,true,"1",CustCode);
+  h=100; h2=h+140; v=6;
+  EditField(h,v,70,"Клієнт",Normal ,CustCode,false,CUSClass);
+  EditField(h2,v,-40,"Найменув.",ViewOnly,CustName,false,0);
+  EditField(h,v+=20,300,"Контактна особа",Normal,Contact,false,ContactSClass);
+  EditField(h,v+=20,300,"Об'єкти",Normal ,Objects,false,ObjSClass);
+  EditField(h,v+=20,300,"Класифікація",Normal ,PRClassification,false,PRClSClass);
+  EditField(h,v+=20,300,"Текст",Normal ,Desc0,false,0);
+  EditField(h,v+=20,300,"",Normal ,Desc1,false,0);
+  EditField(h,v+=20,300,"",Normal ,Desc2,false,0);
+  ButtonFrame(h,vm=(v+=45),150,3,"Статус");
+  RadioButton(h,v,0,0,"активний",Terminated);
+  RadioButton(h,v+=16,2,0,"не зареєтр. записи опер.",Terminated);
+  RadioButton(h,v+=16,1,0,"завершено",Terminated);
+	RadioButton(h,v+=16,3,0,"попередньо завершено",Terminated);
+  ButtonFrame(h=280,v=vm,150,3,"Вид проекту");
+  RadioButton(h,v,0,0,"оплачуваний",Type);
+  RadioButton(h,v+=16,1,255,"внутрішній",Type);
+  RadioButton(h,v+=16,2,255,"інший",Type);
+  ButtonFrame(h=460,v=vm,220,3,"Використання товарів в бюдж. проекта");
+  RadioButton(h,v,0,0,"без попередження",TBIVItemsUsage);
+  RadioButton(h,v+=16,1,255,"попередження",TBIVItemsUsage);
+  RadioButton(h,v+=16,2,255,"не дозволяти",TBIVItemsUsage);
+  EditField(-110,v=26,70,"Дата початку",Normal ,StartDate,false,PasteCurDate);
+  EditField(-110,v+=20,70,"Дата закінчення",Normal ,EndDate,false,PasteCurDate);
+  EditField(-110,v+=20,70,"Дата завершення",ViewOnly,FinishedDate,false,0);
+  EditField(-110,v+=20,70,"Дата попереднього завершення",ViewOnly,PreFinishedDate,false,0);
+  EditField(-110,v+=20,70,"Валюта проекта",Normal,CurncyCode,false,CurncyCodeSClass);
+  Tile(2,130,false,"2",Members);
+  h=120; h2=300; v=6;
+  EditField(h,v,-40,"Учасники",Normal,Members,false,UserSClass);
+  label = UserDefined("PRVc","Керівник");
+  if (blank(label)) then begin label = "Менеджер проекту 1";end;
+  EditField(h,v+=20,70,label,Normal ,Leader,false,UserSClass);
+  EditField(h2,v,-210,"Ім'я",ViewOnly,LeaderName,false,0);
+  label = UserDefined("PRVc","Керівник2");
+  if (blank(label)) then begin label = "Менеджер проекту 2";end;
+  EditField(h,v+=20,70,label,Normal ,Leader2,false,UserSClass);
+  EditField(h2,v,-210,"Ім'я",ViewOnly,Leader2Name,false,0);
+  label = UserDefined("PRVc","Керівник3");
+  if (blank(label)) then begin label = "Менеджер проекту 3";end;
+  EditField(h,v+=20,70,label,Normal ,Leader3,false,UserSClass);
+  EditField(h2,v,-210,"Ім'я",ViewOnly,Leader3Name,false,0);
+  label = UserDefined("PRVc","Керівник4");
+  if (blank(label)) then begin label = "Менеджер проекту 4";end;
+  EditField(h,v+=20,70,label,Normal ,Leader4,false,UserSClass);
+  EditField(h2,v,-210,"Ім'я",ViewOnly,Leader4Name,false,0);
+  label = UserDefined("PRVc","Керівник5");
+  if (blank(label)) then begin label = "Менеджер проекту 5";end;
+  EditField(h,v+=20,70,label,Normal ,Leader5,false,UserSClass);
+  EditField(h2,v,-210,"Ім'я",ViewOnly,Leader5Name,false,0);
+  EditField(-100,v=26,-40,"Продавець",Normal,PrSalesMan,false,UserSClass);
+  EditField(-100,v+=20,-40,"Група продажу",Normal,SalesGroup,false,SalesGroupSClass);
+  Tile(3,121,true,"3",Math);
+  StaticText(36,v=14,"Тільки авансові платежі",false); // and Retentions
+  MatrixBegin(4,v+=25,-32,-20,PRRowType,299);
+//  StaticText(36,v-5,"Дата",false);
+//  StaticText(105,v-5,"Акт/накл.",false);
+//  StaticText(165,v-5,"Сума",false);
+//  StaticText(255,v-5,"Співроб",false);
+//  StaticText(305,v-5,"Коментар",false);
+  MatCol(1,32,"Тип",0,RowType,false,SetSClass);
+  MatCol(1,120,"Фаза",0,PRStage,false,PRStageSClass);
+
+  MatCol(1,170,"Дата",0,PlanDate,false,PasteCurDate);
+  MatColTL(1,250,"Акт/накл.",0,-1,ViewOnly,-1,InvNr,false,0);
+  MatCol(1,320,"Сума/ціна",0,ValStr,false,0);
+  MatCol(1,390,"Співроб.",0,Person,false,UserSClass);
+  MatCol(1,440,"Коментар",0,Comment,false,0);
+  MatCol(1,-120,"Статус акта/накл.",0,InvFlag,false,SetSClass);
+ // MatCol(1,490,"% утрим.",0,RetentionPrc,false,0);
+
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;
+  Tile(4,110,false,"4",InvoiceTime);
+  h=140; v=16;
+  ButtonFrame(h=40,vm=v,180,5,"Час в актах/накл.");
+  RadioButton(h,v    ,0,0,"разом по рядках",InvoiceTime);
+  RadioButton(h,v+=16,1,0,"по групах",InvoiceTime);
+  RadioButton(h,v+=16,2,0,"по товарах",InvoiceTime);
+  RadioButton(h,v+=16,3,0,"по записах операцій",InvoiceTime);
+  RadioButton(h,v+=16,4,0,"по товарах/співроб.",InvoiceTime);
+  ButtonFrame(h+=200,v=vm,180,5,"Придбання в актах/накл.");
+  RadioButton(h,v    ,0,0,"разом по рядках",InvoicePurch);
+  RadioButton(h,v+=16,1,0,"по групах",InvoicePurch);
+  RadioButton(h,v+=16,2,0,"по товарах",InvoicePurch);
+  RadioButton(h,v+=16,3,0,"по записах операцій",InvoicePurch);
+  RadioButton(h,v+=16,4,0,"по товарах/співроб.",InvoicePurch);
+  Tile(5,110,false,"5",InvoiceStock);
+  h=140; v=16;
+  ButtonFrame(h=40,vm=v,180,4,"Скл. товари в актах/накл.");
+  RadioButton(h,v    ,0,0,"разом по рядках",InvoiceStock);
+  RadioButton(h,v+=16,1,0,"по групах",InvoiceStock);
+  RadioButton(h,v+=16,2,0,"по товарах",InvoiceStock);
+  RadioButton(h,v+=16,3,0,"по записах операцій",InvoiceStock);
+  ButtonFrame(h+=200,v=vm,180,5,"Матеріали в актах/накл.");
+  RadioButton(h,v    ,0,0,"разом по рядках",InvoiceMaterial);
+  RadioButton(h,v+=16,1,0,"по рахунках",InvoiceMaterial);
+  RadioButton(h,v+=16,2,0,"по товарах",InvoiceMaterial);
+  RadioButton(h,v+=16,3,0,"по записах операцій",InvoiceMaterial);
+  RadioButton(h,v+=16,4,0,"по товарах/співроб.",InvoiceMaterial);
+  Tile(6,260,false,"6",NoInvBefore);
+  h=140; v=6;
+  EditField(h=430,v,-40,"Дата 1ї накл.",Normal ,NoInvBefore,false,PasteCurDate);
+  EditField(h,v+=20,-40,"E-mail",Normal,Email,false,0);
+  EditField(h,v+=20,70,"Мова",Normal,LangCode,false,LangSClass);
+  EditField(h,v+=20,70,"Мак. утрим.",Normal,MaxRetSum,false,0);
+  CheckBox(h,v+=40,0,"Не створюв. акт/накл.",StopInvoicing);
+  CheckBox(h,v+=16,0," Викор-ти WIP",UseWIP);
+/* For debugging purposes only...
+  EditField(420,v+=20,100,"DownPaySent",Normal,DownPaySent,true,0);
+  EditField(420,v+=20,100,"DownPayRedcd",Normal,DownPayRedcd,true,0);
+  EditField(420,v+=20,100,"RetSum",Normal,RetSum,true,0);
+  EditField(420,v+=20,100,"RetInvd",Normal,RetInvd,true,0);
+*/
+  ButtonFrame(h=40,vm=(v=25),275,13,"Відображати в актах/накл.");
+  CheckBox(h,v,0,"Час: окремим рядком",InvSepTB);
+  CheckBox(h,v+=16,0,"Придбання: окремим рядком",InvSepPB);
+  CheckBox(h,v+=16 ,0,"Код проекту",PRCodeOnInv);
+  CheckBox(h,v+=16,0,"Опис проекту",PRNameOnInv);
+  CheckBox(h,v+=16,0,"Текст проекту",PRTextOnInv);
+  CheckBox(h,v+=16,0,"Керівника проекту",PRLeaderOnInv);
+  CheckBox(h,v+=16,0,"Контактну особу",PRContOnInv);
+  CheckBox(h,v+=16,0,"Період між першим та останнім актом/накл.",PeriodOnInv);
+  CheckBox(h,v+=16,0,"Включати середню ціну на час",TimeAvgPriOnInv);
+  CheckBox(h,v+=16,0,"Включати тривалість",TimeAvgQtyOnInv);
+  CheckBox(h,v+=16,0,"Включати середню ціну на придбання",PurcAvgPriOnInv);
+  CheckBox(h,v+=16,0,"Включати кількість придбання",PurcAvgQtyOnInv);
+  CheckBox(h,v+=16,0,"Товари по днях",ItemPerDay);
+  Tile(7,220,false,"7",Text0);
+  EditField(h=80,v=6,-40,"Текст",Normal,Text0,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text1,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text2,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text3,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text4,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text5,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text6,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text7,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text8,false,0);
+  EditField(h,v+=20,-40,"",Normal,Text9,false,0);
+   SpecialMenu("Інформація про проект",'I',2,"ProInvPRD");
+   SpecialMenu("Створити комерц. пропоз.",'q',3,"DoQTFromPRD");
+   SpecialMenu("Створити діяльність",'c',4,"CreateActFromPRD");
+  	SpecialMenu("Відкрити графік проекту",' ',7,"OpenPRSchedulePRD");
+	  SpecialMenu("Виписати акт/накл. на передплату",' ',0,"PRDownPayDsm");
+	  SpecialMenu("Створити об'єкт",'o',1,"CreateObjPRDsm");
+	  SpecialMenu("Створити бюджет проекту",' ',5,"DoTBBUFromPRD");
+	  SpecialMenu("Відкити бюджет проекту",' ',6,"OpenTBBUPRD");
+  EndWindow;
+  
+ WindowBegin("Замовлення постачальнику",PODClass,CGview,-);
+  SetWRect(20,80,650,400);
+  Sizeable(-1,-1,0,0);
+  UseView(POVc);
+  //FormName(POForm);
+  CommunicateButton;
+  ActiveFieldOnNew("VECode");    
+  Tile(0,74+24,false,"",VECode);
+  EditField(h1=90,vm=(v=6),82,"Номер",Normal,SerNr,false,TSerSClass);
+  EditField(h1,v+=20,82,"Постачальник",Normal,VECode,false,VESClass);
+  EnterSkip(PayDeal);
+  EditField(h=280,v=vm,-50,"Найменування",Normal,Addr0,false,0);
+  EditField(h,v+=20,-50,"Підпис",Normal,OKPersons,false,UserSClass);
+  TileButton(1,"Дата");
+  TileButton(2,"Товари");
+  TileButton(3,"Валюта");
+  TileButton(4,"Умови");
+  TileButton(5,"Інше");
+  TileButton(6,"Адреса замовлення");
+  TileButton(7,"Адреса доставки");
+  TileButton(8,"Витрати");
+  EditField(h1,v+20,50,"Дата закр.",Normal,OKDate,false,PasteCurDate);
+  CheckBox(170,v+20,0,"Закрито",Closed);
+  CheckBox(240,v+20,0,"Прейскурант з ПДВ",InclVAT);
+  CheckBox(400,v+20,0,"Резерв",Confirns); // 62
+  CheckBox(520,v+20,0,"Перевищення суми",AlertFlag); // SAV 2011_08_10 флажок переполнени€ суммы по бюджету
+  IF(CURRENTUSER=="MS" or CURRENTUSER=="FD" or CURRENTUSER=="TEST")THEN BEGIN
+    EditField(320,v+40,82,"AccStatus",Normal,AcceptanceStatus,false,0);// 62
+    EditField(520,v+40,82,"OrderType",Normal,OrderType,false,0);// 62
+  END;
+  Tile(1,70,false,"1",TransDate);
+  vs = 20;
+  EditField(h1=100,vm=(v=6),82,"Дата операції",Normal,TransDate,false,PasteCurDate);// 62
+  EditField(h1,v+=vs,    20,"Умова сплати",Normal,PayDeal,false,PDSClass);
+  EditField(h1,v+=vs, 120,"Відповідальний",Normal,OurContact,false,0);
+  EditField(h2=320,v=vm,80,"Заплан. відвантаж.",Normal,PlanShip,false,PasteCurDate);// 62
+  EditField(h2,v+=vs,80,"Вид замовлення",Normal,POClass,false,POrderClassSClass);
+  EditField(h2,v+=vs,80,"Керівник",Normal,SalesMan,false,UserSClass);// 62
+  EditField(h3=510,v=vm,-50,"№ документу",Normal,Reference,false,0);// 62
+  EditField(h3,v+=vs,-50,"Конт. особа",Normal,VEContact,false,ContactSClass);
+  EditField(h3,v+=vs,-50,"Об'єкти",Normal,Objects,false,ObjSClass);
+  EnterSkip(Math);
+  Tile(2,120,true,"2",Math);
+  CheckBox(20,-20,0,"OK",OKFlag);
+  EditField(110,-40,70,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(110,-20,70,"Палет",ViewOnly,TotPalletNr,true,0);
+  EditField(250,-40,70,"Фрахт",Normal,ShipCost,true,0);
+  EditField(380,-40,70,"Мито",Normal,CustomsCost,true,0);
+  EditField(250,-20,70,"Дод. под.",ViewOnly,TAX1Sum,false,0);
+  EditField(-144,-40,90,"Разом",ViewOnly,Sum1,true,0);
+  EditField(380, -20,70,"ПДВ",ViewOnly,Sum3,true,0);
+  EditField(-144,-20,90,"Всього",ViewOnly,Sum4,true,0);
+  v = 24;
+  MatrixBegin(3,v,-50,-44,-,199);
+  MatTypedRow(stp);
+  Flip(0);
+  MatCol(1,28,"Проект",0,PRCode,true,PRSClass);// 62
+  MatCol(1,108,"Товар",0,ArtCode,false,INSClass);// 62
+//  MatCol(1,84,"Var",0,VARList,true,VARSClass);
+//  MatCol(1,144,"Кіл",0,Quant,true,0);
+  MatCol(1,220,"Кіл-ть",0,Quant,true,MATVARINSClass);// 62
+  EnterSkip(ArtCode);
+//  MatCol(1,194,"Наймен.",0,Spec,false,0);
+  Flip(1);
+//  MatColTL(1,164,"Од-ця",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);// 62
+  MatCol(1,264,"Опис",0,Spec,false,0);// 62
+  MatCol(1,-237,"Ціна од-ці",0,Price,true,0);
+  MatCol(1,-151,"%",0,vRebate,true,0);
+  MatCol(1,-116,"Сума",0,Sum,true,0);
+  if (CYb.UseTaxTemplatesforTaxCalc!=0) then begin
+  MatCol(1,-30,"Ш-н",0,TaxTemplateCode,false,TaxTemplateSClass);
+  end else begin
+  MatCol(1,-30,"ПДВ",0,VATCode,false,VATCodeSClass);
+  end;
+  Flip(2);
+  MatCol(1,164,"Найменування",0,Spec,false,0);
+  MatCol(1,-320,"Рах. опр.",0,CostAcc,false,AccSClass);
+  MatCol(1,-250,"Об'єкти",0,Objects,false,ObjSClass);
+  MatCol(1,-180,"Cума перев.",0,POAmount,false,0);// 62
+  MatColTL(1,-105,"Од. пост.",0,M4Code,ViewOnly,5,VEUnit,false,UnitSCLass);
+  MatCol(1,-50,"К-ть пост.",0,VEQuant,true,0);
+  Flip(3);
+  MatCol(1,164,"Найменування",0,Spec,false,0);
+  MatCol(1,-330,"Отр. 1",0,Shipd1,true,0);
+  MatCol(1,-270,"Отр. 2",0,Shipd2,true,0);
+  MatCol(1,-210,"Акт/накл.",0,Invd,true,0);
+ // MatCol(1,-150,"Палет",0,PalletNr,true,0);// 62
+//  MatCol(1,-90,"Проект",0,PRCode,true,PRSClass);// 62
+  MatCol(1,-40,"№ ТР",0,WSNr,true,0);
+  Flip(4);
+  MatCol(1,164,"Найменування",0,Spec,false,0);
+  MatCol(1,-300,"Тип товару",0,StockType,false,SetSClass);
+  MatCol(1,-200,"Запл. відвантаж.",0,PlanShipRow,true,PasteCurDate);
+  MatCol(1,-100,"Коментар",0,Comment,true,0);
+  Flip(5);
+  MatCol(1,164,"Наймен.",0,Spec,false,0);
+  MatCol(1,-100,"Cума перев.",0,POAmount,false,0);// 62
+ DeleteRowTest;
+  InsertRowTest;
+  EndMatrix;
+  vs = 20;
+  v = 18; VTab(-35,v,-16,v+vs,ToolFlip,1,"A");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,2,"B");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,3,"C");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,4,"D");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,5,"E");
+  Tile(3,70,false,"3",FrRate);
+  vs = 20;
+  EditField(h=130,v=6,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(h2=295,v,50,"Узгоджений курс",Normal,FrRate,true,0);
+  EditField(h3=360,v,50,":",Normal,ToRateB1,true,0);
+  StaticText(h3+60,v+12,"Осн. валюта 1",false);
+  EditField(h,v+=vs,50,"Осн. валюта 1",Normal,BaseRate1,true,0);
+  EditField(h3,v,50,":",Normal,ToRateB2,true,0);
+  StaticText(h3+60,v+12,"Осн. валюта 2",false);
+  EditField(h,v+=vs,50,"Осн. валюта 2",Normal,BaseRate2,true,0);
+  Tile(4,110,false,"4",ShipDeal);
+  vs = 20; v = 20; h2 = 450; h3 = 330;
+  EditField(h=130,v=6,80,"Умова відвантаж.",Normal,ShipDeal,false,ShipDealSClass);
+  EditField(h,v+=vs,80,"Спосіб відвантаж.",Normal,ShipMode,false,DMSClass);
+  EditField(h,v+=vs,80,"Проект",Normal,PRCode,false,PRSClass);
+  EditField(h,v+=vs,170,"Факторинг",Normal,InvoiceToCode,false,VESClass);
+  EditField(h,v+=vs,80,"№ рахунка",Normal,OrdNr,false,0);
+  EditField(h,v+=vs,80,"№ зам-ня на обсл.",Normal,SVONr,false,0);
+  v = VATZoneButtonsLabelsUKR(h3,vm=(v=20),140,16);
+  SoftEditField(h3=530,v=16,123,"Статус затвердж.",ViewOnly,"AcceptanceStatusFlag",false,0,M4Str,255);
+
+  /*ButtonFrame(h3=520,v=vm,123,6,"Статус затвердження");
+  RadioButton(h3,v,kAcceptanceStateNotRequired,0,"не потрібно",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotStarted,0,"не розпочато",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotRequested,0,"не було запиту",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStatePending,0,"очікування",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateApproved,0,"затверджено",AcceptanceStatus);
+
+  RadioButton(h3,v+=16,kAcceptanceStateRejected,0,"незатверджено",AcceptanceStatus);  */
+  Tile(5,150,false,"5",LangCode);
+  vs = 20; v = 20; h2 = 450; h3 = 330;
+  EditField(h,v=6,  80,"Мова",Normal,LangCode,false,LangSClass);
+  CheckBox(520,v,0,"Виписув. акт/накл. перед надх.",InvBeforePU);
+  EditField(h,v+=vs,80,"Процес замовлен.",Normal,POCQStatNr,true,POCQStatSClass);
+  EditField(h,v+=vs,80,"Договір поставки",ViewOnly,POCOSerNr,true,0);
+  EditField(h,v+=vs,80,"Замовл. на роботу",Normal,WONr,false,0);
+  EditField(h3,v,  80,"Дійсне до",Normal,ValidUntil,false,PasteCurDate);
+  EditField(h,v+=vs,80,"Вар-сть придбання",Normal,CostPerUnit,true,0);
+  EditField(h3,v,  80,"Філія",Normal,BranchID,false,AllCUSClass);
+  EditField(h,v+=vs,80,"Продавець",Normal,SalesMan,false,UserSClass);
+  EditField(h3,v,80,"Група продажу",Normal,SalesGroup,false,SalesGroupSClass);
+  EditField(h,v+=vs,-20,"Коментар",Normal,Comment,false,0);
+  Tile(6,110,false,"6",Addr1);
+  vs = 20;
+  EditField(h=110,v=6,384,"Рахунок",Normal,Addr1,false,0);
+  EditField(h,v+=vs, 384,"на адресу",Normal,Addr2,false,0);
+  EditField(h,v+=vs, 384,"",Normal,Addr3,false,0);
+  EditField(h,v+=vs, 384,"",Normal,InvAddr3,false,0);
+  EditField(h,v+=vs, 384,"",Normal,InvAddr4,false,0);
+  Tile(7,150,false,"7",ShipAddr0); vs = 20;
+  EditField(h=130,v=6,100,"Склад",Normal,Location,false,LocationSClass);
+  EditField(h,v+=vs,384,"Доставити",Normal,ShipAddr0,false,0);
+  EditField(h,v+=vs,384,"на адресу",Normal,ShipAddr1,false,0);
+  EditField(h,v+=vs,384,"",Normal,ShipAddr2,false,0);
+  EditField(h,v+=vs,384,"",Normal,ShipAddr3,false,0);
+  EditField(h,v+=vs,384,"",Normal,DelAddr3,false,0);
+  EditField(h,v+=vs,384,"",Normal,DelAddr4,false,0);
+  Tile(8,70,false,"8",ShipCost);
+  vs = 20;
+  label = UserDefined("AccBlock","PUCost1");
+  if (blank(label)) then begin label = "Дод. витрати 1";end;
+  EditField(h=130,v=6,70,label,Normal,Cost1,true,0);
+  label = UserDefined("AccBlock","PUCost2");
+  if (blank(label)) then begin label = "Дод. витрати 2";end;
+  EditField(h2=335,v,70,label,Normal,Cost2,true,0);
+  label = UserDefined("AccBlock","PUCost3");
+  if (blank(label)) then begin label = "Дод. витрати 3";end;
+  EditField(h,v+=vs,70,label,Normal,Cost3,true,0);
+  label = UserDefined("AccBlock","PUCost4");
+  if (blank(label)) then begin label = "Дод. витрати 4";end;
+  EditField(h2,v,70,label,Normal,Cost4,true,0);
+  label = UserDefined("AccBlock","PUCost5");
+  if (blank(label)) then begin label = "Дод. витрати 5";end;
+  EditField(h,v+=vs,70,label,Normal,Cost5,true,0);
+  EnterSkip(TransDate);
+  SpecialMenu("Надходження",'L',0,"PUFromPODsm");
+  SpecialMenu("Створ. оповіщ. про відвант.",'l',0,"DropSHFromPODsm");
+  SpecialMenu("Акт/накладна",'F',1,"VIFromPODsm");
+  SpecialMenu("Відправити для затвердження",' ',6,"POSendforAcceptancePODsm");
+  SpecialMenu("Статус товару",'I',2,"ItemStatusPODsm");
+  SpecialMenu("Пошук товару",'f',1,"ItemSearchDsm");
+  SpecialMenu("Створити E-Mail",'e',3,"CreateMailFromPODsm");
+  SpecialMenu("Попередні ціни придбання",' ',4,"POLastPPrsm");
+  SpecialMenu("Статус замовлення постачальнику",'r',5,"POStatRnPODsm");
+  SpecialMenu("Повернення товарів",'B',6,"RetPUFromPODsm");
+  SpecialMenu("Резервування",' ',6,"POReservPODsm");
+  SpecialMenu("Створити запит на авторизацію",' ',7,"AccMailPODsm");// 62
+  SpecialMenu("Створити запит на оплату",' ',8,"PayMailPODsm");// 62
+SpecialMenu("Відкрити таблицю подадків",' ',25,"OpenVatMatrixPODsm"); 
+  EndWindow;
+
+    
+  WindowBegin("Таблиці часу",TSLClass,CGmlist,TSView);
+  SetWRect(64,80,650,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(TSDClass);
+  UseView(TSVc);
+  FormName(PrintTSL);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,2,"Номер",SerNr,false,SerNr);
+  RlColKey(71,66,"OK",OKFlag,false,OKFlag);
+  RlColKey(121,121,"Дата реєстру",RegDate,false,RegDate);
+  RlColKey(191,191,"Коментар",Comment,false,Comment);
+  SearchField("Пошук");
+  SpecialMenu("OK",'G',1,"TSLOKsm");
+  BrowseSubsetButton(-40,-15); //?? one choice to much
+  EndWindow;
+
+  WindowBegin("Комерційна пропозиція",QTDClass,CGview,-);
+  SetWRect(20,80,640,460);
+  Sizeable(-1,-1,0,0);
+  UseView(QTVc);
+  //FormName(QTForm);
+  ActiveFieldOnNew("CustCode");      
+  CommunicateButton;
+  Tile(0,50+24,false,"",CustCode);
+  EditField(75,vm=(v=6), 95,"Номер",Normal,SerNr,false,TSerSClass);
+  EditField(75,v+=20,95, "Клієнт",Normal,CustCode,false,CUSClass);
+  EnterSkip(PayDeal);
+  EditField(h=230,v=vm,-40,"Найм.",Normal,Addr0,false,0);
+  EditField(h,vm=(v+=20),50, "Проект",Normal,PRCode,false,PRTSQTSClass); // 62
+ //  EditField(h,v=vm+20,70,"Accept",Normal,AcceptDate,false,PasteCurDate); // New logic
+  TileButton(1,"Дата");
+  TileButton(2,"Товари");
+  TileButton(3,"Валюта");
+  TileButton(4,"Умови доставки");
+  TileButton(5,"Адреса");
+  TileButton(6,"Адреса дост.");
+  TileButton(7,"Кальк.проектів");
+  CheckBox(h+80,vm,0,"Закрито",Closed);
+//  CheckBox(h+80,v=vm+20,0,"Відхилено",Rejected);
+  Tile(1,110,false,"1",QTDate);
+  vs = 20;
+  EditField(h1=110,vm=(v=6),82,"Дата"  ,Normal,QTDate,false,PasteCurDate);
+  EditField(h1,v+=vs,    20,"Умови сплати",Normal,PayDeal,false,PDSClass);
+  EditField(h1,v+=vs, 120,  "Бренд",Normal,OurContact,false,0);// 62
+  EditField(h1,v+=vs,100, "Контакт.",Normal,CustContact,false,ContactSClass);
+  EditField(h1,v+=vs,60,   "Керівник пр.",Normal,SalesMan,false,UserSClass);   // 62
+  EditField(h2=350,v=vm,82,"Дійсн. до",Normal,ValidUntilDate,false,PasteCurDate);// 62
+  EditField(h2,v+=vs,60,"Заплан. відвант.",Normal,PlanShip,false,PasteCurDate);// 62
+//  EditField(h2,v+=vs,82,"Зв'язок",Normal,MakeContactDate,false,PasteCurDate);// 62
+//  EditField(h2,v+=vs,82,"Дата рішення",Normal,RejectDate,false,PasteCurDate);// 62
+//  EditField(h2,v+=vs,50,"Вірогідність",Normal,Probability,false,0);// 62
+  EditField(h2,v+=vs,50,"Вид пропозиції",Normal,QuoteClass,false,QuoteClassSClass);
+  IF(CURRENTUSER=="MS" or CURRENTUSER=="FD" or CURRENTUSER=="TEST")THEN BEGIN
+    EditField(h2,v+=vs,50,"А.С.",normal,AcceptanceStatus,false,0);// 62
+    EditField(h2,v+=(vs),60,"Підпис",normal,Authority,false,UserSClass);// 62
+  END else begin
+		EditField(h2,v+=(vs),60,"Підпис",ViewOnly,Authority,false,UserSClass);// 62
+  end;
+  ButtonFrame(h3=460,v=15,123,3,"Статус");
+  RadioButton(h3,v,0,0,"відкрито",Rejected);
+  RadioButton(h3,v+=16,2,255,"підтверджено",Rejected);
+  RadioButton(h3,v+=16,1,255,"відхилено",Rejected);
+//  EditField(490,v+=vs,50,"Пріоритет",Normal,Priority,false,0);
+  EnterSkip(Math);
+  Tile(2,120,true,"2",Math);
+  EditField(65,-21,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    EditField(65,-41,50,"Приб. %",ViewOnly,GPProc,true,0);
+    EditField(190,-41,70,"Приб. разом",ViewOnly,TotGP,true,0);
+  end;
+  EditField(195,-21,70,"Дод.под.",ViewOnly,TAX1Sum,true,0);
+  EditField(315,-41,80,"ПДВ",ViewOnly ,Sum3,true,0);
+  EditField(315,-21,80,"Под.2",ViewOnly,TAX2Sum,true,0);
+  EditField(445,-21,95,"Осн.1",ViewOnly,BaseSum4,true,0);
+  EditField(-127,-41,95,"Разом",ViewOnly ,Sum1,true,0);
+  EditField(-127,-21,95,"Всього",ViewOnly ,Sum4,true,0);
+  v = 24;
+  MatrixBegin(3,v,-50,-49,-,200);
+  MatTypedRow(stp);
+  Flip(0);
+  MatCol(t=1,32,"Товар",0,ArtCode,false,INSClass);
+//  MatCol(t,94,"Var",0,VARList,true,VARSClass);
+//  MatCol(t,144,"Кіл-ть",0,Quant,true,0);
+  MatCol(t,94,"К-ть",0,Quant,true,MATVARINSClass);
+  EnterSkip(ArtCode);
+  MatText(t=9,32,"Разом",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatCol(t,-80,"Сума",0,Sum,true,0);
+  MatText(t=10,32,"Цей і наступні рядки не будуть надруковані",false);
+  MatText(t=17,32,"Заголовок",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  Flip(1);
+//  MatCol(t=1,194,"Наймен.",0,Spec,false,0);
+  MatCol(t=1,144,"Наймен.",0,Spec,false,0);
+  MatCol(t,-235,"Ціна",0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Сума",0,Sum,true,0);
+  MatCol(t,-24,"ПДВ",0,VATCode,false,VATCodeSClass);
+  Flip(2);
+  MatCol(t=1,144,"Наймен.",0,Spec,false,0);
+  MatCol(t,-224,"Рахунок",0,SalesAcc,false,AccSClass);
+  MatCol(t,-124,"Об'єкти",0,Objects,false,ObjSClass);
+  MatCol(t,-24,"ПДВ",0,VATCode,false,VATCodeSClass);
+  Flip(3);
+  MatCol(t=1,144,"Наймен.",0,Spec,false,0);
+  MatCol(t,-235,"Ціна",0,Price,true,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-175,"%",0,vRebate,true,0);
+    MatCol(t,-140,"Витрати",0,BasePrice,true,0);
+    MatCol(t,-70,"Приб.",0,rowGP,true,0);
+  end else begin
+    MatCol(t,-135,"%",0,vRebate,true,0);
+    MatCol(t,-100,"Сума",0,Sum,true,0);
+  end;
+//  MatCol(t,-100,"FIFO",0,FIFO,true,0);
+  Flip(4);
+  MatCol(t=1,144,"Наймен.",0,Spec,false,0);
+  MatCol(t,-265,"Ціна",0,Price,true,0);
+  MatCol(t,-170,"Множник ціни",0,PriceFactor,true,0);
+  MatCol(t,-70,"Структ.",0,Recepy,false,RecSClass);
+  Flip(5);
+  MatCol(t=1,144,"Наймен.",0,Spec,false,0);
+  MatCol(t,-315,"Од.",0,UnitCode,false,UnitSClass);
+  MatCol(t,-270,"К-ть од.",0,UnitFactQuant,true,0);
+  MatCol(t,-215,"Шир.",0,UnitXval,true,0);
+  MatCol(t,-170,"Вис.",0,UnitYval,true,0);
+  MatCol(t,-125,"Глиб.",0,UnitZval,true,0);
+  MatCol(t,-80,"Ціна од-ці",0,UnitFactPrice,true,0);
+  Flip(6);
+  MatCol(t,-490,"Фаза",0,PRStage,false,PRStageSClass);
+  MatCol(t,-440,"Співр.",0,EMCode,false,UserSClass);
+  MatCol(t=1,-390,"Група",0,JobGroup,false,EGSClass);
+  MatCol(t=1,-340,"Клас часу",0,TimeClass,false,TimeClassSClass);
+  MatCol(t,-270,"Нац. %",0,Markup,true,0);
+  MatCol(t,-220,"Тип",0,BudType,true,SetSClass);
+  MatCol(t,-170,"Після",0,InvAfter,true,PasteCurDate);
+  MatCol(t,-110,"Акт/накл. від",0,InvDate,true,PasteCurDate);
+  MatCol(t,-50,"Акт/накл.",0,Invoiced,true,0);
+  DeleteRowTest;
+  InsertRowTest;
+  EndMatrix;
+  vs = 20;
+  v = 18; VTab(-35,v,-16,v+vs,ToolFlip,1,"A");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,2,"B");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,3,"C");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,4,"D");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,5,"E");
+  v=v+vs;  VTab(-35,v,-16,v+vs,ToolFlip,6,"F");
+  Tile(3,70,false,"3",FrRate);
+  vs = 20;
+  EditField(h=110,v=6,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(h2=295,v,50,"Курс",Normal,FrRate,true,0);
+  EditField(h3=360,v,50,":",Normal,ToRateB1,true,0);
+  StaticText(h3+60,v+12,"Осн. валюта 1",false);
+  EditField(h,v+=vs,50,"Осн. валюта 1",Normal,BaseRate1,true,0);
+  EditField(h3,v,50,":",Normal,ToRateB2,true,0);
+  StaticText(h3+60,v+12,"Осн. валюта 2",false);
+  EditField(h,v+=vs,50,"Осн. валюта 2",Normal,BaseRate2,true,0);
+  Tile(4,190,false,"4",ShipDeal);
+  vs = 20; h3 = h2+170;
+  EditField(h=110,v=6,50,"Умова відвант.",Normal,ShipDeal,false,ShipDealSClass);
+  EditField(h,v+=vs,50,"Прейскурант",Normal,PriceList,false,PLDefSClass);
+  EditField(h,v+=vs,50,"Мова",Normal,LangCode,false,LangSClass);
+  EditField(h,v+=vs,60,"№ рахунка",Normal,OrderNr,false,0);
+  EditField(h,v+=vs,  50,"Таблиця знижок",ViewOnly,RebCode,false,0); 
+  EditField(h2,v,100,"Ориг. клієнт",Normal,OrgCust,false,AllCUSClass);
+  EditField(h3,v,100,"Філія",Normal,BranchID,false,AllCUSClass);
+//  EditField(h2,v,60,"% знижки",ViewOnly,DiscPerc,false,0);
+//  EditField(h3,v   ,-20,"Сум. знижки",ViewOnly,DiscSum,false,0);
+  EditField(h,v+=vs,-20,"Коментар",Normal,Comment,false,0);
+  EditField(h2,v=6,50,"Спосіб відвант.",Normal,ShipMode,false,DMSClass);
+  EditField(h3,v   ,70,"Гр. продажу",ViewOnly,SalesGroup,false,SalesGroupSClass);
+  EditField(h2,v+=vs,60,"Заплан. відвант-ня",Normal,PlanShip,false,PasteCurDate);
+  EditField(h3,v,-20,"Сортування",Normal,Sorting,false,0);
+  EditField(h2,v+=vs,60,"Днів на доставку",Normal,DaysToDelivery,false,0);
+  EditField(h3,v   ,70,"Склад",Normal,Location,false,LocationSClass);
+  EditField(h2,v+=vs,-20,"Об'єкти",Normal,Objects,false,ObjSClass);
+  EditField(h,v+=3*vs,80,"Разом кіл-ть",ViewOnly,TotQty,true,0);
+  EditField(h2,v,80,"Разом: вагу",ViewOnly,TotWeight,true,0);
+  EditField(h3,v,80,"об'єм",ViewOnly,TotVolume,true,0);
+  EditField(h,v+=vs,80,"Сума податку",ViewOnly,TAX1Sum,true,0);
+  Tile(5,220,false,"5",Addr1); vs = 20;
+  EditField(h=110,v=6,-20,"Отримувач",Normal,Addr1,false,0);
+  EditField(h,v+=vs,-20,"Адреса",Normal,Addr2,false,0);
+  EditField(h,vm=(v+=vs),-20,"",Normal,Addr3,false,0);
+  EditField(h,vm=(v+=vs),-20,"",Normal,InvAddr3,false,0);
+  EditField(h,vm=(v+=vs),-20,"",Normal,InvAddr4,false,0);
+  v = VATZoneButtonsLabelsUKR(h+4,vm=(v+=40),140,16);
+  	SoftEditField(h3=530,v=16,123,"Статус затвердж.",ViewOnly,"AcceptanceStatusFlag",false,0,M4Str,255);
+/*
+  ButtonFrame(h3=290,v=vm,123,6,"Статус затвердження");
+  RadioButton(h3,v,kAcceptanceStateNotRequired,0,"не потрібно",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotStarted,0,"не розпочато",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotRequested,0,"не було запиту",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStatePending,0,"очікування",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateApproved,0,"затверджено",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateRejected,0,"незатверджено",AcceptanceStatus);  */
+  EditField(h2=515,v=vm, -20,"ІПН",Normal,VATNr,false,0);
+  EditField(h2,v+=vs,100,"Телефон",Normal,Phone,false,0);
+  EditField(h2,v+=vs,100,"Факс",Normal,Fax,false,0);
+  Tile(6,150,false,"6",ShipAddr0); vs = 20;
+  EditField(h=110,v=6,-20,"Доставка",Normal,ShipAddr0,false,0);
+  EditField(h,v+=vs,-20,"Адреса",Normal,ShipAddr1,false,0);
+  EditField(h,v+=vs,-20,"",Normal,ShipAddr2,false,0);
+  EditField(h,v+=vs,-20,"",Normal,ShipAddr3,false,0);
+  EditField(h,v+=vs,-20,"",Normal,DelAddr3,false,0);
+  EditField(h,v+=vs,-20,"",Normal,DelAddr4,false,0);
+  EditField(h,v+=vs,80,"Адреса",Normal,DelAddrCode,false,DelAddrSClass);
+  EditField(h2,v,80,"Регіон",Normal,Region,false,RegionSClass); 
+  EnterSkip(QTDate);
+  Tile(7,200,false,"7",Markup); vs = 35;
+  EditField(h=110,v=6,80,"Надбавка %",Normal,Markup,false,0);
+  ButtonFrame(h=50,vm=(v+=vs),120,2,"Час в накл.");
+  RadioButton(h,v,0,0,"дійсно",BudTime);
+  RadioButton(h,v+=16,1,255,"з пропоз.",BudTime);
+  EditField(h,v+=vs,80,"Час",Normal,SumTime,false,0);
+  ButtonFrame(h+=160,v=vm,120,2,"Скл.товари в накл.");
+  RadioButton(h,v,0,0,"дійсно",BudStocked);
+  RadioButton(h,v+=16,1,255,"з пропоз.",BudStocked);
+  EditField(h,v+=vs,80,"Склад.",Normal,SumStocked,false,0);
+  ButtonFrame(h+=160,v=vm,120,2,"Матеріали в накл.");
+  RadioButton(h,v=vm,0,0,"дійсно",BudMaterial);
+  RadioButton(h,v+=16,1,255,"з пропоз.",BudMaterial);
+  EditField(h,v+=vs,80,"Матеріали",Normal,SumMaterial,false,0);
+  ButtonFrame(h+=160,v=vm,120,2,"Придбання в накл.");
+  RadioButton(h,v,0,0,"дійсно",BudOther);
+  RadioButton(h,v+=16,1,255,"з пропоз.",BudOther);
+  EditField(h,v+=vs,80,"Придбання",Normal,SumOther,false,0);
+SpecialMenu("Статус товару",'I',1,"ItemStatusQTDsm");
+  SpecialMenu("Пошук товару",'f',1,"ItemSearchDsm");
+  SpecialMenu("Статус клієнта",'e',2,"CUStatusQTDsm");
+  SpecialMenu("Статус пропозиції",'r',3,"QTStatusDsm");
+  SpecialMenu("Додати разом",' ',4,"SubtotalQTDsm");
+  SpecialMenu("Додати заголовок",' ',5,"QTAddHeaderLine");
+  SpecialMenu("Додати прихований рядок",' ',5,"QTAddHidLine");
+  SpecialMenu("Перерахувати знижку",' ',6,"RecalcDiscountQTDsm");
+  SpecialMenu("Перерахувати вагу та об'єм",' ',7,"RecalcWeightQTDsm");
+  SpecialMenu("Відправити для затвердження",' ',6,"QTSendforAcceptanceQTDsm");
+  SpecialMenu("Поновити товари валютного прейскуранта",' ',8,"UpdatePricesQTDsm");
+  SpecialMenu("Рахунок клієнту",'G',9,"ORFromQTDsm");
+  SpecialMenu("Акт/накладна",'F',10,"IVFromQTDsm");
+  SpecialMenu("Створити діяльність",'c',11,"CreateActFromQTDsm");
+  SpecialMenu("Створити e-mail",'m',12,"CreateMailFromQTDsm");
+  SpecialMenu("Створити проект",' ',13,"CreatePRFromQT");
+  SpecialMenu("Створити бюджет проекту",' ',14,"CreateTBBUFromQTDsm");
+  SpecialMenu("Створити кредитну угоду",' ',15,"CreateCredManQTsm");
+  SpecialMenu("Відкрити таблицю податків",' ',25,"OpenVatMatrixQTDsm"); 
+  EndWindow;
+
+  WindowBegin("Настройки пропозиції",QTSettTClass,CGSbl,-);
+  SetWRect(64,80,470,290);
+  SetBlid(QTSettBlock);
+  v = 0; vs = 25; h = 75; f = 150;
+  EditField(h=140,v+=30,-40,"Дійсно днів",Normal,DefaultValidDays,false,0);
+  CheckBox(h,v+=32,0,"Вимагати вид пропозиції",ReqQTClass);
+  if CurrentUser=="JFA" or CurrentUser=="FD" then begin // 62
+	CheckBox(h,v+=32,0,"Не вимагати унікальність проекту.",PRQTClass);// 62
+  end;// 62
+  EndWindow;
+  
+  WindowBegin("Таблиця часу",TSDClass,CGview,-);
+  SetWRect(20,80,562,398);
+  UseView(TSVc);
+  Sizeable(-1,-1,0,0);
+  FormName(TimeSheetForm);
+  ActiveFieldOnNew("RegDate");      
+  vs=20;
+  EditField(80,v=6,50, "Номер",Normal,SerNr,false,TSerSClass);
+  EditField(240,v,82,"Дата реєстрації",Normal,RegDate,false,PasteCurDate);
+  EditField(423,v,82,"Співробітник",Normal,UserCode,false,UserSClass); // 62
+  EditField(80,v+=vs,425,"Коментар",Normal,Comment,false,0);
+  EditField(560,v,120,"Підпис",Normal,Authority,false,UserSClass); // 62
+  EnterSkip(Math);
+  h=4; v=v+(vs+17);
+  MatrixBegin(4,vm=v,-50,-26,-,99);
+  MatTypedRow(stp);
+  MatOverStrike(ovst);
+  Flip(0);
+  MatCol(1,h1=24,"Дата",0,date,false,PasteCurDate);
+  //MatCol(1,h1+=80,"Співроб.",0,EMCode,false,UserSClass); // 62
+  MatText(2,24,"Підпис",true);
+  MatCol(2,124,"-1",0,EMCode,false,0);
+  MatText(2,154," ",true);
+  Flip(1);
+  MatCol(1,h1=140,"Проект",0,PRCode,false,PRTSTSSClass);// 62
+  //MatCol(1,h1+=90,"Код",0,ArtCode,false,sav_INSClass);// 62// Edit ************************** Friday, 20 March 2015 17:22:07
+  MatCol(1,h1+=80,"Кіл-ть",0,Qty,true,0);
+  MatText(2,24,"Підпис",true);
+  MatCol(2,104,"-1",0,EMCode,false,0);
+  MatText(2,154," ",true);
+  MatCol(1,h1+50,"Опис",0,Spec,false,0);
+  Flip(2);
+  MatCol(1,h1=140,"Проект",0,PRCode,false,PRTSTSSClass);// 62
+  MatCol(1,h1+=90,"Товар",0,ArtCode,false,sav_INSClass);// 62
+  MatCol(1,h1+=80,"Кіл-ть",0,Qty,true,0);
+  MatText(2,24,"Підпис",true);
+  MatCol(2,104,"-1",0,EMCode,false,0);
+  MatText(2,154," ",true);
+  MatCol(1,h1+50,"Об'єкти",0,Objects,false,ObjSClass);
+  Flip(3);
+  MatCol(1,h1=140,"Проект",0,PRCode,false,PRTSTSSClass);// 62
+  MatCol(1,h1+=90,"Товар",0,ArtCode,false,sav_INSClass);// 62
+  MatCol(1,h1+=80,"Кіл-ть",0,Qty,true,0);
+  MatText(2,24,"Підпис",true);
+  MatCol(2,104,"-1",0,EMCode,false,0);
+  MatText(2,154," ",true);
+  MatCol(1,h1+50,"Клас часу",0,TimeClass,false,TimeClassSClass);
+  Flip(4);
+  MatCol(1,h1=140,"Опис проекту",0,PRName,false,0);// 62
+  MatCol(1,h1+=110,"Співробітник",0,EMName,false,0);
+  MatCol(1,h1+=110,"Найменування товару",0,ArtName,false,0);  
+  Flip(5);
+  MatCol(1,h1=140,"Дод. коментар 1",0,Comment1,false,0);// 62
+  MatCol(1,h1+=150,"Дод. коментар 2",0,Comment2,false,0);
+  DeleteRowTest;
+  InsertRowTest;
+  EndMatrix;
+  vs = 22;
+  v = v + 1;
+  VTab(-35,v,-16,v+vs,ToolFlip,1,"A");
+  v=v+vs; VTab(-35,v,-16,v+vs,ToolFlip,2,"B");
+  v=v+vs; VTab(-35,v,-16,v+vs,ToolFlip,3,"C");
+  v=v+vs; VTab(-35,v,-16,v+vs,ToolFlip,4,"D");
+  v=v+vs; VTab(-35,v,-16,v+vs,ToolFlip,5,"E");
+  CheckBox(15,-20,0,"OK",OKFlag);
+  EditField(160,-20,80,"Разом час",ViewOnly,Sum,true,0);
+  EditField(360,-20,80,"Разом матеріал",ViewOnly,SumOther,true,0);
+  EditField(520,-20,80,"Особа",Normal,SalesMan,true,UserSClass);
+  SpecialMenu("Виправлення",' ',0,"CorrectionMarkTSDsm");
+//  SpecialMenu("Відкрити запис операції",'t',1,"OpenTRFromTS");
+  EndWindow;
+
+  WindowBegin("Діяльність",ActDClass,CGview,ActView);
+  SetWRect(64,80,530,440);
+  BrowseButtons(false);
+  Sizeable(-1,-1,0,0);
+  UseView(ActVc);
+  FormName(ActDocForm);
+  v = 6; vs = 20; h = 100; h2 = 270; h3 = 420; h4 = 440; fs = 100;
+  CommunicateButton;
+  Tile(0,110,false,"",Comment);
+  EditField(h,vm=6,-40,"Текст",Normal,Comment,false,0);
+  EditField(h,v+=vs,80,"Тип",Normal,ActType,false,ActTypeSClass);
+  EnterSkip(StartTime);
+  EditField(h,v+=vs,80,"Мова",Normal,LangCode,false,LangSClass);
+  EditField(h,v+=vs,80,"Пріоритет",Normal,PrioLevel,false,0);
+  EditField(h2,v=vm+vs,-40,"Особи",Normal,MainPersons,false,UserSClass);
+  EditField(h2,v+=vs,-40,"Копія",Normal,CCPersons,false,UserSClass);
+  EditField(h2,v+=vs,80,"Керівник",Normal,Supervisor,false,UserSClass);
+  EditField(h4,v,60,"Результат",Normal,ActResult,false,ActTypeSClass);
+  CheckBox(h4+70,v,0,"Особисте",PrivateFlag);// 62
+  CheckBox(h4+140,v,0,"Завершене",OKFlag);// 62
+  TileButton(1,"Час");
+  TileButton(2,"Клієнт");
+  TileButton(3,"Текст");
+  TileButton(4,"Сигнал"); // 62
+  TileButton(5,"Ресурси");// 62
+  TileButton(6,"Послуги");// 62
+  TileButton(7,"Додаткові поля");// 62
+  
+  Tile(1,100,false,"1",StartTime);
+  h = 100; h2 = 270;
+  EditField(h,v=6,60,"Час початку",Normal,StartTime,false,PasteCurTime);
+  EditField(h,v+=vs,60,"Час завершення",Normal,EndTime,false,PasteCurTime);
+  EditField(h,v+=vs,60,"Вартість (Час)",Normal,CostTime,false,PasteCurTime);
+  EditField(h2,v=6 ,80,"Дата початку",Normal,TransDate,false,PasteCurDate);
+  EditField(h2,v+=vs,80,"Дата закінчення",Normal,EndDate,false,PasteCurDate);
+  EditField(h2,v+=vs,80,"Клас часу",Normal,TimeClass,false,TimeClassSClass);
+  v = 18;
+  ButtonFrame(h3=h2+120,vm=v,120,3,"Тип завдання");
+  RadioButton(h3,v,0,0,"Календар",TodoFlag);
+  RadioButton(h3,v+=16,1,0,"Заплановане",TodoFlag);
+  RadioButton(h3,v+=16,2,0,"Запл. на певн. час",TodoFlag);
+//  RadioButton(h3,v+=16,3,0,"Banner",TodoFlag); // When will we do something behind this radio button?
+  h3 = h3+160;
+  ButtonFrame(h3,v=vm,120,3,"Календар");
+  RadioButton(h3,v,1,0,"Час",CalTimeFlag);
+  RadioButton(h3,v+=16,2,0,"Профіль",CalTimeFlag);
+  RadioButton(h3,v+=16,0,0,"Не показувати",CalTimeFlag);
+  EnterSkip(PRCode);
+  Tile(2,70,false,"2",PRCode);
+  EditField(h,vm=(v=6),80,"Проект",Normal,PRCode,false,PRTSTSSClass);// 62
+  EditField(h,v+=vs,80,"Клієнт",Normal,CUCode,false,AllCUSClass);
+  EditField(h,v+=vs,80,"Товар інвойсу",Normal,ItemCode,false,INSClass);// 62
+  EnterSkip(Math);
+  EditField(h2,v=vm,-40,"Назва",Normal,CUName,false,0);
+  EditField(h2,v+=vs,-40,"Телефон",Normal,Phone,false,0);
+  EditField(h2,v+=vs,-40,"Контакт",Normal,Contact,false,ContactSClass);
+  Tile(3,100,true,"3",Math);
+  MatrixBegin(4,v=24,-32,-30,ActRowType,99);// 62
+  MatCol(1,24,"Код",0,TextCode,false,TextTypeSClass);
+  MatCol(1,84,"Текст",0,Text,false,0);
+
+  EndMatrix;
+  HalPushButton(-140,-30,-25,-10,"ActDEndActivity","Завершити діяльність");// 62
+  Tile(4,100,false,"4",-);
+  //v = 10; // 62
+  //HalPushButton(h,v,h+80,v+20,"ActDClassCreateSubTask","Нове під-завдання");// 62
+  //v = v + vs;// 62
+  //RecordList2(10,v+=vs,-30,-39,"ActVc");// 62
+  //RlColKey(4,4,"Завдання",Comment,false,Comment);// 62
+  //Tile(5,100,false,"5",-);// 62
+  h3 = 40;
+  ButtonFrame(h3,v=18,120,4,"Тип сигналу");
+  RadioButton(h3,v,0,0,"Немає",AlarmType);
+  RadioButton(h3,v+=16,1,0,"Повідомлення",AlarmType);
+  RadioButton(h3,v+=16,2,0,"SMS",AlarmType);
+  RadioButton(h3,v+=16,3,0,"E-mail",AlarmType);
+  ButtonFrame(h3+=150,v=18,120,4,"Сигнал");
+  RadioButton(h3,v,0,0,"Хвилини",AlarmWhen);
+  RadioButton(h3,v+=16,1,0,"Години",AlarmWhen);
+  RadioButton(h3,v+=16,2,0,"Дні",AlarmWhen);
+  EditField(h3+75,v+=vs,50,"Часу до",Normal,AlarmUnits,false,0);
+  ButtonFrame(h4=h3+150,v=18,120,4,"Символ");
+  RadioButton(h4,v,1,0,"Виклик",SymbNr);
+  RadioButton(h4,v+=16,2,0,"Зустріч",SymbNr);
+  RadioButton(h4,v+=16,3,0,"Робота в офісі",SymbNr);
+  RadioButton(h4,v+=16,0,0,"Інше",SymbNr);
+  Tile(5,30,false,"5",Resources);// 62
+  EditField(h,v=6,300,"Ресурси",Normal,Resources,false,ResSClass);
+  EditField(h+400,v, fs,"Актив",Normal,InventoryNr,false,AT2UnitSClass);
+  Tile(6,50,false,"6",SVOSerNr);// 62
+  EditField(h,v=6, fs,"Сер. №",Normal,SerialNr,false,SVOSerSClass);
+  EditField(h+200,v,fs,"Товар",Normal,ArtCode,false,INSClass);
+  EditField(h+400,v, fs,"Виробн. опер.",Normal,ProdOpSerNr,false,0);
+  EditField(h,v+=vs, fs,"Замовл. на обсл.",Normal,SVOSerNr,false,SVOSClass);
+  EditField(h+200,v,fs,"Товар інвойсу",Normal,ItemCode,false,INSClass);// 62
+  EditField(h+400,v, fs,"Виробництво",Normal,ProdSerNr,false,0);
+  Tile(7,240,false,"7",-);// 62
+  fs = 80;
+  h = 180;
+  label = UserDefined("ActVc","UserStr1");
+  if (nonblank(label)) then begin
+    EditField(h,v=6 ,-20,label,Normal,UserStr1,false,0);
+  end;
+  label = UserDefined("ActVc","UserStr2");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,-20,label,Normal,UserStr2,false,0);
+  end;
+  label = UserDefined("ActVc","UserStr3");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,-20,label,Normal,UserStr3,false,0);
+  end;
+  label = UserDefined("ActVc","UserStr4");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,-20,label,Normal,UserStr4,false,0);
+  end;
+  label = UserDefined("ActVc","UserStr5");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,-20,label,Normal,UserStr5,false,0);
+  end;
+  label = UserDefined("ActVc","UserVal1");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,50,label,Normal,UserVal1,true,0);
+  end;
+  label = UserDefined("ActVc","UserVal2");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,50,label,Normal,UserVal2,true,0);
+  end;
+  label = UserDefined("ActVc","UserVal3");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,50,label,Normal,UserVal3,true,0);
+  end;
+  label = UserDefined("ActVc","UserDate1");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,80,label,Normal,UserDate1,true,PasteCurDate);
+  end;
+  label = UserDefined("ActVc","UserDate2");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,80,label,Normal,UserDate2,true,PasteCurDate);
+  end;
+  label = UserDefined("ActVc","UserDate3");
+  if (nonblank(label)) then begin
+    EditField(h,v+=vs,80,label,Normal,UserDate3,true,PasteCurDate);
+  end;
+//  SpecialMenu("Open NL Transaction",' ',0,"OpenTRFromAct");// 62
+  SpecialMenu("Створити E-mail",'m',1,"MailFromActDsm");
+  SpecialMenu("Створити лист",'l',2,"LetFromActDsm");
+  SpecialMenu("Створити замовлення",'G',3,"ORFromActDsm");
+  SpecialMenu("Створити пропозицію",' ',4,"QTFromActDsm");
+  if (UserCanAction("EnabINF",false)) then begin
+    SpecialMenu("Інформація про ключ",' ',5,"EnablerInfoDsm");
+  end;
+  SpecialMenu("Статус клієнта",'e',6,"CUStatusActDsm");
+  SpecialMenu("Надіслати запрошення",'i',7,"SendInvitationDsm");
+  EndWindow;
+
+  WindowBegin("Визначте НА на момент часу",AssetAtTimeRClass,CGRcW,RcType);
+  SetWRect(20,80,410,170); // 62
+  vs = 20;h = 160; v = 6;
+  EditFieldTL(h,v,80,"Інвентарний №",M4Str,Normal,20,f1,false,AT2UnitSClass);
+  EditFieldTL(h,v+=vs,80,"Категорія НА",M4UStr,Normal,20,f3,false,AT2SClass);
+  EditFieldTL(h,v+=vs,80,"Клас НА",M4UStr,Normal,11,f4,false,AC2SClass);// 62
+  EditFieldTL(h,v+=vs,80,"Відділ(на момент придб.)",M4UStr,Normal,20,f2,false,DepSClass);// 62
+  EditFieldTL(h,v+=vs,80,"Особа",M4UStr,Normal,10,TransStr,false,UserSClass);
+  EditFieldTL(h,v+=vs,80,"Дата",M4Date,Normal,0,d1,false,PasteCurDate);
+  EndWindow;
+
+  
+  WindowBegin("Визначте перелік НА",AT2ListRClass,CGRcW,RcType);
+  SetWRect(20,80,400,330); // 62
+  v = 10; vs = 20; h = 120;
+  PeriodField(h,v,"Період");
+  EditFieldTL(h,v+=vs,150,"Інвент.№",M4UStr,Normal,50,f1,false,AT2UnitSClass);
+  EditFieldTL(h,v+=vs,150,"Категорія",M4UStr,Normal,50,f2,false,AT2SClass);
+  EditFieldTL(h,v+=vs,150,"Старша категорія",M4UStr,Normal,20,f4,false,AT2SClass); // 62
+  EditFieldTL(h,v+=vs,150,"Клас НА",M4UStr,Normal,5,f3,false,AC2SClass);
+  EditFieldTL(h,v+=vs,150,"Відділ",M4UStr,Normal,10,AccStr,false,DepSClass);
+  EditFieldTL(h,v+=vs,150,"Особа",M4UStr,Normal,10,TransStr,false,UserSClass); // why was it commented out again, the code is there!
+  ButtonFrame(h,v=v+48,123,2,"Функція");
+  RadioButton(h,v,0,0,    "зведений",ArtMode);
+  RadioButton(h,v+=16,1,0,"докладний",ArtMode);
+  CheckBox(120, v+=32,0,"включати неактивні",flags[4]);
+  CheckBox(120, v+=16,0,"включати ті, що вибули",flags[6]);
+  CheckBox(120, v+=16,0,"ігнорувати дату придбання",flags[5]);
+  CheckBox(120, v+=16,0,"враховувати дочірні компанії",IncDaughter);
+  EndWindow;
+  
+  WindowBegin("Визначте товар",INSClass,CGslist,-);
+  SetWRect(210,80,800,298);
+  Sizeable(-1,-1,0,0);
+  UseView(INVc);
+  SpawnClass(INDClass);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Код",Code,false,ActCodeTS);// 62
+  RlColKey(105,105,"Група",Group,false,ActGroup);
+  RlColKey(160,160,"Наймен.",Name,false,ActName);
+  RlColKey(-200,-200,"Альт.код",AlternativeCode,false,AlternativeCode);
+  RlCol(-80,-120,"Баз. ціна",UPrice1,true);
+  CalculatedColumn(-50,-50,"На складі","INSClassInStock",true);
+  SearchField("Пошук");
+  SpecialMenu("Довідка по товару",'I',0,"INStatusINSsm");
+  SpecialMenu("Пошук",'F',1,"INSearchSsm");
+  EndWindow;
+ 
+ WindowBegin("Визначте рахунок",ORSClass,CGslist,ORVi-ew);
+  SpawnClass(ORDClass);
+  SetWRect(64,80,940,308);
+  Sizeable(-1,-1,0,0);
+  UseView(ORVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,2,"Номер",SerNr,false,SerNr);
+  RlColKey(71,66,"Відв.",ShipMark,false,ShipFlag);
+  RlColKey(106,106,"Акт/накл.",InvMark,false,InvFlag);
+  RlColKey(136,136,"Дата замовл.",OrdDate,false,OrdDate);
+  RlColKey(201,201,"Вид замовл.",OrderClass,false,OrderClass);
+  RlColKey(251,251,"Клієнт",CustCode,false,CustCode);
+  RlColKey(301,301,"№ рах. у клієнта",CustOrdNr,false,CustOrdNr);
+  RlColKey(390,390,"Найменування",Addr0,false,Name);
+  RlColKey(-190,-190,"Проект",PRCode,true,PRCode);
+  RlColKey(-90,-90,"Разом",Sum4,true,Sum4);
+  BrowseSubsetButton(-40,-15);
+  SearchField("Пошук");
+  EndWindow;
+
+
+  WindowBegin("Податкові накладні виписані",VATIVSpecSClass,CGother,RcType);
+  SetWRect(240,80,470,298);
+  StringList(9,9,200,209);
+  EndWindow;
+  
+  // Edit Start ---------------------------------------------- Edit Start
+	//Monday, 8 October 2012 12:11:37
+	
+ WindowBegin("Визначте відносини з контактом",MailContactRelSClass,CGslist,-);
+  SpawnClass(ContactRelDClass);
+  SetWRect(20,80,550,298);
+  Sizeable(-1,-1,0,0);
+  UseView(ContactRelVc);
+  v = 5;  vs = 20; l = 80;
+  h = 20; //HalPushButton(h,v,h+l,v+vs,"SwitchToConfS","Пошт.скриньки");
+  HalPushButton(h,v,h+l,v+vs,"SwitchToMailCUS","Клієнти");
+  h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailVES","Постачальники");
+  h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailVEEMPLS","Пост. EMPL");
+  //h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailContactS","Контакти");
+  RecordList(4,17+28,-21,-39);
+  //RlColKey(4,4,"Клієнт",CustCode,false,ActCustCode);
+  RlColKey(4,4,"Найменування",CustName,false,ActCustName);
+  //RlColKey(204,204,"Контакт",ContactCode,false,ActContactCode);
+  RlColKey(284,284,"Ім'я",ContactName,false,ActContactName);
+  //RlCol(-160,-160,"Дата поч.",StartDate,false);
+  //RlCol(-80,-80,"Дата зав-ня",EndDate,false);
+  
+  SearchField("Пошук");
+  EndWindow;
+  
+  WindowBegin("Визначте e-mail клієнта",MailCUSClass,CGslist,-);
+  SetWRect(64,80,650,298);
+  Sizeable(-1,-1,0,0);
+  UseView(CUVc);
+  SpawnClass(CUDClass);
+  v = 5;  vs = 20; l = 80;
+  h = 20;// HalPushButton(h,v,h+l,v+vs,"SwitchToConfS","Пошт.скриньки");
+  HalPushButton(h,v,h+l,v+vs,"SwitchToMailVES","Постачальники");
+  h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailVEEMPLS","Пост. EMPL");
+  h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailContactS","Контакти");
+  RecordList(4,17+28,-21,-39);
+  /*RlColKey(4,4,"N_o.",Code,false,ActCode);
+  RlColKey(4,4,"Стисло",SearchKey,false,ActSearchKey);
+  RlColKey(145,140,"Категорія",CustCat,false,ActGroup);*/
+  RlColKey(4,4,"Найм-ня",Name,false,ActName);
+  //RlColKey(-100,-100,"Відділ",Department,false,ActDepartment);
+  SearchField("Пошук");
+  BrowseSubsetButton(-40,-15);
+ // SpecMenuItem("Customer Status",'e',0);
+ 
+ //StringList(4,17+28,-21,-19);
+ 
+  EndWindow;
+
+   WindowBegin("Визначте e-mail постачальника",MailVESClass,CGslist,-);
+    SetWRect(64,80,650,298);
+    Sizeable(-1,-1,0,0);
+    UseView(CUVc);
+    SpawnClass(CUDClass);
+    v = 5;  vs = 20; l = 80;
+    h = 20;// HalPushButton(h,v,h+l,v+vs,"SwitchToConfS","Поштові скриньки");
+    HalPushButton(h,v,h+l,v+vs,"SwitchToMailCUS","Клієнти");
+    h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailContactS","Контакти");
+    h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailVEEMPLS","Пост. EMPL");
+    RecordList(4,17+28,-21,-39);
+    //RlColKey(4,4,"No.",Code,false,VEActCode);
+    //RlColKey(96,96,"Стисло",SearchKey,false,VEActSearchKey);
+    //RlColKey(145,140,"Категорія",CustCat,false,VEActGroup);
+    RlColKey(4,4,"Найменування",Name,false,VEActName);
+    //RlColKey(-100,-100,"Відділ",Department,false,VEActDepartment);
+    SearchField("Пошук");
+    BrowseSubsetButton(-40,-15);
+   // SpecMenuItem("Customer Status",'e',0);
+    EndWindow;
+    
+    WindowBegin("Визначте e-mail постачальника EMPL",MailVEEMPLSClass,CGslist,-);
+    SetWRect(64,80,650,298);
+    Sizeable(-1,-1,0,0);
+    UseView(CUVc);
+    SpawnClass(CUDClass);
+    v = 5;  vs = 20; l = 80;
+    h = 20;HalPushButton(h,v,h+l,v+vs,"SwitchToMailVES","Постачальники");
+    h=h+l+12; HalPushButton(h,v,h+l,v+vs,"SwitchToMailCUS","Клієнти");
+    h=h+l+12;  HalPushButton(h,v,h+l,v+vs,"SwitchToMailContactS","Контакти");
+    RecordList(4,17+28,-21,-39);
+    RlColKey(0,0,"",Code,false,VEActCode);
+    //RlColKey(96,96,"Стисло",SearchKey,false,VEActSearchKey);
+    //RlColKey(145,140,"Категорія",CustCat,false,VEActGroup);
+    RlColKey(4,4,"Найменування",Name,false,VEActName);
+    //RlColKey(-100,-100,"Відділ",Department,false,VEActDepartment);
+    SearchField("Пошук");
+    BrowseSubsetButton(-40,-15);
+   // SpecMenuItem("Customer Status",'e',0);
+    EndWindow;
+  
+  /*WindowBegin("Пошта",MailDClass,CGview,MailView);
+  DynamicWindow;
+  UseView(MailVc);
+  if (GuiType==kGuiCocoa or GuiType==kGuiWPF) then begin
+    SetWRect(10,80,720,500);
+  end else begin
+    SetWRect(10,80,620,400);
+  end;
+  BrowseButtons(false);
+  Sizeable(-1,-1,0,0);
+  ActiveFieldOnNew("Math2");
+  MailBackground;
+  vs = 20; h = 75; h2 = 210; h3 = 360; h4 = 500; v = 6;
+  if (GuiType==kGuiCocoa or GuiType==kGuiWPF) then begin
+    vm = v;
+    EditField(h,v,72,"Дата",ViewOnly,TransDate,false,PasteCurDate);
+    EditField(h2,v,72,"Час",ViewOnly,TransTime,false,0);
+    if (GuiType==kGuiWPF) then begin
+      EditField(h3,v,82,"Зберігати",Normal,Lifespan,false,SetSClass);
+      CheckBox(-260,v,0,"Відправ-но",SendFlag);
+      CheckBox(-180,v,0,"Закрито",LockedFlag);
+      CheckBox(-100,v,0,"Важливо",Priority);
+      v = v + vs;
+      CheckBox(-260,v,0,"HTML",HtmlFlag);
+    end else begin
+      CheckBox(-255,v,0,"HTML",HtmlFlag);
+      CheckBox(-100,v,0,"Відправ-но",SendFlag);
+      CheckBox(-180,v,0,"Важливо",Priority);
+    end;
+
+    v = v + vs + vs;
+    h = 15;
+    MatrixBegin(h,v,-32,v+118,MailAddrRowType,99);
+    MatOverStrike(AddrStatus);
+    MatCol(1,24,"",0,RowTyp,false,SetSClass);
+    //MatCol(1,84,"Адреса",0,AddrCode,false,ConfSClass);
+    MatCol(1,84,"Адреса",0,AddrCode,false,MailCUSClass);// Edit ************************** Tuesday, 2 October 2012 15:40:21
+    InsertRowTest;
+    DeleteRowTest;
+    EndMatrix;
+    
+    v=v+114;
+    EditField(h+3,v,-17,"",Normal,Header,false,0); // Subject
+    v = (v+vs+2); // +6
+    h3 = 400;
+    
+    switch (GuiType) begin
+      case kGuiCocoa:
+        TextField(0,v,-1,-1,Math,0);
+      otherwise
+        TextField(h,v,-21,-16,Math,0);
+    end;
+    
+    if (GuiType==kGuiCocoa) then begin
+      BeginDrawer(200,300);
+      h = 80;
+      EditField(h,v=6,82,"Зберігати",Normal,Lifespan,false,SetSClass);
+      EditField(h,v+=vs,100,"Ідентифікатор",Normal,Identifier,false,0);
+      EditField(h,v+=vs,50,"Версія",Normal,Version,false,0);
+      EditField(h,v+=vs,100,"Порядок сорт.",Normal,Sortorder,false,0);
+      EditField(h,v+=vs,50,"Мова",Normal,LangCode,false,LangSClass);
+      CheckBox(40,v+=vs,0,"Текст у Html",HtmlTranslation);
+      CheckBox(40,v+=vs,0,"Закрито",LockedFlag);
+      EndDrawer;
+    end;
+  end else begin
+    Tile(0,165,false,"",Math2);
+    vm = v;
+    EditField(h,v,82,"Дата",ViewOnly,TransDate,false,PasteCurDate);
+    EditField(h2,v,82,"Час",ViewOnly,TransTime,false,0);
+    EditField(h3,v,82,"Зберігати",Normal,Lifespan,false,SetSClass);
+    CheckBox(-160,v,0,"Відправ-но",SendFlag);
+    CheckBox(-160,v+=16,0,"Закрито",LockedFlag);
+    CheckBox(-160,v+=16,0,"Важливо",Priority);
+    v = vm+20;
+    h1=24; h2=h1+60;
+    v=vm+40;
+    MatrixBegin(h-3,v,-200,v+76,MailAddrRowType,99);
+    MatOverStrike(AddrStatus);
+    MatCol(1,h1,"",0,RowTyp,false,SetSClass);
+    //MatCol(1,h2,"Адреса",0,AddrCode,false,ConfSClass);
+    MatCol(1,h2,"Адреса",0,AddrCode,false,MailCUSClass);// Edit ************************** Tuesday, 2 October 2012 15:40:21
+    InsertRowTest;
+    DeleteRowTest;
+    EndMatrix;
+    v=v+76;
+    EditField(h,v,-21,"Тема",Normal,Header,false,0);
+    TileButton(1,"Текст");
+    TileButton(2,"Web");
+    v = (v+vs); // +6
+    v = 6;  h3 = 400;
+    Tile(1,110,true,"1",Math);
+    StaticText(h-6,v+9,"Текст",true);
+    TextField(h,v,-21,-16,Math,0);
+    Tile(2,50,false,"2",Identifier);
+    EditField(h,v=6,220,"Ідентифікатор",Normal,Identifier,false,0);
+    EditField(h3,v,50,"Версія",Normal,Version,false,0);
+    EditField(h,v+=vs,220,"Порядок сорт.",Normal,Sortorder,false,0);
+    EditField(h3,v,50,"Мова",Normal,LangCode,false,LangSClass);
+    CheckBox(-160,v=10,0,"Текст у Html",HtmlTranslation);
+  end;
+  
+  SpecialMenu("Додати час",'I',0,"AddTimeMailDsm");
+  SpecialMenu("Відправити E-mail",'e',0,"EMailQueFromMailDsm");
+  SpecialMenu("Відповісти",'r',1,"MailReplyWithQuotesm");
+  SpecMenuItem("Приєднані файли та записи",'a',2);
+  SpecialMenu("(-",' ',3,"");
+  SpecialMenu("Позначити як непрочитане",'u',4,"MarknotReadMailDsm");
+  SpecialMenu("Історія",'h',5,"MailHistoryMailDsm");
+  SpecMenuItem("Чат",'t',6);
+  SpecialMenu("Презентація",' ',7,"PresentationMailDsm");
+  SpecialMenu("Зберегти текст як файл",' ',8,"SaveAsFileMailDsm");
+  SpecialMenu("Відповісти без цитати",' ',9,"MailReplyDsm");
+  SpecialMenu("Відповісти",' ',11,"MailReplyToSendersm");
+  SpecialMenu("Переслати",' ',11,"ForwardMailDsm");
+  SpecialMenu("Створити діяльність",'c',10,"MailMakeActsm");
+  SpecialMenu("Транслювати",' ',12,"RTMsm");
+  SpecialMenu("Створити контакт",' ',12,"CreateContactFromMailsm");
+  EndWindow;*/
+  
+   
+  
+  WindowBegin("RHist",RHistLClass,CGmlist,-);
+  SetWRect(64,80,650,298);
+  Sizeable(-1,-1,0,0);
+  //SpawnClass(RHistDClass);
+  UseView(RHistVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,2,"Номер",SerNr,false,MainKey);
+  RLCol(66,66,"TransDate",TransDate,false); // 62
+  RlCol(141,141,"TransTime",TransTime,false);// 62
+  RlCol(201,201,"accode",accode,false);// 62
+  RlCol(271,271,"User",User,false);// 62
+  RlColKey(-200,-200,"RecidStr",RecidStr,false,RecidStr);
+  SearchField("Пошук");
+  SpecialMenu("Open SubRegister",'R',1,"RHistOpenDsm");
+  EndWindow;
+  
+  
+  WindowBegin("Податковий кредит",VICredRowsDClass,CGview,-);
+  SetWRect(1,1,600,100);
+  //Sizeable(-1,-1,0,0);
+  UseView(VICredRowsVc);
+  EditField(50,30,50,"Код",Normal,Code,false,0);
+  EditField(150,30,-50,"Назва",Normal,Name,false,0);
+  SearchField("Пошук");
+  EndWindow;
+  
+  WindowBegin("Податковий кредит",VICredRowsLClass,CGmlist,-);
+  SetWRect(64,80,650,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(VICredRowsDClass);
+  UseView(VICredRowsVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,2,"Код",Code,false,Code);
+  RlColKey(50,2,"Назва",Name,false,Name);
+  SearchField("Пошук");
+  EndWindow;
+  
+  WindowBegin("Податковий кредит",VICredRowsSClass,CGslist,-);
+  SetWRect(64,80,650,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(VICredRowsDClass);
+  UseView(VICredRowsVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,2,"Код",Code,false,Code);
+  RlColKey(50,2,"Назва",Name,false,Name);
+  SearchField("Пошук");
+  EndWindow;
+  
+  WindowBegin("Податкове забов'язання",IVDebRowsDClass,CGview,-);
+  SetWRect(1,1,600,100);
+  //Sizeable(-1,-1,0,0);
+  UseView(IVDebRowsVc);
+  EditField(50,30,50,"Код",Normal,Code,false,0);
+  EditField(150,30,-50,"Назва",Normal,Name,false,0);
+  SearchField("Пошук");
+  EndWindow;
+  
+  WindowBegin("Податкові забов'язання",IVDebRowsLClass,CGmlist,-);
+  SetWRect(64,80,650,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(IVDebRowsDClass);
+  UseView(IVDebRowsVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,2,"Код",Code,false,Code);
+  RlColKey(50,2,"Назва",Name,false,Name);
+  SearchField("Пошук");
+  EndWindow;
+  
+  WindowBegin("Податкові забов'язання",IVDebRowsSClass,CGslist,-);
+  SetWRect(64,80,650,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(IVDebRowsDClass);
+  UseView(IVDebRowsVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,2,"Код",Code,false,Code);
+  RlColKey(50,2,"Назва",Name,false,Name);
+  SearchField("Пошук");
+  EndWindow;
+	
+	// Edit End ---------------------------------------------- Edit End
+	
+	WindowBegin("Визначте звіт по історії зміни Груп доступу",AccessHistRClass,CGRcW,RcType);
+		SetWRect(20,80,400,200);
+		v = 6; vs = 20; h = 120;
+		PeriodField(h,v+=vs,"Період");
+	EndWindow;
+	
+return;
+end;
+
+window MailDClass:11
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h1,h2,h3,h4,v,vm,vs;
+  record MailVc Mailr;
+  Boolean showacceptancef;
+  Integer wn;
+  
+  WindowBegin("Пошта",MailDClass,CGview,MailView);
+  DynamicWindow;
+  UseView(MailVc);
+  if (GuiType==kGuiCocoa or GuiType==kGuiMetro or GuiType==kGuiWPF) then begin
+    SetWRect(10,80,720,500);
+  end else begin
+    SetWRect(10,80,620,400);
+  end;
+  BrowseButtons(false);
+  Sizeable(730,-1,0,0);
+  ActiveFieldOnNew("Math2");
+  MailBackground;
+  vs = 20; h = 75; h2 = 210; h3 = h2+110; h4 = 500; v = 6;
+  Tile(0,175,false,"",Math2);
+  EditField(h,v,82,"Дата",ViewOnly,TransDate,false,PasteCurDate);
+  EditField(h2,v,62,"Час",ViewOnly,TransTime,false,0);
+  if (GuiType==kGuiCocoa) then begin
+    if (HasMailTags) then begin
+      DropDownMenu(h3,v,h3+100,"Tags",kSetActiveMailTags);   
+      v = v + 2;
+      end;
+    end else begin
+    if (HasMailTags) then begin
+      EditField(h3,v,80,"Tags",Normal,Tags,false,MailTagSClass);
+      end;
+    end;
+   CheckBox(-260,v,0,"HTML",HtmlFlag);
+   CheckBox(-180,v,0,"Важливо",Priority);
+   CheckBox(-100,v,0,"Відправ-но",SendFlag);
+   EditField(h,v+=vs,82,"Lifespan",Normal,Lifespan,false,SetSClass);
+  EditField(h3,v,82,"Person",Normal,Responsible,false,UserSClass); //!!TRANSLATE
+
+  CheckBox(-100,v,0,"Заблоковано",LockedFlag);
+  CheckBox(-180,v,0,"Bounce",IsBounce);
+
+  if (IsEnterprise) then begin
+    wn = CurWindow;
+    if (wn>0) then begin
+      if (GetWindowClass(wn)=="MailDClass") then begin
+        GetWindowRecord(wn,Mailr);
+        showacceptancef = Mailr.RequireAcceptance!=0;
+        if (showacceptancef) then begin
+          showacceptancef = MailAcceptanceStatus(Mailr.SerNr)<=kMailStatusPostponed;
+        end;
+      end;
+    end;
+    if (showacceptancef) then begin
+      HalPushButton(h2+100,v+=vs,h2+180,v+20,"MailDClassAccept","MailDClassAccept");
+      HalPushButton(h2+200,v,h2+280,v+20,"MailDClassReject","Відхилити");  
+      HalPushButton(h2+300,v,h2+380,v+20,"MailDClassLater","Пізніше");  
+    end;
+  end;
+
+   vm = v;
+   v = vm+20;
+   h1=24; h2=h1+60;
+    v=vm+40;
+    h = 15;
+    MatrixBegin(h,v,-32,v+118,MailAddrRowType,99);
+    MatOverStrike(AddrStatus);
+    MatCol(1,h1,"",0,RowTyp,false,SetSClass);
+    MatCol(1,h2,"Адреса",0,AddrCode,false,MailCUSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 22 01 2020 y. at 11:54:28 AM
+    InsertRowTest;
+    DeleteRowTest;
+    EndMatrix;
+    v=v+114;
+    EditField(h,v,-17,"",Normal,Header,false,0); // Subject
+    TileButton(1,"Текст");
+    TileButton(2,"Web");
+    v = (v+vs); // +6
+    v = 6; h2 = 378; h3 = 400;
+    Tile(1,110,true,"1",Math);
+    if (GuiType!=kGuiCocoa) then begin
+    StaticText(h-6,v+9,"Текст",true);
+    end;
+    TextField(0,v,-1,-1,Math,0);
+    Tile(2,70,false,"2",Identifier);
+    EditField(h=80,v=6,220,"Ідентифікатор",Normal,Identifier,false,0);
+    EditField(h3,v,50,"Версія",Normal,Version,false,0);
+    EditField(h,v+=vs,220,"Порядок сорт.",Normal,Sortorder,false,0);
+    EditField(h3,v,50,"Мова",Normal,LangCode,false,LangSClass);
+    EditField(h,v+=vs,72,"Дата відправлення",Normal,SendDate,false,PasteCurDate); 
+    EditField(h2,v,72,"Час відправлення",Normal,SendTime,false,0); 
+    EditField(h,v+=vs,-40,"Мітки",Normal,Tags,false,MailTagSClass);  
+    CheckBox(-160,v=10,0,"Текст у Html",HtmlTranslation);
+  
+  SpecialMenu("Додати час",'I',0,"AddTimeMailDsm");
+  SpecialMenu("Відправити E-mail",'e',0,"EMailQueFromMailDsm");
+  SpecialMenu("Відповісти",'r',1,"MailReplyWithQuotesm");
+  SpecMenuItem("Приєднані файли та записи",'a',mOpenAttachWindow);
+  SpecialMenu("(-",' ',3,"");
+  SpecialMenu("Позначити як непрочитане",'u',4,"MarknotReadMailDsm");
+  SpecialMenu("Історія",'h',5,"MailHistoryMailDsm");
+  SpecMenuItem("Чат",'t',mChatFromMail);
+  SpecialMenu("Презентація",' ',7,"PresentationMailDsm");
+  SpecialMenu("Зберегти текст як файл",' ',8,"SaveAsFileMailDsm");
+  SpecialMenu("Відповісти без цитати",' ',9,"MailReplyDsm");
+  SpecialMenu("Відповісти",' ',11,"MailReplyToSendersm");
+  SpecialMenu("Переслати",'f',11,"ForwardMailDsm");
+  SpecialMenu("Транслювати",' ',12,"RTMsm");
+  if (UserCanAction("InstallHalcust",false)) then begin
+    SpecMenuItem("Втановити Halcust",' ',mInstallHalcust); 
+  end;
+  if (UserCanAction("DiffHalcust",false)) then begin
+    SpecMenuItem("Поівняти Halcust",' ',mDiffHalcust); 
+  end;
+  if (UserCanAction("DownloadHalcust",false)) then begin
+    SpecMenuItem("Прікріпити поточний halcust",' ',mDownloadHalcust);
+  end;
+  if (IsEnterprise) then begin
+    if (UserCanAction("RequireAcceptanceMail",true)) then begin
+      if (Mailr.RequireAcceptance!=0) then begin
+        SpecialMenu("Скасувати запит на прийняття",' ',13,"WithdrawAcceptanceMailDsm");  
+      end else begin
+    SpecialMenu("Вимагає прийняття",' ',13,"RequireAcceptanceMailDsm");  
+      end;
+    end;
+  end;
+  SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);  
+//  SpecialMenu("Activity",'c',10,"MailMakeActsm");
+  SpecialMenu("Створити контакт",' ',12,"CreateContactFromMailsm");  
+  SpecialMenu("Відповісти",'r',1,"MailReplyWithQuotesm");  
+  SpecialMenu("Переадресувати",'f',11,"ForwardMailDsm");  
+  EndWindow;
+end;

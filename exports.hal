@@ -1,0 +1,1173 @@
+external inner function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
+external inner function roundmode SetRoundModeD(Integer);
+external inner function roundmode DefaultRoundMode();
+external inner procedure GetUserName(string,var string);
+
+function string 255 Convert(string source)
+begin
+  string 255 res;
+  Integer l,i;
+  string 1 addstr;
+  
+  l = len(source);
+  for (i=0;i<l;i=i+1) begin
+    addstr = Mid(source,i,1);
+    switch (addstr) begin
+      case "<": addstr = "&lt;";
+      case ">": addstr = "&gt;";
+      case "&": addstr = "&amp;";
+      case "'": addstr = "&apos;";
+      case """": addstr = "&quot;";
+    end;
+    res = res & addstr;
+  end;
+  Convert = res;
+  return;
+end;
+
+global 
+procedure ConvertPhone(var string tstr)
+begin
+	string 255 res;
+	string 1 temp;
+	integer i;
+	for (i=0;i<len(tstr);i=i+1) begin
+		temp = mid(tstr,i,1);
+		if (asc(temp)>=48) and (asc(temp)<=57) then begin
+			res = res & temp;
+		end;
+	end;
+	tstr = res;
+return;
+end;
+
+
+procedure ConvertDateToYYYYMMDD(date TransDate,var string tstr)
+begin
+	string 60 year,month,day;
+	year = GetYear(TransDate);
+	month = GetMonth(TransDate);
+	day = Getday(TransDate);
+	if (len(year)<4) then begin year="20" & year; end;
+	if (len(month)==1)  then begin month="0" & month; end;
+	if (len(day)==1)  then begin day="0" & day; end;
+	tstr = year & month & day;
+return;
+end;
+
+procedure RetCharsArray(string tstr,var array string res)
+begin
+	integer i;
+	string 255 temp;
+	string 2 ch;
+	
+	for (i=0;i<140;i=i+1) begin
+		if i<35 then begin
+			res[1] = res[1] & mid(tstr,i,1);
+		end else begin
+			if i<70 then begin
+				res[2] = res[2] & mid(tstr,i,1);
+			end else begin
+				if i<105 then begin
+					res[3] = res[3] & mid(tstr,i,1);
+				end else begin	
+					res[4] = res[4] & mid(tstr,i,1);
+				end;
+			end;
+		end;
+	end;
+return;
+end;
+
+global 
+function integer RusLen(string tstr)
+begin
+integer i,k;
+string 1 Char;
+boolean trhs;
+
+SetLangMode(LangUkrainian,"UKR",0);
+trhs = true;
+k=0;
+for  (i=0;i<len(tstr);i=i+1) begin
+	char = mid(tstr,i,1);
+	if (char>="~") then begin k=k+1; end;
+	if (asc(char)>=8000) then begin k=k+1; end;
+end;
+RusLen = len(tstr)+k;
+return;
+end;
+
+procedure ExportOPrRow(row OPVc OPRw,longint num, string PMbBankNr,string PayDate,val Summ,val Summ1,boolean BankFlag)
+begin
+	record CUvc CUr;
+	record BankVc BNr;
+	string 255 tstr,temp;
+	array string 255 res;
+	boolean ibanfound;
+	
+	
+	
+	Cur.Code = OPRw.VECode;
+	if (ReadFirstMain(CUr,1,true)) then begin end;
+	BNr.Code = CUr.AccOperator;
+	if (ReadFirstMain(BNr,1,true)) then begin end;
+	ExportPadString("#UA#DFT#",8,"",true);
+	ExportPadString(PayDate,8,"",true);// 4
+	ExportPadString("#####UAH#",9,"",true);//9
+	if Summ==0 then begin
+		ExportPadString(OPRw.RecVal,len(OPRw.RecVal),"",true);//10
+	end else begin
+		ExportPadString(Summ,len(Summ),"",true);//10
+	end;
+	ExportPadString("##",2,"",true);
+	ExportPadString(PMbBankNr,len(PMbBankNr),"",true);//12
+	ExportPadString("#############",13,"",true);
+	tstr = right(num,9);
+	ExportPadString(tstr,len(tstr),"",true);//25
+	ExportPadString("###################",19,"",true);
+	if blank(OPRw.BankAcc) then begin
+		if(len(OPRw.BankAcc)<29)then begin
+			tstr = right(CUr.BankAccount,14);// 14->29 Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 27 September 2019 16:32:59
+		end else begin
+			tstr = right(CUr.BankAccount,29);
+		end;
+	end else begin
+		if(len(OPRw.BankAcc)<29)then begin
+			tstr = right(OPRw.BankAcc,14);// 14->29 Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 27 September 2019 16:33:09
+		end else begin
+			tstr = right(OPRw.BankAcc,29);
+		end;
+	end;
+	if(len(tstr)==29)then begin
+		ibanfound = true;
+	end;
+	ExportPadString(tstr,len(tstr),"0",true);//44
+	ExportPadString("#",1,"",true);
+	if (BankFlag) then begin
+		ExportPadString(BNr.Name,RusLen(BNr.Name),"",true);//45	
+		//ExportPadString(BNr.Name,53,"",true);//45	
+	end else begin
+		ExportPadString(CUr.Name,RusLen(CUr.Name),"",true);//45	
+	end;
+	ExportPadString("######",6,"",true);
+	tstr = right(BNr.Nr1,6);
+	//if(currentdate<stringtodate("01/11/2019"))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 5 November 2019 14:44:50
+	if(true)then begin
+		//ExportPadString(tstr,len(tstr),"",true);//51	//закоментировано с 13/01/2020// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 14 01 2020 y. at 4:33:53 PM
+	end;
+	ExportPadString("#####################",21,"",true);
+	temp = OPrw.Comment;
+	RetCharsArray(temp,res);
+	//tstr = left(temp,35);
+	//temp = right(temp,len(temp)-35);
+	ExportPadString(res[1],RusLen(res[1]),"",true);//72
+	ExportPadString("#",1,"",true);
+	//tstr = left(temp,35);
+	//temp = right(temp,len(temp)-35);
+	ExportPadString(res[2],RusLen(res[2]),"",true);//73
+	ExportPadString("#",1,"",true);
+	//tstr = left(temp,35);
+	//temp = right(temp,len(temp)-35);
+	ExportPadString(res[3],RusLen(res[3]),"",true);//74
+	ExportPadString("#",1,"",true);
+	//tstr = left(temp,35);
+	//temp = right(temp,len(temp)-35);
+	ExportPadString(res[4],RusLen(res[4]),"",true);//75
+	ExportPadString("###",3,"",true);
+	if Summ1==0 then begin
+		if OPrw.VATVal==0 then begin
+			tstr = "N";
+		end else begin
+			tstr = "Y";
+		end;
+	end else begin
+		tstr = "Y";
+	end;
+	ExportPadString(tstr,1,"#",true);//78
+	ExportPadString("#",1,"",true);//
+	if Summ1==0 then begin
+		ExportPadString(OPrw.VATVal,len(OPrw.VATVal),"",true);//79
+	end else begin
+		ExportPadString(Summ1,len(Summ1),"",true);//79
+	end;
+	ExportPadString("#",1,"",true);//
+	tstr = left(CUr.RegNr1,10);
+	if (BankFlag) then begin tstr = BNr.VATNr; end;
+	ExportPadString(tstr,len(tstr),"",true);//80
+	ExportPadString("##############",14,"",true); 
+return;
+end;
+
+
+global updating
+procedure ClientBankEn(record RcVc RepSpec)
+begin
+record OPVc OPr,OldOPr;
+row OPVc OPrw,OP2rw;
+integer i,rwcnt,j;
+string 255 tstr,PayDate,Comment;
+boolean trhs,testf;
+longint num;
+record PMBlock PMb;
+row PMBlock PMbr;
+vector string 60 PMbBankNr;
+val Summ,Summ1;
+array integer UsedRowNo;
+record KBSettBlock KBb;
+record CUVc CUr;
+	
+	if (SetExportCodePage("UTF-8")== false) then begin end;
+	num = RepSpec.long1;
+	if (RepSpec.long1==-1) then begin num = 1; end;
+	BlockLoad(PMb);
+	BlockLoad(KBb);
+	rwcnt = MatRowCnt(PMb);
+	for (i=0;i<rwcnt;i=i+1) begin
+		MatRowGet(PMb,i,PMbr);
+		PMbBankNr[PMbr.Code] = right(PMbr.BankNr,9);
+	end;
+	if (RepSpec.long2<>-1) then begin
+		OPr.SerNr = RepSpec.long2;
+		if (ReadFirstMain(OPr,1,true)) begin end;
+		RecordCopy(OldOPr,OPr);
+		ConvertDateToYYYYMMDD(OPr.PayDate,PayDate);
+		Summ=0;Summ1=0;
+		if (OPr.PayperSupplier ==0) or (OPr.PayperSupplier == 2) then begin
+			rwcnt = MatRowCnt(OPr);
+			for (i=0;i<rwcnt;i=i+1) begin
+				MatRowGet(OPr,i,OPrw);
+				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+					if blank(OPrw.PayMode) then begin
+						tstr=PMbBankNr[OPr.PayMode];
+					end else begin
+						tstr=PMbBankNr[OPrw.PayMode];
+					end;
+					ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+					OPrw.KBExportNum = num;
+					MatRowPut(OPr,i,OPrw);
+					num=num+1;
+					ExportPadString(chr(13) & chr(10),2,"",true);
+				end;
+			end;
+		end;
+		if (OPr.PayperSupplier ==1) then begin
+			rwcnt = MatRowCnt(OPr);
+			for (i=0;i<rwcnt;i=i+1) begin
+				MatRowGet(OPr,i,OPrw);
+				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+					if blank(OPrw.PayMode) then begin
+						tstr=PMbBankNr[OPr.PayMode];
+					end else begin
+						tstr=PMbBankNr[OPrw.PayMode];
+					end;
+					if (UsedRowNo[i]==0) then begin
+						Summ = OPrw.RecVal;Summ1 = OPrw.VATVal;Comment= OPrw.Comment;
+						if (UsedRowNo[i]==0) and (i<rwcnt-1) then begin
+							UsedRowNo[i]=1;
+							for(j=i+1;j<rwcnt;j=j+1) begin
+								MatRowGet(OPr,j,OP2rw);
+								testf=true;
+								if nonblank(OP2rw.PayMode) then begin
+									if (tstr<>PMbBankNr[OP2rw.PayMode]) then begin testf = false; end;//12
+								end;
+								if (OPrw.BankAcc<>OP2rw.BankAcc) then begin testf = false; end;//44
+								if (OPrw.VECode<>OP2rw.VECode) then begin testf = false; end;//45
+								if (testf) then begin
+									Summ =Summ +  OP2rw.RecVal;
+									Summ1 =Summ1 +  OP2rw.VATVal;
+									UsedRowNo[j]=1;
+									OP2rw.KBExportNum = num;
+									MatRowPut(OPr,j,OP2rw);
+								end;
+							end;
+						end;
+						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+						OPrw.KBExportNum = num;
+						MatRowPut(OPr,i,OPrw);
+						num=num+1;
+						ExportPadString(chr(13) & chr(10),2,"",true);
+					end;
+				end;
+			end;
+		end;
+		if (OPr.PayperSupplier ==3) then begin
+			rwcnt = MatRowCnt(OPr);
+			for (i=0;i<rwcnt;i=i+1) begin
+				MatRowGet(OPr,i,OPrw);
+				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+					if blank(OPrw.PayMode) then begin
+						tstr=PMbBankNr[OPr.PayMode];
+					end else begin
+						tstr=PMbBankNr[OPrw.PayMode];
+					end;
+					if (UsedRowNo[i]==0) then begin
+						CUr.Code = OPrw.VECode;
+						if (ReadFirstMain(CUr,1,true)) then begin end;
+						Summ = OPrw.RecVal;Summ1 = OPrw.VATVal;Comment= OPrw.Comment;
+						if (i<rwcnt-1) then begin // and (CUr.VECat=="EMPL") // SAV 2012_02_16 закоментировано по просьбе √ре€
+							UsedRowNo[i]=1;
+							for(j=i+1;j<rwcnt;j=j+1) begin
+								MatRowGet(OPr,j,OP2rw);
+								testf=true;
+								CUr.Code = OP2rw.VECode;
+								if (ReadFirstMain(CUr,1,true)) then begin end;
+								//if CUr.VECat<>"EMPL" then begin testf = false; end;// SAV 2012_02_16 закоментировано по просьбе √ре€
+								if (testf) then begin
+									Summ =Summ +  OP2rw.RecVal;
+									Summ1 =Summ1 +  OP2rw.VATVal;
+									UsedRowNo[j]=1;
+									OP2rw.KBExportNum = num;
+									MatRowPut(OPr,j,OP2rw);
+								end;
+							end;
+						end;
+						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,true);
+						OPrw.KBExportNum = num;
+						MatRowPut(OPr,i,OPrw);
+						num=num+1;
+						ExportPadString(chr(13) & chr(10),2,"",true);
+					end;
+				end;
+			end;
+		end;
+	end;
+	if (num<>RepSpec.long1) then begin
+		if (RecordUpdate(OldOPr,OPr,false)==0) then begin end;
+		KBb.StartNum = num;
+		BlockStore(KBb);
+		CloseWindow(RepSpec.ArtMode);
+		i = OpenWindow("OPDClass",1,0,"","",OPr);
+	end;
+	return;
+end;
+
+global
+procedure ClientBankOPDsm()
+begin
+record RcVc RepSpec;
+record OPVc OPr;
+row OPVc OPrw;
+record CUVc VEr;
+integer wn,nwn,i,rwcnt,j;
+boolean testf;
+record KBSettBlock KBb;
+
+	wn = curwindow;
+	DeselectWindow(wn,false);
+	GetWindowRecord(wn,OPr);
+	rwcnt = MatRowCnt(OPr);
+	testf = true;
+	
+	if (OPr.OrderedFlag==1) then begin
+		MessageBox(10895,USetStr(31009));
+		goto LClientBankOPDsm;
+	end;
+	
+	for (i=0;i<rwcnt;i=i+1) begin
+		MatRowGet(OPr,i,OPrw);
+		if (len(OPrw.Comment)>140) then begin 
+			MessageBox(10895,USetStr(31007));
+			i=rwcnt;
+			goto LClientBankOPDsm;
+		end;
+		for (j=0;j<len(OPrw.Comment);j=j+1) begin
+			if (mid(OPrw.Comment,j,1)=="#") then begin
+				MessageBox(10895,USetStr(31008));
+				i=rwcnt;j=len(OPrw.Comment);
+				goto LClientBankOPDsm;
+			end;
+		end;
+		if OPrw.KBExportNum<>-1 and testf then begin
+			MessageBox(10895,USetStr(31010));
+			testf = false; 
+		end;
+		VEr.Code = OPrw.VECode;
+		if (ReadFirstMain(VEr,1,true)) then begin end;
+		if (currentuser<>"FD")  then begin
+			if (nonblank(OPrw.BankAcc)) and (OPrw.BankAcc<>VEr.BankAccount) and (OPrw.BankAcc<>VEr.Bank) then begin
+				MessageBox(10895,USetStr(31011) & i+1);
+				testf = false; 
+				i=rwcnt;
+				goto LClientBankOPDsm;
+			end;		
+		end;
+	end;
+	BlockLoad(KBb);
+	RepSpec.long1 = KBb.StartNum;
+	RepSpec.long2 = OPr.SerNr;
+	//RepSpec.Media = mtFile;
+	//RepSpec.repname = "ClientBankEn";
+	RepSpec.ArtMode = curwindow;
+//	nwn = OpenWindow("ClientBankEClass",1,0,"","",RepSpec);
+	nwn = OpenWindow("SpecYesNoCancelWClass",1,0,"","",RepSpec);
+	
+
+	LClientBankOPDsm:;
+	return;
+end;
+//=================
+procedure ExportIPrRow(row IPVc IPRw,longint num, string PMbBankNr,string PayDate)
+begin
+	record CUvc CUr;
+	record BankVc BNr;
+	string 255 tstr,temp;
+	
+	Cur.Code = IPRw.CustCode;
+	if (ReadFirstMain(CUr,1,true)) then begin end;
+	BNr.Code = CUr.AccOperator;
+	if (ReadFirstMain(BNr,1,true)) then begin end;
+	ExportPadString("#UA#DFT#",8,"",true);
+	ExportPadString(PayDate,8,"",true);// 4
+	ExportPadString("#####UAH#",9,"",true);//9
+	ExportPadString(-IPRw.RecVal,len(-IPRw.RecVal),"",true);//10
+	ExportPadString("##",2,"",true);
+	ExportPadString(PMbBankNr,len(PMbBankNr),"",true);//12
+	ExportPadString("#############",13,"",true);
+	tstr = right(num,9);
+	ExportPadString(tstr,len(tstr),"",true);//25
+	ExportPadString("###################",19,"",true);
+	tstr = right(CUr.BankAccount,14);
+	ExportPadString(tstr,len(tstr),"",true);//44
+	ExportPadString("#",1,"",true);
+	ExportPadString(CUr.Name,RusLen(CUr.Name),"",true);//45	
+	ExportPadString("######",6,"",true);
+	tstr = right(BNr.Nr1,6);
+	ExportPadString(tstr,len(tstr),"",true);//51	
+	ExportPadString("#####################",21,"",true);
+	temp = IPrw.CustName;
+	tstr = left(temp,35);
+	temp = right(temp,len(temp)-35);
+	ExportPadString(tstr,len(tstr),"#",true);//72
+	ExportPadString("#",1,"",true);
+	tstr = left(temp,35);
+	temp = right(temp,len(temp)-35);
+	ExportPadString(tstr,len(tstr),"#",true);//73
+	ExportPadString("#",1,"",true);
+	tstr = left(temp,35);
+	temp = right(temp,len(temp)-35);
+	ExportPadString(tstr,len(tstr),"#",true);//74
+	ExportPadString("#",1,"",true);
+	tstr = left(temp,35);
+	temp = right(temp,len(temp)-35);
+	ExportPadString(tstr,len(tstr),"#",true);//75
+	ExportPadString("###",3,"",true);
+	if IPrw.VATVal==0 then begin
+		tstr = "N";
+	end else begin
+		tstr = "Y";
+	end;
+	ExportPadString(tstr,1,"",true);//78
+	ExportPadString("#",1,"",true);//
+	ExportPadString(-IPrw.VATVal,len(-IPrw.VATVal),"",true);//79
+	ExportPadString("#",1,"",true);//
+	tstr = right(CUr.RegNr1,10);
+	ExportPadString(tstr,len(tstr),"",true);//80
+	ExportPadString("##############",14,"",true); 
+return;
+end;
+
+global updating
+procedure ClientBankIPEn(record RcVc RepSpec)
+begin
+record IPVc IPr,OldIPr;
+row IPVc IPrw;
+integer i,rwcnt;
+string 255 tstr,PayDate;
+boolean trhs,testf;
+longint num;
+record PMBlock PMb;
+row PMBlock PMbr;
+vector string 60 PMbBankNr;
+record KBSettBlock KBb;
+	
+	if (SetExportCodePage("UTF-8")== false) then begin end;
+	num = RepSpec.long1;
+	//if (RepSpec.long1==-1) then begin num = 1; end;
+	blockload(PMb);
+	BlockLoad(KBb);
+	rwcnt = MatRowCnt(PMb);
+	for (i=0;i<rwcnt;i=i+1) begin
+		MatRowGet(PMb,i,PMbr);
+		PMbBankNr[PMbr.Code] = right(PMbr.BankNr,9);
+	end;
+	if (RepSpec.long2<>-1) then begin
+		IPr.SerNr = RepSpec.long2;
+		if (ReadFirstMain(IPr,1,true)) begin end;
+		RecordCopy(OldIPr,IPr);
+		ConvertDateToYYYYMMDD(IPr.TransDate,PayDate); 
+		rwcnt = MatRowCnt(IPr);
+		for (i=0;i<rwcnt;i=i+1) begin
+			MatRowGet(IPr,i,IPRw);
+			if (IPrw.RecCurncy == "UAH") and (IPrw.RecVal < 0)then begin
+				if blank(IPRw.PayMode) then begin
+					tstr=PMbBankNr[IPr.PayMode];
+				end else begin
+					tstr=PMbBankNr[IPrw.PayMode];
+				end;
+				ExportIPrRow(IPRw,num,tstr,PayDate);
+				IPRw.KBExportNum = num;
+				MatRowPut(IPr,i,IPRw);
+				num=num+1;
+				ExportPadString(chr(13) & chr(10),2,"",true);
+			end;
+		end;
+	end;
+	if (num<>RepSpec.long1) then begin
+		if (RecordUpdate(OldIPr,IPr,false)==0) then begin end;
+		KBb.StartNum = num;
+		BlockStore(KBb);
+		CloseWindow(RepSpec.ArtMode);
+		i = OpenWindow("IPDClass",1,0,"","",IPr);
+	end;
+	return;
+end;
+
+
+
+global
+procedure ClientBankIPDsm()
+begin
+record RcVc RepSpec;
+record IPVc IPr;
+row IPVc IPrw;
+integer wn,nwn,i,rwcnt,j;
+boolean testf;
+record KBSettBlock KBb;
+
+
+	wn = curwindow;
+	GetWindowRecord(wn,IPr);
+	rwcnt = MatRowCnt(IPr);
+	testf = true;
+	
+	for (i=0;i<rwcnt;i=i+1) begin
+		MatRowGet(IPr,i,IPrw);
+		if (len(IPrw.CustName)>140) then begin 
+			MessageBox(10895,USetStr(31007));
+			i=rwcnt;
+			testf = false;
+		end;
+		for (j=0;j<len(IPrw.CustName);j=j+1) begin
+			if (mid(IPrw.CustName,j,1)=="#") then begin
+				MessageBox(10895,USetStr(31008));
+				i=rwcnt;j=len(IPrw.CustName);
+				testf = false;
+			end;
+		end;
+	end;
+	if (testf) then begin
+		BlockLoad(KBb);
+		RepSpec.long1 = KBb.StartNum;
+		RepSpec.long2 = IPr.SerNr;
+		RepSpec.Media = mtFile;
+		RepSpec.ArtMode = curwindow;
+		RepSpec.repname = "ClientBankIPEn";
+		nwn = OpenWindow("ClientBankIPEClass",1,0,"","",RepSpec);
+	end;
+	return;
+end;
+
+global updating 
+procedure RemoteKBExport(record RcVc RepSpec)
+begin
+record OPVc OPr,OldOPr;
+row OPVc OPrw,OP2rw;
+integer i,rwcnt,j;
+string 255 tstr,PayDate,Comment,FileName;
+boolean trhs,testf;
+longint num;
+record PMBlock PMb;
+row PMBlock PMbr;
+vector string 60 PMbBankNr;
+val Summ,Summ1;
+array integer UsedRowNo;
+record KBSettBlock KBb;
+record CUVc CUr;
+	
+	num = RepSpec.long1;
+	if (RepSpec.long1==-1) then begin num = 1; end;
+	BlockLoad(PMb);
+	BlockLoad(KBb);
+	if KBb.FileDate<>currentdate then begin
+		KBb.FileDate=currentdate;
+		KBb.FileName=0;
+	end;
+	
+	FileName = KBb.Path & "OP_" & KBb.FileDate & "_" & KBb.FileName+1 & ".imp";
+	SetFileOnServer(true);
+	CreateFile(FileName);
+	if (SetExportCodePage("UTF-8")== false) then begin end;
+	rwcnt = MatRowCnt(PMb);
+	for (i=0;i<rwcnt;i=i+1) begin
+		MatRowGet(PMb,i,PMbr);
+		PMbBankNr[PMbr.Code] = right(PMbr.BankNr,9);
+	end;
+	if (RepSpec.long2<>-1) then begin
+		OPr.SerNr = RepSpec.long2;
+		if (ReadFirstMain(OPr,1,true)) begin end;
+		RecordCopy(OldOPr,OPr);
+		ConvertDateToYYYYMMDD(OPr.PayDate,PayDate);
+		Summ=0;Summ1=0;
+		if (OPr.PayperSupplier ==0) or (OPr.PayperSupplier == 2) then begin
+			rwcnt = MatRowCnt(OPr);
+			for (i=0;i<rwcnt;i=i+1) begin
+				MatRowGet(OPr,i,OPrw);
+				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+					if blank(OPrw.PayMode) then begin
+						tstr=PMbBankNr[OPr.PayMode];
+					end else begin
+						tstr=PMbBankNr[OPrw.PayMode];
+					end;
+					ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+					OPrw.KBExportNum = num;
+					MatRowPut(OPr,i,OPrw);
+					num=num+1;
+					ExportPadString(chr(13) & chr(10),2,"",true);
+				end;
+			end;
+		end;
+		if (OPr.PayperSupplier ==1) then begin
+			rwcnt = MatRowCnt(OPr);
+			for (i=0;i<rwcnt;i=i+1) begin
+				MatRowGet(OPr,i,OPrw);
+				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+					if blank(OPrw.PayMode) then begin
+						tstr=PMbBankNr[OPr.PayMode];
+					end else begin
+						tstr=PMbBankNr[OPrw.PayMode];
+					end;
+					if (UsedRowNo[i]==0) then begin
+						Summ = OPrw.RecVal;Summ1 = OPrw.VATVal;Comment= OPrw.Comment;
+						if (UsedRowNo[i]==0) and (i<rwcnt-1) then begin
+							UsedRowNo[i]=1;
+							for(j=j+1;j<rwcnt;j=j+1) begin
+								MatRowGet(OPr,j,OP2rw);
+								testf=true;
+								if nonblank(OP2rw.PayMode) then begin
+									if (tstr<>PMbBankNr[OP2rw.PayMode]) then begin testf = false; end;//12
+								end;
+								if (OPrw.BankAcc<>OP2rw.BankAcc) then begin testf = false; end;//44
+								if (OPrw.VECode<>OP2rw.VECode) then begin testf = false; end;//45
+								if (testf) then begin
+									Summ =Summ +  OP2rw.RecVal;
+									Summ1 =Summ1 +  OP2rw.VATVal;
+									UsedRowNo[j]=1;
+									OP2rw.KBExportNum = num;
+									MatRowPut(OPr,j,OP2rw);
+								end;
+							end;
+						end;
+						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+						OPrw.KBExportNum = num;
+						MatRowPut(OPr,i,OPrw);
+						num=num+1;
+						ExportPadString(chr(13) & chr(10),2,"",true);
+					end;
+				end;
+			end;
+		end;
+		if (OPr.PayperSupplier ==3) then begin
+			rwcnt = MatRowCnt(OPr);
+			for (i=0;i<rwcnt;i=i+1) begin
+				MatRowGet(OPr,i,OPrw);
+				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+					if blank(OPrw.PayMode) then begin
+						tstr=PMbBankNr[OPr.PayMode];
+					end else begin
+						tstr=PMbBankNr[OPrw.PayMode];
+					end;
+					if (UsedRowNo[i]==0) then begin
+						CUr.Code = OPrw.VECode;
+						if (ReadFirstMain(CUr,1,true)) then begin end;
+						Summ = OPrw.RecVal;Summ1 = OPrw.VATVal;Comment= OPrw.Comment;
+						if (i<rwcnt-1)  then begin //and (CUr.VECat=="EMPL")
+							UsedRowNo[i]=1;
+							for(j=j+1;j<rwcnt;j=j+1) begin
+								MatRowGet(OPr,j,OP2rw);
+								testf=true;
+								CUr.Code = OP2rw.VECode;
+								if (ReadFirstMain(CUr,1,true)) then begin end;
+								//if CUr.VECat<>"EMPL" then begin testf = false; end;
+								if (testf) then begin
+									Summ =Summ +  OP2rw.RecVal;
+									Summ1 =Summ1 +  OP2rw.VATVal;
+									UsedRowNo[j]=1;
+									OP2rw.KBExportNum = num;
+									MatRowPut(OPr,j,OP2rw);
+								end;
+							end;
+						end;
+						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,true);
+						OPrw.KBExportNum = num;
+						MatRowPut(OPr,i,OPrw);
+						num=num+1;
+						ExportPadString(chr(13) & chr(10),2,"",true);
+					end;
+				end;
+			end;
+		end;
+	end; 
+	CloseFile;
+	SetFileOnServer(false);
+	if (num<>RepSpec.long1) then begin
+		if (RecordUpdate(OldOPr,OPr,false)==0) then begin end;
+		KBb.StartNum = num;
+		KBb.FileName=KBb.FileName+1;
+		BlockStore(KBb);
+		//CloseWindow(RepSpec.ArtMode);
+		//i = OpenWindow("OPDClass",1,0,"","",OPr);
+	end;
+
+
+return;
+end;
+
+
+
+global 
+function integer RusLen(string tstr)
+begin
+integer i,k;
+string 1 Char;
+boolean trhs;
+
+SetLangMode(LangUkrainian,"UKR",0);
+trhs = true;
+k=0;
+for  (i=0;i<len(tstr);i=i+1) begin
+	char = mid(tstr,i,1);
+	if (char>="~") then begin k=k+1; end;
+	if (asc(char)>=8000) then begin k=k+1; end;
+end;
+RusLen = len(tstr)+k;
+return;
+end;
+
+global
+function string 255 ConvertDotToComma(string tstr)
+begin
+	integer i;
+	string 255 res,ch;
+	res = tstr;
+	for(i=0;i<len(tstr);i=i+1) begin
+		if (mid(tstr,i,1)==",") then begin
+			res = left(tstr,i) & ".";
+			res = res & right(tstr,len(tstr)-i-1);
+		end;
+		if (mid(tstr,i,1)==" ") then begin
+			res = left(tstr,i);
+			res = res & right(tstr,len(tstr)-i-1);
+		end;		
+	end;
+	ConvertDotToComma=res;
+return;
+end;
+
+global
+function string 255 FormateDatePrint(date d1)
+begin
+	integer day,month,year;
+	string 255 tstr;
+
+	day = getday(d1);
+	month = getmonth(d1);
+	year = getyear(d1);
+	if day<10 then begin tstr = "0" & day; end else begin tstr = day; end;
+	if month<10 then begin tstr = tstr & "0" & month; end else begin tstr =tstr & month; end;
+	if year<2000 then begin tstr =tstr & "20" & year; end else begin tstr =tstr & year; end;
+
+	FormateDatePrint = tstr;
+return;
+end;
+
+global
+procedure NewLineExport()
+BEGIN
+  ExportPadString(chr(13) & Chr(10),2,"",false);
+  RETURN;
+END;
+
+procedure ExportTheLevel(Integer level)
+begin
+  string 255 tstr;
+  Integer i;
+  
+  tstr = "";
+  for (i=0;i<level;i=i+1) begin
+    tstr = tstr & "  ";
+  end;
+  ExportPadString(tstr,len(tstr)," ",false);
+  return;
+end;
+
+global
+procedure ExportTagXml(string tag,string pvalue,Integer level)
+begin
+  string 255 value;
+  
+  value = pvalue;
+  ExportTheLevel(level);
+  ExportPadString("<",1," ",false);
+  ExportPadString(tag,len(tag)," ",false);
+  ExportPadString(">",1," ",false);  
+  ExportPadString(value,Len(value)," ",false);
+  ExportPadString("</",2," ",false);
+  ExportPadString(tag,len(tag)," ",false);
+  ExportPadString(">",1," ",false);
+  NewLineExport;
+  return;
+end;
+
+global
+procedure ExportAttributeTagXml(string tag,string pvalue,string attr,string attrvalue,Integer level)
+begin
+  string 255 value;
+  
+  value = pvalue;
+  ExportTheLevel(level);
+  ExportPadString("<",1," ",false);
+  ExportPadString(tag,len(tag)," ",false);
+  if (nonblank(attr)) then begin
+    ExportPadString(" ",1," ",false);
+    ExportPadString(attr,len(attr)," ",false);
+    ExportPadString("=""",2," ",false);
+    ExportPadString(attrvalue,Len(attrvalue)," ",false);
+    ExportPadString("""",1," ",false);
+  end;
+  ExportPadString(">",1," ",false);  
+  ExportPadString(value,Len(value)," ",false);
+  ExportPadString("</",2," ",false);
+  ExportPadString(tag,len(tag)," ",false);
+  ExportPadString(">",1," ",false);
+  NewLineExport;
+  return;
+end;
+
+function string 255 GetTagFromVatType(string VATCode)
+begin
+	record VATCodeBlock VCb;
+	row VATCodeBlock VCbrw;
+	integer i;
+	record TaxRulesVc TRr;
+	string 255 tag;
+	
+	BlockLoad(VCb);
+	for (i=0;i<matrowcnt(VCb);i=i+1) begin
+		matrowget(VCb,i,VCbrw);
+		if VCbrw.VATCode == VATCode then begin
+			TRr.Code = VCbrw.TaxRules;
+         ReadFirstMain(TRr,1,true);
+			switch TRr.VATType begin
+				case kVATTypeNormal : tag = "7";
+				case kVATTypeNoVAT : tag = "8";
+				case kVATTypeExempt : tag = "10";
+				case kVATTypeExportDeductable : tag = "9";
+				otherwise tag = "7";
+			end;
+		end;
+	end;	
+	GetTagFromVatType = tag;
+return;
+end;
+
+global 
+procedure ExportXMLEn(record RcVc RepSpec)// SAV NS-XX 2011_11_23 Ёкспорт в XML
+begin
+	record VATIVVc VIr,CorVATIVr;
+	row VATIVVc VIrw;
+	integer i,rwcnt,lenth,k;
+	record CYBlock CYb;
+	string 255 tstr;
+	record CUVc CUr;  
+	record INVc INr;
+	string 255 tag,vattype;
+	boolean Correction;
+	record OperTypeVc OTr;
+	val temp;
+	record BaseCurBlock BCb;
+	
+  
+	Correction = false;
+	blockload(CYb);
+	blockload(BCb);
+	SetLangMode(LangUkrainian,"UKR",0);
+	if (SetExportCodePage("CP1251")== false) then begin end;
+	VIr.SerNr = RepSpec.long1; //" & chr(34) & "
+	if (ReadFirstMain(VIr,1,true)) then begin
+		if Vir.InvType==3 then begin
+			Correction = true;
+			CorVATIVr.SerNr = VIr.VECorPN;
+			if (readfirstmain(CorVATIVr,1,true)) then begin end;
+		end;
+		OTr.Type = VIr.OperType;
+		if (ReadFirstMain(OTr,1,true)) then begin end;
+		CUr.Code = VIr.CustCode;
+		if (ReadFirstMain(CUr,1,true)) then begin end;
+		tstr = """";
+		ExportPadString("<?xml version= " & tstr & "1.0" & tstr & " encoding=" & tstr & "windows-1251" & tstr & " ?>",47,"",true);
+		ExportPadString(chr(13) & chr(10),2,"",true);
+		if Correction then begin
+			ExportPadString("<DECLAR xmlns:xsi=" & chr(34) & "http://www.w3.org/2001/XMLSchema-instance" & chr(34) & " xsi:noNamespaceSchemaLocation=" & chr(34) & "J1201204.xsd" & chr(34) & ">",107,"",true);
+		end else begin
+			ExportPadString("<DECLAR xmlns:xsi=" & chr(34) & "http://www.w3.org/2001/XMLSchema-instance" & chr(34) & " xsi:noNamespaceSchemaLocation=" & chr(34) & "J1201004.xsd" & chr(34) & ">",107,"",true);
+		end;
+		ExportPadString(chr(13) & chr(10),2,"",true);
+		//==========
+		ExportPadString(" <DECLARHEAD>",13,"",true);ExportPadString(chr(13) & chr(10),2,"",true);
+		tstr=CYb.OrgNr;
+		ExportTagXml("TIN",tstr,2);
+		ExportTagXml("C_DOC","J12",2);
+		if Correction then begin
+			ExportTagXml("C_DOC_SUB","012",2);
+		end else begin
+			ExportTagXml("C_DOC_SUB","010",2);
+		end;
+		ExportTagXml("C_DOC_VER","4",2);
+		ExportTagXml("C_DOC_TYPE","0",2);
+		tstr = getmonth(VIr.TransDate);
+		if len(tstr)==1 then begin tstr ="0" & tstr; end;
+		ExportTagXml("PERIOD_MONTH",tstr,2);
+		ExportTagXml("PERIOD_TYPE","1",2);
+		tstr = getyear(VIr.TransDate);
+		ExportTagXml("PERIOD_YEAR",tstr,2);		
+		ExportTagXml("C_STI_ORIG","1",2);
+		ExportTagXml("C_DOC_STAN","1",2);
+		tstr = FormateDatePrint(VIr.TransDate);
+		ExportTagXml("D_FILL",tstr,2);
+		ExportPadString(" </DECLARHEAD>",14,"",true);ExportPadString(chr(13) & chr(10),2,"",true);
+		//==========
+		ExportPadString(" <DECLARBODY>",13,"",true);ExportPadString(chr(13) & chr(10),2,"",true);
+		if nonblank(VIr.Reason) then begin
+			ExportTagXml("HORIG1","1",2);
+			ExportTagXml("HTYPR",VIr.Reason,2);
+		end else begin
+			ExportTagXml("HORIG","1",2);
+		end;
+		ExportTagXml("HNUM",VIr.VEPN,2);
+		if Correction then begin
+			tstr = FormateDatePrint(CorVATIVr.TransDate);
+			ExportTagXml("HPODFILL",tstr,2);
+			ExportTagXml("HPODNUM",CorVATIVr.VEPN,2);
+		end else begin 
+			tstr = FormateDatePrint(VIr.TransDate);
+			ExportTagXml("HFILL",tstr,2);
+			ExportTagXml("HNUM",VIr.VEPN,2);
+		end;
+		if Correction then begin
+			tstr = FormateDatePrint(CorVATIVr.ContractDate);
+			ExportTagXml("H01G1D",tstr,2);
+			tstr = CorVATIVr.Contract;
+			ExportTagXml("H01G2S",tstr,2);
+		end;
+		ExportTagXml("HNAMESEL",CYb.CompName,2);
+		if nonblank(OTr.Comment) then begin tstr = OTr.Comment;
+		end else begin tstr=CUr.Name; end;
+		ExportTagXml("HNAMEBUY",tstr,2);
+		ExportTagXml("HKSEL",CYb.VATNr,2);
+		if nonblank(OTr.IPN) then begin tstr = OTr.IPN;
+		end else begin tstr=CUr.VATNr; end;
+		ExportTagXml("HKBUY",tstr,2);
+		
+		//======
+		ExportPadString("  <HLOCSEL>",11,"",true);
+		ExportPadString(Convert(CYb.Addr0),Len(Convert(CYb.Addr0)),"",true);
+		if nonblank(CYb.Addr1) then begin
+			ExportPadString(", " & Convert(CYb.Addr1),Len(Convert(CYb.Addr1))+2,"",true);
+		end;
+		if nonblank(CYb.Addr2) then begin
+			ExportPadString(", " & Convert(CYb.Addr2),Len(Convert(CYb.Addr2))+2,"",true);
+		end;
+		if nonblank(CYb.Addr3) then begin
+			ExportPadString(", " & Convert(CYb.Addr3),Len(Convert(CYb.Addr3))+2,"",true);
+		end;
+		if nonblank(CYb.Addr4) then begin
+			ExportPadString(", " & Convert(CYb.Addr4),Len(Convert(CYb.Addr4))+2,"",true);
+		end;
+		ExportPadString("  </HLOCSEL>",12,"",true);ExportPadString(chr(13) & chr(10),2,"",true);
+		//======
+		ExportPadString("  <HLOCBUY>",11,"",true);
+		ExportPadString(Convert(CUr.InvAddr0),Len(Convert(CUr.InvAddr0)),"",true);
+		if nonblank(CUr.InvAddr1) then begin
+			ExportPadString(", " & Convert(CUr.InvAddr1),Len(Convert(CUr.InvAddr1))+2,"",true);
+		end;
+		if nonblank(CUr.InvAddr2) then begin
+			ExportPadString(", " & Convert(CUr.InvAddr2),Len(Convert(CUr.InvAddr2))+2,"",true);
+		end;
+		if nonblank(CUr.InvAddr3) then begin
+			ExportPadString(", " & Convert(CUr.InvAddr3),Len(Convert(CUr.InvAddr3))+2,"",true);
+		end;
+		if nonblank(CUr.InvAddr4) then begin
+			ExportPadString(", " & Convert(CUr.InvAddr4),Len(Convert(CUr.InvAddr4))+2,"",true);
+		end;
+		ExportPadString("  </HLOCBUY>",12,"",true);ExportPadString(chr(13) & chr(10),2,"",true);
+		tstr = CYb.Phone;
+		ConvertPhone(tstr);
+		ExportTagXml("HTELSEL",tstr,2);
+		tstr = CUr.Phone;
+		ConvertPhone(tstr);
+		ExportTagXml("HTELBUY",tstr,2);
+		ExportTagXml("HNSPDVSEL",CYb.OrgNr2,2);
+		ExportTagXml("HNSPDVBUY",CUr.RegNr2,2);
+		if Correction then begin
+			tstr = VIr.ContractType;
+			ExportTagXml("H02G1S",tstr,2);
+			tstr = FormateDatePrint(VIr.ContractDate);
+			ExportTagXml("H02G2D",tstr,2);
+			tstr = VIr.Contract;
+			if (blank(tstr)) then begin tstr = "-"; end;
+			ExportTagXml("H02G3S",tstr,2);
+			tstr = VIr.ContractPayDeal;
+			ExportTagXml("H03G1S",tstr,2);
+		end else begin
+			tstr = VIr.ContractType;
+			ExportTagXml("H01G1S",tstr,2);
+			tstr = FormateDatePrint(VIr.ContractDate);
+			ExportTagXml("H01G2D",tstr,2);
+			tstr = VIr.Contract;
+			if (blank(tstr)) then begin tstr = "-"; end;
+			ExportTagXml("H01G3S",tstr,2);
+			tstr = VIr.ContractPayDeal;
+			ExportTagXml("H02G1S",tstr,2);
+		end;
+		rwcnt = matrowcnt(VIr);
+		tstr = FormateDatePrint(VIr.TransDate);
+		if Correction then begin tag = "RXXXXG1D"; end else begin tag ="RXXXXG2D"; end;
+		for (i=0;i<rwcnt;i=i+1) begin
+			matrowget(VIr,i,VIrw);
+			if VIrw.stp==1 and nonblank(VIrw.ArtCode) then begin
+				ExportAttributeTagXml(tag,tstr,"ROWNUM",i+1,2);
+			end;
+		end;
+		if Correction then begin
+			for (i=0;i<rwcnt;i=i+1) begin
+				matrowget(VIr,i,VIrw);
+				if VIrw.stp==1 and nonblank(VIrw.ArtCode) then begin
+					ExportAttributeTagXml("RXXXXG2S",VIr.CorReason,"ROWNUM",i+1,2);
+				end;
+			end;		
+		end;
+ 		tstr="";
+		for (i=0;i<rwcnt;i=i+1) begin
+			SpecLabel:;
+			k=i;
+			matrowget(VIr,k,VIrw);
+			if nonblank(VIrw.ArtCode) then begin
+			   tstr = Convert(VIrw.Spec) & " ";
+			   ExportPadString("<RXXXXG3S ROWNUM=" & chr(34) & i+1 & chr(34) & ">" & tstr,18+Len(tstr)+len(i+1),"",true);
+			end;
+			if VIrw.stp==1 then begin
+				k=k+1;
+				matrowget(VIr,k,VIrw);
+				if (blank(VIrw.ArtCode)) and (nonblank(VIrw.Spec)) and (VIrw.stp==1) then begin
+					ExportPadString(Convert(VIrw.Spec),Len(Convert(VIrw.Spec)),"",true);
+					i=i+1;
+					goto SpecLabel;
+				end;
+			end;
+			ExportPadString("  </RXXXXG3S>",13,"",true);ExportPadString(chr(13) & chr(10),2,"",true);
+		end;
+		for (i=0;i<rwcnt;i=i+1) begin
+			matrowget(VIr,i,VIrw);
+			if VIrw.stp==1 and nonblank(VIrw.ArtCode) then begin
+				INr.Code = VIrw.ArtCode;
+				if (readfirstmain(INr,1,true)) then begin end;
+				tstr = INr.UserStr1;
+				ExportAttributeTagXml("RXXXXG4",tstr,"ROWNUM",i+1,2);
+			end;
+		end;
+		for (i=0;i<rwcnt;i=i+1) begin
+			matrowget(VIr,i,VIrw);
+			if VIrw.stp==1 and nonblank(VIrw.ArtCode) then begin
+				INr.Code = VIrw.ArtCode;
+				if (readfirstmain(INr,1,true)) then begin end;
+				tstr = INr.Unittext;
+				ExportAttributeTagXml("RXXXXG4S",tstr,"ROWNUM",i+1,2);
+			end;
+		end;
+		for (i=0;i<rwcnt;i=i+1) begin
+			matrowget(VIr,i,VIrw);
+			if VIrw.stp==1 and nonblank(VIrw.ArtCode) then begin
+				if Correction then begin tstr = ConvertDotToComma(-VIrw.Quant); end else begin tstr = ConvertDotToComma(VIrw.Quant); end;
+				ExportAttributeTagXml("RXXXXG5",tstr,"ROWNUM",i+1,2);
+			end;
+		end;
+		for (i=0;i<rwcnt;i=i+1) begin
+			matrowget(VIr,i,VIrw);
+			if VIrw.stp==1 and nonblank(VIrw.ArtCode) then begin
+				temp = MulRateToBase1(VIr.CurncyCode,VIrw.Sum/VIrw.Quant,VIr.FrRate,VIr.ToRateB1,VIr.ToRateB2,VIr.BaseRate1,VIr.BaseRate2,DefaultCurRoundOff);
+				ExportAttributeTagXml("RXXXXG6",ConvertDotToComma(temp),"ROWNUM",i+1,2);
+			end;
+		end;
+		matrowget(VIr,0,VIrw);
+		vattype = GetTagFromVatType(VIrw.VATCode);//!!! Correction
+		tag = "RXXXXG" & vattype;
+		for (i=0;i<rwcnt;i=i+1) begin
+			matrowget(VIr,i,VIrw);
+			if VIrw.stp==1 and nonblank(VIrw.ArtCode) then begin
+				temp = MulRateToBase1(VIr.CurncyCode,VIrw.Sum,VIr.FrRate,VIr.ToRateB1,VIr.ToRateB2,VIr.BaseRate1,VIr.BaseRate2,DefaultCurRoundOff);
+				if Correction then begin tstr = ConvertDotToComma(-temp); tag = "RXXXXG9"; end else begin  tstr = ConvertDotToComma(temp);end;
+				ExportAttributeTagXml(tag,tstr,"ROWNUM",i+1,2);
+			end;
+		end;		
+		if Correction then begin
+			temp = MulRateToBase1(VIr.CurncyCode,-VIr.Sum1,VIr.FrRate,VIr.ToRateB1,VIr.ToRateB2,VIr.BaseRate1,VIr.BaseRate2,DefaultCurRoundOff);
+			ExportTagXml("R01G9",ConvertDotToComma(temp),2);
+			temp = MulRateToBase1(VIr.CurncyCode,-VIr.Sum3,VIr.FrRate,VIr.ToRateB1,VIr.ToRateB2,VIr.BaseRate1,VIr.BaseRate2,DefaultCurRoundOff);
+			ExportTagXml("R02G9",ConvertDotToComma(temp),2);
+			tstr = FormateDatePrint(VIr.TransDate);
+			ExportTagXml("H10G1D",tstr,2);
+			GetUserName(VIr.SalesMan,tstr);
+			ExportTagXml("H10G2S",tstr,2);
+		end else begin
+			tag = "R01G"  & vattype;
+			temp = MulRateToBase1(VIr.CurncyCode,VIr.Sum1,VIr.FrRate,VIr.ToRateB1,VIr.ToRateB2,VIr.BaseRate1,VIr.BaseRate2,DefaultCurRoundOff);
+			ExportTagXml(tag,ConvertDotToComma(temp),2);
+			ExportTagXml("R01G11",ConvertDotToComma(temp),2);
+			temp = MulRateToBase1(VIr.CurncyCode,VIr.Sum3,VIr.FrRate,VIr.ToRateB1,VIr.ToRateB2,VIr.BaseRate1,VIr.BaseRate2,DefaultCurRoundOff);
+			ExportTagXml("R03G7",ConvertDotToComma(temp),2);
+			ExportTagXml("R03G11",ConvertDotToComma(temp),2);
+			tag = "R04G"  & vattype;
+			temp = MulRateToBase1(VIr.CurncyCode,VIr.Sum4,VIr.FrRate,VIr.ToRateB1,VIr.ToRateB2,VIr.BaseRate1,VIr.BaseRate2,DefaultCurRoundOff);
+			ExportTagXml(tag,ConvertDotToComma(temp),2);
+			ExportTagXml("R04G11",ConvertDotToComma(temp),2);
+			GetUserName(VIr.SalesMan,tstr);
+			ExportTagXml("H10G1S",tstr,2);
+		end;
+		ExportPadString(" </DECLARBODY>",14,"",true);
+		//==========
+		ExportPadString("</DECLAR>",9,"",true);
+	end;
+return;
+end;
+
+
+global
+procedure CreateManyXMLFiles(date Sdate, date Edate)
+begin
+	record RcVc RepSpec;
+	record VATIVVc VIr;
+	string 255 tstr;
+	boolean trhs;
+	integer i;
+	
+	VIr.TransDate = Sdate;
+	trhs = true;
+	SetLangMode(LangUkrainian,"UKR",0);
+	i=0;
+	while (loopkey("TransDate",VIr,1,trhs)) begin
+		if VIr.TransDate<=Edate then begin
+			if VIr.OKFlag==1 then begin
+				CreateFile("Export/" & VIr.TransDate & "_" & VIr.VEPN & "_" & VIr.SerNr & ".xml");
+				RepSpec.long1 = VIr.SerNr;
+				ExportXMLEn(RepSpec);
+				CloseFile;
+				i=i+1;
+			end;
+		end else begin
+			trhs = false; 
+		end;
+	end;
+	 MessageBox(0, "Створено " & i & "файлів");
+return;
+end;

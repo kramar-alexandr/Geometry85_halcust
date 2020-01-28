@@ -1,0 +1,1015 @@
+external procedure TextInHeader (string,string,var string,var integer);
+external procedure OldArrayInsert(var array string, var integer, string);
+external inner procedure MulVATIV(string,val,var val,var val,Integer,Integer);
+external inner procedure HTItems(string,var string);
+external inner procedure HTITs(string,string,var string);
+external inner function Boolean ReadFirstItem(string,var record INVc,Boolean,Boolean);
+external inner function val MulRateToBase2(var string,val,val,val,val,val,val,roundmode);
+external inner function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
+external inner procedure GetCustCat(string,var string);
+external inner procedure HTSaleMan(string, var string);
+external inner procedure HTNr(Integer,Integer,LongInt,LongInt,var string);
+external inner procedure HTCusts(string,string,var string);
+external inner procedure HT2Per(Date, Date , var string);
+
+procedure HTDetailLevel ( Integer lev,var string res )
+begin
+   res = "";
+  if ( lev == 0 ) then begin res = USetStr(1159); end;
+  if ( lev == 1 ) then begin res = USetStr(1160); end;
+  return;
+end; 
+
+procedure RepQT( record QTVc QTp,record RcVc RepSpec)
+begin
+  Integer i,rwcnt;
+  Row QTVc QTrw;
+  Boolean testf;
+  record INVc INr;
+  string 20 frit,toit;
+  string 20 frin,toin;
+  val sum1,sum3,sum4;
+  val vatv,t1;
+  
+  frit = FirstInRange(RepSpec.f3,20);
+  toit = LastInRange(RepSpec.f3,20);
+  frin = FirstInRange(RepSpec.f4,20);
+  toin = LastInRange(RepSpec.f4,20);
+  StartFormat(15);
+  OutString(0,"DblQuote",QTp.SerNr,false);
+  OutDate(130,0,QTp.QTDate,false);
+  OutString(220,0,QTp.PayDeal,false);
+  OutDate(440,0,QTp.MakeContactDate,true);
+  EndFormat;
+  StartFormat(15);
+  OutString(50,0,QTp.CustCode,false);
+  OutString(200,0,QTp.Addr0,false);
+  EndFormat;
+  StartFormat(15);
+  OutString(50,0,QTp.CustCat,false);
+  OutString(200,0,QTp.Addr1,false);
+  EndFormat;
+  StartFormat(15);
+  OutString(50,0,QTp.OurContact,false);      
+  OutString(200,0,QTp.Addr2,false);
+  EndFormat;
+  StartFormat(15);
+  OutString(50,0,QTp.Phone,false);
+  OutString(200,0,QTp.Addr3,false);
+  EndFormat;
+  if (nonblank(QTp.CustContact)) then begin
+    StartFormat(15);
+    OutString(200,0,QTp.CustContact,false);      
+    EndFormat;
+  end;
+  if (nonblank(QTp.CurncyCode)) then begin
+    StartFormat(15);
+    OutString(460,0,QTp.CurncyCode,true);
+    EndFormat;
+  end;
+  sum1 = blankval; sum3 = blankval; sum4 = blankval;
+  rwcnt = MatRowCnt(QTp);
+  for (i = 0 ; i<rwcnt ;i=i+1) begin
+    MatRowGet(QTp,i,QTrw);
+    testf = true;
+    if (QTrw.stp!=1) then begin testf = false; end;
+    if (testf) then begin
+      if (nonblank(RepSpec.f3)) then begin
+        if (ReadFirstItem(QTrw.ArtCode,INr,true,false)) then begin
+          if (INr.Group<frit) then begin testf = false; end;
+          if (INr.Group>toit) then begin testf = false; end;
+        end;
+      end;
+    end;
+    if (nonblank(RepSpec.f4)) then begin
+      if (ReadFirstItem(QTrw.ArtCode,INr,true,false)) then begin
+        if (INr.Code<frin) then begin testf = false; end;
+        if (INr.Code>toin) then begin testf = false; end;
+      end;
+    end;
+    if (testf) then begin
+      StartFormat(15);
+      OutString(20,0,QTrw.ArtCode,false);
+      OutString(124,0,QTrw.Quant,true);
+      OutString(130,0,QTrw.Spec,false);
+      OutString(340,0,QTrw.Price,true);
+      OutString(370,0,QTrw.vRebate,true);
+      OutString(460,0,QTrw.Sum,true);
+      OutString(480,0,QTrw.VATCode,true);
+      EndFormat;
+      MulVATIV(QTrw.VATCode,QTrw.Sum,vatv,t1,QTp.InclVAT,QTp.NoTAXonVAT);
+      sum1 = sum1 + QTrw.Sum;
+      sum3 = sum3 + vatv;
+      if (QTp.InclVAT>0) then begin
+        sum4 = sum4 + QTrw.Sum;
+      end else begin
+        sum4 = sum4 + QTrw.Sum + vatv;
+      end;
+    end;
+  end;
+  Black_Divider(380,460);
+  StartFormat(15);
+  if (QTp.ExportFlag!=0) then begin
+    OutString(20,0,USetStr(2568),false);
+  end;
+  OutString(100,0,QTp.Objects,false);
+  if (nonblank(RepSpec.f3)) or (nonblank(RepSpec.f4)) then begin
+    OutString(260,0,sum1,true);
+    OutString(360,0,sum3,true);
+    OutString(460,0,sum4,true);
+  end else begin
+    OutString(260,0,QTp.Sum1,true);
+    OutString(360,0,QTp.Sum3,true);
+    OutString(460,0,QTp.Sum4,true);
+  end;
+  EndFormat;
+  return;
+end;
+
+procedure PrintQTListTotals(string curcode,val subtot,val total)
+begin
+  StartFormat(15);
+  OutString(290,0,USetStr(2685),false);
+  OutVal(440,0,subtot,M4Val,true);
+  OutString(445,0,curcode,false);
+  EndFormat;
+  StartFormat(15);
+  OutString(290,0,USetStr(2687),false);
+  OutVal(440,0,total,M4Val,true);
+  OutString(445,0,curcode,false);
+  EndFormat;
+  return;
+end;
+
+global
+procedure QTJRn( record RcVc RepSpec )
+begin
+
+  Record QTVc QTr;
+  row QTVc QTrw;
+  record BaseCurBlock bascur;
+  record QuoteClassBlock qclRec;
+  row QuoteClassBlock qclrw;
+  integer rwc,k;
+  Boolean TrHs,TrHs1,test2f;
+  val Tot1Sum,Tot2Sum;
+  val sub1tot,sub2tot;
+  integer frnr,tonr;
+  val Tot1SumG,Tot2SumG;
+  val sub1totG,sub2totG;
+  Boolean testf;
+  LongInt afr,ato;
+  String 255 tstr;
+  string 5 fromcl,tocl;
+  string 20 frit,toit;
+  string 20 frin,toin;
+  Integer rw;
+  Integer i,rwcnt;
+  val temp;
+  record INVc INr;
+  Date mcd;
+  val sum1,vatv,t1,rowsum;
+  //SAV 2011_02_03 »зменение пор€дка столбцов Gray-11	 - дл€ получение наименовани€ проекта
+  record PrVc Prr; // 62
+  BlockLoad(bascur);
+  
+  //Nadja
+  BlockLoad(qclRec);
+  fromcl = FirstInRange(RepSpec.FirstAcc,5);
+  tocl = LastInRange(RepSpec.FirstAcc,5);
+  frit = FirstInRange(RepSpec.f3,20);
+  toit = LastInRange(RepSpec.f3,20);
+  frin = FirstInRange(RepSpec.f4,20);
+  toin = LastInRange(RepSpec.f4,20);
+  rwc = MatRowCnt(qclRec);
+  if nonblank(RepSpec.FirstAcc) then begin
+    rwc = MatRowCnt(qclRec);
+    for (k=0;k<rwc;k=k+1) begin
+      MatRowGet(qclRec,k,qclrw);
+      if (qclrw.Code == fromcl) then begin 
+        frnr = k; 
+      end;
+      if (qclrw.Code == tocl) then begin 
+        tonr = k; 
+         rwc = k; 
+      end;
+    end;
+  end else begin
+    frnr = 0;
+    tonr = rwc-1;  
+  end;  
+  
+  rw = 1;
+  afr = FirstInRange(RepSpec.f1,10);
+  ato = LastInRange(RepSpec.f1,10);
+  RepSpec.d1 = StringToDate(FirstInRange(RepSpec.Stext,10));
+  RepSpec.d2 = StringToDate(LastInRange(RepSpec.Stext,10));
+  
+  StartReportJob(USetStr(2681));
+  HT2Per(RepSpec.sStartDate,RepSpec.sEndDate,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;
+  HTDetailLevel(RepSpec.ArtMode,tstr);
+  Header(rw,tstr,0);
+  HTNr(2689,2690,afr,ato,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;
+  if nonblank(RepSpec.FirstAcc) then begin Header(rw,USetStr(8326) & ": " & RepSpec.FirstAcc,0); end;
+  if (nonblank(RepSpec.f3)) then begin
+    HTITs(frit,toit,tstr);
+    Header(rw,tstr,0);
+  end;
+  HTCusts(RepSpec.f2,RepSpec.f2,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;
+  if (nonblank(RepSpec.f4)) then begin
+    HTItems(RepSpec.f4,tstr);
+    Header(rw,tstr,0);
+  end;
+  HTSaleMan(RepSpec.AccStr,tstr);
+  if (nonblank(tstr)) then begin
+    Header(rw,tstr,1);
+    rw = rw + 1;  
+  end; 
+  if (RepSpec.vals0 <> 0) then begin
+    tstr = USetStr(2697) & " " & RepSpec.vals0;
+    Header(rw,tstr,1);
+    rw = rw + 1;
+  end;
+  EndHeader;
+  sub1tot = 0;
+  sub2tot = 0;
+  
+
+  if (RepSpec.ArtMode == 0) or nonblank(RepSpec.FirstAcc) then begin
+    StartFormat(15);
+    //SAV 2011_02_03 »зменение пор€дка столбцов Gray-11	 
+	 //OutString(0,0,USetStr(2682),false);
+    //OutString(50,0,USetStr(2683),false);
+    //OutString(120,0,USetStr(2691),false);
+    //OutString(195,0,USetStr(2684),false);
+    //if blank(RepSpec.AccStr) then begin
+      //OutString(350,0,USetStr(4908),false);
+    //end;
+    //OutString(440,0,USetStr(2687),true);
+	 OutString(0,0,USetStr(2682),false);
+    OutString(50,0,USetStr(2683),false);
+    if blank(RepSpec.AccStr) then begin
+      OutString(110,0,USetStr(4908),false);
+    end;
+    OutString(175,0,USetStr(2684),false);
+    OutString(440,0,USetStr(2687),true);
+	 OutString(1,0,"",true);
+	 OutString(25,0,USetStr(3550),false);
+    OutString(125,0,USetStr(4023),false);
+	 OutString(350,0,"PO No.",false);
+    EndFormat;
+  end;
+  if ( RepSpec.ArtMode == 1 ) then begin
+    StartFormat(15);
+    OutString(0,0,USetStr(2682),false);
+    OutString(130,0,USetStr(2683),false);
+    OutString(440,0,USetStr(2691),true);
+    EndFormat;
+  end;
+  QTr.SerNr = afr;
+  if (RepSpec.ArtMode==0) then begin
+   Gray_Divider(0,1);
+  end;
+  TrHs = true;
+  if (RepSpec.flags[1] == 0) then begin
+    while LoopMain(QTr,1,TrHs) begin
+    if (ato!=-1) and (QTr.SerNr>ato) then begin TrHs = false; end;
+    if (TrHs) then begin
+      testf = true;
+     
+      //Nadja
+      if nonblank(RepSpec.FirstAcc) then begin
+        if nonblank(tocl) then begin
+          testf = false;
+          for (k=frnr;k<=tonr;k=k+1) begin
+          MatRowGet(qclRec,k,qclrw);
+          if (qclrw.Code == QTr.QuoteClass) then begin 
+            testf = true; 
+          end;
+        end;
+      end else begin
+        if (RepSpec.FirstAcc <> QTr.QuoteClass)  then begin 
+            testf = false;
+          end;  
+        end;    
+      end;
+      
+      if nonblank(RepSpec.f2) and (RepSpec.f2 <> QTr.CustCode) then begin testf = false; end;
+      if nonblank(RepSpec.AccStr) and (RepSpec.AccStr <> QTr.SalesMan) then begin testf = false; end;
+
+      if (DateInRange(QTr.QTDate,RepSpec.sStartDate,RepSpec.sEndDate)==false) then begin testf = false; end;
+      if (nonblank(RepSpec.Stext)) then begin
+        Date mcd;
+          
+        mcd = StringToDate(QTr.MakeContactDate);
+        if nonblankdate(mcd) then begin
+          if (DateInRange(mcd,RepSpec.d1,RepSpec.d2)==false) then begin
+            testf = false;
+          end; 
+        end else begin
+          if nonblank(QTr.MakeContactDate) then begin
+            if ( QTr.MakeContactDate <> RepSpec.Stext ) then begin
+              testf = false;
+            end;
+          end;
+        end;
+      end; 
+      if (nonblank(RepSpec.ObjStr)) then begin
+        if (QTr.SalesGroup <> RepSpec.ObjStr) then begin
+           testf = false;
+        end;
+      end;
+      if (nonblank(RepSpec.f6)) then begin
+        if (SetInSet(RepSpec.f6,QTr.Objects)==false) then begin
+           testf = false;
+        end;
+      end;
+      if (QTr.Closed==1) then begin testf = false; end;
+      if (RepSpec.vals0 <> 0) then begin
+        temp = MulRateToBase1(QTr.CurncyCode,QTr.Sum4,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+        if (temp < RepSpec.vals0) then begin
+          testf = false;
+        end;
+      end;
+      if (testf) then begin
+      if (nonblank(RepSpec.LastAcc)) then begin
+        GetCustCat(QTr.CustCode,tstr);
+        if (tstr!=RepSpec.LastAcc) then begin
+          testf = false;
+        end;
+      end;
+      if (RepSpec.vals0 <> 0) then begin
+        temp = MulRateToBase1(QTr.CurncyCode,QTr.Sum4,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+        if (temp < RepSpec.vals0) then begin
+          testf = false;
+        end; 
+      end;
+      if (testf) then begin
+        if (nonblank(RepSpec.f4)) then begin
+          testf = false;
+          rwcnt = MatRowCnt(QTr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(QTr,i,QTrw);
+            if (ReadFirstItem(QTrw.ArtCode,INr,true,false)) then begin
+              if (INr.Code>=frin) and (INr.Code<=toin) then begin
+                testf = true;
+                i = rwcnt;
+              end;
+            end;
+          end;
+        end;
+      end;
+
+      if (testf) then begin
+        if (nonblank(RepSpec.f3)) then begin
+          testf = false;
+          rwcnt = MatRowCnt(QTr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(QTr,i,QTrw);
+            if (ReadFirstItem(QTrw.ArtCode,INr,true,false)) then begin
+              if (INr.Group>=frit) and (INr.Group<=toit) then begin
+                testf = true;
+                i = rwcnt;
+              end;
+            end;            
+          end;
+        end;
+      end;
+    end;
+    if (testf) then begin
+        if (nonblank(RepSpec.f3)) or (nonblank(RepSpec.f4)) then begin
+          rwcnt = MatRowCnt(QTr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(QTr,i,QTrw);
+            if (ReadFirstItem(QTrw.ArtCode,INr,true,false)) then begin
+              test2f = true;
+              if (nonblank(RepSpec.f3)) then begin
+                if (INr.Group<frit) or (INr.Group>toit) then begin
+                  test2f = false;
+                end;
+              end;
+              if (nonblank(RepSpec.f4)) then begin
+                if (INr.Code<frin) or (INr.Code>toin) then begin
+                  test2f = false;
+                end;
+              end;
+              if (test2f) then begin
+                sum1 = sum1 + QTrw.Sum;
+                MulVATIV(QTrw.VATCode,QTrw.Sum,vatv,t1,QTr.InclVAT,QTr.NoTAXonVAT);
+                rowsum = QTrw.Sum;
+                if (QTr.InclVAT>0) then begin
+                  rowsum = QTrw.Sum - vatv;
+                end else begin
+                  rowsum = rowsum + vatv;
+                end;
+                temp = MulRateToBase1(QTr.CurncyCode,rowsum,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+                Tot1Sum = Tot1Sum + temp;
+                temp = MulRateToBase1(QTr.CurncyCode,QTrw.Sum,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+                sub1tot = sub1tot + temp;
+
+                if (RepSpec.flags[12]==1) then begin
+                  temp = MulRateToBase2(QTr.CurncyCode,rowsum,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+                  Tot2Sum = Tot2Sum + temp;
+                  temp = MulRateToBase2(QTr.CurncyCode,QTrw.Sum,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+                  sub2tot = sub2tot + temp;
+                end;
+              end;
+            end;
+          end;          
+        end else begin
+          sum1 = QTr.Sum1;
+          temp = MulRateToBase1(QTr.CurncyCode,QTr.Sum4,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+          Tot1Sum = Tot1Sum + temp;
+          temp = MulRateToBase1(QTr.CurncyCode,QTr.Sum1,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+          sub1tot = sub1tot + temp;
+          if (RepSpec.flags[12]==1) then begin
+            temp = MulRateToBase2(QTr.CurncyCode,QTr.Sum4,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+            Tot2Sum = Tot2Sum + temp;
+            temp = MulRateToBase2(QTr.CurncyCode,QTr.Sum1,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+            sub2tot = sub2tot + temp;
+          end;
+        end;
+        if ( RepSpec.ArtMode == 1 ) then begin
+          Gray_Divider(0,1);
+          RepQT(QTr,RepSpec);
+        end;
+        if ( RepSpec.ArtMode == 0 ) then begin
+          StartFormat(15);
+			 //SAV 2011_02_03 »зменение пор€дка столбцов 
+          //OutString(0,"DblQuote",QTr.SerNr,false);
+          //OutDate(50,0,QTr.QTDate,false);
+          //OutDate(120,0,QTr.MakeContactDate,false);
+          //OutString(195,0,QTr.Addr0,false);
+          //if blank(RepSpec.AccStr) then begin
+            //OutString(360,0,QTr.SalesMan,false);
+          //end;
+          //OutString(440,0,sum1,true);
+          //OutString(445,0,QTr.CurncyCode,false);
+			OutString(0,"DblQuote",QTr.SerNr,false);
+         OutDate(50,0,QTr.QTDate,false);
+         if blank(RepSpec.AccStr) then begin
+				OutString(110,0,QTr.SalesMan,false);
+         end;
+         OutString(175,0,QTr.Addr0,false);
+         OutString(440,0,QTr.Sum1,true);
+         OutString(445,0,QTr.CurncyCode,false);
+			OutString(25,0,QTr.PRCode,false);		
+			Prr.Code = QTr.PRCode;
+			if (readfirstmain(Prr,1,true)) then begin end;
+			OutString(125,0,Prr.Name,false);		
+			OutString(350,0,QTr.Comment,false);
+         EndFormat;
+        end;
+      end;
+    end;
+  end;
+  Gray_Divider(0,1);
+  PrintQTListTotals(bascur.BaseCur1,sub1tot,Tot1Sum);
+  if ((bascur.BaseCur1<>bascur.BaseCur2) and (RepSpec.flags[12]==1)) then begin
+    Gray_Divider(290,1);
+    PrintQTListTotals(bascur.BaseCur2,sub2tot,Tot2Sum);
+  end;
+end;
+
+
+  
+// Nadja New part - sorting by Quotation Class
+if (RepSpec.flags[1] == 1) then begin
+    boolean clout;
+    for (k=frnr;k<=tonr;k=k+1) begin
+      MatRowGet(qclRec,k,qclrw);
+      QTr.QuoteClass = qclrw.Code; 
+   //   QTr.SerNr = afr;
+      clout = true;
+      TrHs = true;
+      ResetLoop(QTr);
+      while LoopKey("QuoteClass",QTr,1,TrHs) begin
+        if  (QTr.QuoteClass<>qclrw.Code) then begin TrHs = false; end;
+        if (TrHs) then begin
+          testf = true;
+          if nonblank(RepSpec.f2) and (RepSpec.f2 <> QTr.CustCode) then begin testf = false; end;
+          if nonblank(RepSpec.AccStr) and (RepSpec.AccStr <> QTr.SalesMan) then begin testf = false; end;
+          //Nadja
+          if (ato!=-1) and (QTr.SerNr>ato) then begin testf = false; end;
+          if (afr!=-1) and (QTr.SerNr<afr) then begin testf = false; end;
+
+          if (DateInRange(QTr.QTDate,RepSpec.sStartDate,RepSpec.sEndDate)==false) then begin testf = false; end;
+          if (nonblank(RepSpec.Stext)) then begin
+            mcd = StringToDate(QTr.MakeContactDate);
+            if nonblankdate(mcd) then begin
+              if (DateInRange(mcd,RepSpec.sStartDate,RepSpec.sEndDate)==false) then begin
+                testf = false;
+              end; 
+            end else begin
+              if ( QTr.MakeContactDate <> RepSpec.Stext ) then begin
+                testf = false;
+              end;
+            end;
+          end; 
+          if (QTr.Closed==1) then begin testf = false; end;
+          if (testf) then begin
+            if (nonblank(RepSpec.f3)) then begin
+              testf = false;
+              rwcnt = MatRowCnt(QTr);
+              for (i=0;i<rwcnt;i=i+1) begin
+                MatRowGet(QTr,i,QTrw);
+                if (INr.Group>=frit) and (INr.Group<=toit) then begin
+                  testf = true;
+                  i = rwcnt;
+                end;
+              end;
+            end;
+          end;
+          if (testf) then begin
+            if (clout) then begin 
+              StartFormat(15);
+              OutString(5,0,qclrw.Code,false);
+              OutString(60,0,qclrw.Comment,false);
+              EndFormat;
+              Black_Divider(0,1);
+              clout = false;
+            end; 
+            temp = MulRateToBase1(QTr.CurncyCode,QTr.Sum4,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+            Tot1Sum = Tot1Sum + temp;
+            temp = MulRateToBase1(QTr.CurncyCode,QTr.Sum1,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+            sub1tot = sub1tot + temp;
+            if (RepSpec.flags[12]==1) then begin
+                temp = MulRateToBase2(QTr.CurncyCode,QTr.Sum4,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+                Tot2Sum = Tot2Sum + temp;
+                temp = MulRateToBase2(QTr.CurncyCode,QTr.Sum1,QTr.FrRate,QTr.ToRateB1,QTr.ToRateB2,QTr.BaseRate1,QTr.BaseRate2,DefaultCurRoundOff);
+                sub2tot = sub2tot + temp;
+            end;
+            if ( RepSpec.ArtMode == 1 ) then begin
+                RepQT(QTr,RepSpec);
+                Gray_Divider(0,1);
+            end;
+            if ( RepSpec.ArtMode == 0 ) then begin
+                StartFormat(15);
+                OutString(0,"DblQuote",QTr.SerNr,false);
+                OutDate(50,0,QTr.QTDate,false);
+                OutDate(110,0,QTr.MakeContactDate,false);
+                OutString(190,0,QTr.Addr0,false);
+                if blank(RepSpec.AccStr) then begin
+                  OutString(360,0,QTr.SalesMan,false);
+                end;
+                OutString(440,0,QTr.Sum1,true);
+                OutString(445,0,QTr.CurncyCode,false);
+                EndFormat;
+            end;
+          end;
+        end;
+    end;    //while
+    if ((sub1tot<>0) or (Tot1Sum<>0)) then begin
+      PrintQTListTotals(bascur.BaseCur1,sub1tot,Tot1Sum);
+      if ((bascur.BaseCur1<>bascur.BaseCur2) and (RepSpec.flags[12]==1)) then begin
+        Gray_Divider(290,1);
+        PrintQTListTotals(bascur.BaseCur2,sub2tot,Tot2Sum);
+      end;
+    end;  
+    //sum for globals
+    sub1totG = sub1totG + sub1tot;
+    Tot1SumG = Tot1SumG + Tot1Sum;
+    sub2totG = sub2totG + sub2tot;
+    Tot2SumG = Tot2SumG + Tot2Sum;
+    sub1tot = 0;
+    Tot1Sum = 0;
+    sub2tot = 0;
+    Tot2Sum = 0;
+   end;//for
+   //global total
+   Black_Divider(0,1);
+   StartFormat(15);
+   OutString(5,0,"TOTAL ",false);
+   EndFormat;
+   PrintQTListTotals(bascur.BaseCur1,sub1totG,Tot1SumG);
+   if ((bascur.BaseCur1<>bascur.BaseCur2) and (RepSpec.flags[12]==1)) then begin
+      Gray_Divider(290,1);
+      PrintQTListTotals(bascur.BaseCur2,sub2totG,Tot2SumG);
+   end;
+  end;
+EndJob;
+return;
+end;
+
+
+procedure PrintTS(record RcVc RepSpec,string user,date da1,date da2,integer mark,var val qty,integer funk,var boolean foundf)
+begin
+
+record TSVc TSr;
+row TSVc TSrw;
+boolean TrHs,testf,prflag;
+Integer i;
+
+foundf=false;
+TSr.UserCode=user;
+TrHs=true;
+
+while LoopKey("UserCode",TSr,1,TrHs) begin
+	testf = true;
+	if TSr.UserCode!=user then begin
+		TrHs=false;testf = false;
+	end;
+	if (mark==TSr.OKFlag) then begin testf = false; end;
+
+	if testf then begin
+		i=0;
+		while(i<MatRowCnt(TSr)) begin
+			MatRowGet(TSr,i,TSrw);
+			prflag = true;
+			if(nonblank(RepSpec.f2) and RepSpec.f2!=TSrw.PRCode)then begin prflag = false; end;
+			
+			if(prflag)then begin
+				if TSrw.date>=da1 and  TSrw.date<=da2 then begin
+					if funk==1 then begin
+						foundf=true;
+						StartFormat(20);
+						OutString(2,0,TSr.SerNr,false);
+						OutString(3,0,TSrw.date,false);
+						OutString(4,"DblPRVc",TSrw.PRCode,false);
+						OutString(5,"DblINVc",TSrw.ArtCode,false);
+						OutString(6,0,TSrw.Qty,false);
+						OutString(7,0,TSrw.Spec,false);
+						EndFormat;
+					end;
+					qty=qty+TSrw.Qty;
+				end;
+			end;
+			i=i+1;  
+		end;
+	end;
+end;
+ return;
+end;
+
+
+procedure FindUserHour(string UserName, array string ProjectName,integer ProjNum,var array val Hours,date sdate, date edate, integer OKFlag)
+begin
+  record TSVc TSr;
+  row TSVc TSrw;
+  integer i,j,k;
+  boolean TrHs,foundf,testf, ExcelFlag,flag;
+
+  trhs = true;
+  TSr.UserCode = UserName;
+	while (loopkey("UserCode",TSr,1,trhs)) begin
+		if (TSr.UserCode<>UserName) then begin 
+			trhs = false; 
+		end else begin
+			if (OKFlag<>TSr.OKFlag) then begin
+				for (i=0;i<matrowcnt(TSr);i=i+1) begin
+					matrowget(TSr,i,TSRw);
+					if (TSRw.date>=sdate) and (TSRw.date<=edate) then begin
+						for (k=0;k<ProjNum;k=k+1) begin
+							if (ProjectName[k]==TSRw.PRCode) then begin 
+								Hours[k] = Hours[k]+TSRw.Qty;
+								k=ProjNum;
+							end;
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+ return;
+end;
+
+global
+procedure TSReportRn(record RcVc RepSpec)
+begin
+  record UserVc USr;
+  date da1,da2;
+  array string 240 arrTxt,arrName;
+  string 240 text,textdata;
+  Integer i,rw,usfactor,mark;
+  string 10 fus,lus;
+  boolean TrHs,foundf,testf, ExcelFlag,flag,prflag;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 9 August 2019 11:35:05
+  val qty;
+  record TSVc TSr;
+  row TSVc TSrw;
+  integer j,k;
+  array string 255 ProjectName, UserName;
+  array val Hours;
+  integer ProjNum, UsNum;
+  record PRVc PRr;
+
+  SetLangMode(LangUkrainian,"UKR",0);
+
+   StartReportJob("Табелі часу");
+	da1 = RepSpec.sStartDate;
+	da2 = RepSpec.sEndDate;
+	if nonblank(RepSpec.f1) then begin
+		fus=FirstInRange(RepSpec.f1,10);
+		lus=LastInRange(RepSpec.f1,10);
+	end;
+	
+	if (RepSpec.flags[2]==1) and (RepSpec.Media==mtExcel) then begin
+		// 1.1 —обрать в массив все названи€ проектов за период
+		// 1.2 —обрать в массив всех пользователей за период
+		while (loopmain(TSr,1,true)) begin
+			flag = true;
+			testf = true;
+			if (nonblank(lus)) and ((TSr.UserCode<fus) or (TSr.UserCode>lus)) then begin testf = false; end;
+			if (RepSpec.flags[1]==TSr.OKFlag) then begin  testf = false; end;
+			if testf then begin
+				for (i=0;i<matrowcnt(TSr);i=i+1) begin
+					matrowget (TSr,i,TSRw);
+					prflag = true;
+					if(nonblank(RepSpec.f2) and RepSpec.f2!=TSRw.PRCode)then begin prflag = false; end;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 9 August 2019 11:35:03
+					
+					if(prflag)then begin
+						if (TSRw.date>=da1) and (TSRw.date<=da2) then begin
+							OldArrayInsert(ProjectName, ProjNum, TSRw.PRCode); // в массив проектов добавл€етс€ очередной
+							if (flag) then begin
+								flag = false;
+								OldArrayInsert(UserName, UsNum, TSR.UserCode); // в массив сотрудников 1 раз за карточку добавл€етс€ очередной
+							end; //
+						end; // иф по датам диапазона
+					end;
+				end; // фор по строкам табел€
+			end; // фильтр по окфлаг
+		end;
+		// 2 вывод 1 строки - шапки таблицы эксел€ - проектов
+		startformat(15);
+		OutString(0,0,"Проект",false);
+		for (k=0;k<ProjNum;k=k+1) begin
+			PRr.Code = ProjectName[k];
+			if (readfirstmain(PRr,1,true)) then begin end;
+			OutString(11+k,0,PRr.Name,false);
+		end;
+		endformat;
+		startformat(15);
+		OutString(0,0,"Співробітник",false);
+		for (k=0;k<ProjNum;k=k+1) begin
+			OutString(11+k,0,ProjectName[k],false);
+		end;
+		endformat;
+		// 3 нахождение часов и вывод
+		for (i=0;i<UsNum;i=i+1) begin
+			// 3.1 выбрать  часы текущего пользовател€
+			FindUserHour(UserName[i],ProjectName,ProjNum,Hours,da1,da2,RepSpec.flags[1]);
+			// 3.2 вывести строку по пользователю	
+			startformat(15);
+			USr.Code =UserName[i];
+			if (readfirstmain(USr,1,true)) then begin end;
+			OutString(0,0,UserName[i] & " " & USr.Name,false);
+			for (k=0;k<ProjNum;k=k+1) begin
+				OutString(11+k,0,Hours[k],false);
+				Hours[k] = 0;
+			end;
+			endformat;
+		end;
+	//====================================
+	end else begin // старый вариант отчета. —рабатывает при неустановленной галке выгружать в эксель
+	   rw = 1;
+		arrTxt[0]=RepSpec.f1;
+		arrName[0]="Співробітник";
+		for (i=0; i<1; i=i+1) begin
+			text="";
+			TextInHeader (arrTxt[i],arrName[i],text,rw);
+			Header(rw,text,1);
+		end;
+		rw=rw+1;
+		textdata="Дата" & " - " & da1 & ":" & da2;
+		Header(rw,textdata,1);
+		EndHeader;
+	  
+	  SetRepCol(2,0);
+	  SetRepCol(3,50); 
+	  SetRepCol(4,100); 
+	  SetRepCol(5,180); 
+	  SetRepCol(6,260);
+	  SetRepCol(7,300); 
+	  SetRepCol(8,460);  
+	    
+	  if !ExcelFlag then begin
+			StartFormat(20);
+			OutString(2,0,"Табель",false);
+	      OutString(3,0,"Дата",false);
+	      OutString(4,0,"Проект",false);
+	      OutString(5,0,"Товар",false);
+	      OutString(6,0,"К-ть",false);
+	      OutString(7,0,"Опис",false);
+			EndFormat;
+	   end;
+	  
+	    
+	   if nonblank(RepSpec.f1) then begin
+			fus=FirstInRange(RepSpec.f1,10);
+			lus=LastInRange(RepSpec.f1,10);
+		end;
+	   USr.Code=fus;
+	   TrHs=true;
+	   testf=true;
+	   USr.Code=fus;
+	   while LoopMain(USr,1,TrHs) begin
+			testf = true;
+			if (nonblank(RepSpec.f1)) and  (USr.Code>lus) then begin
+				TrHs=false;testf=false;
+			end;
+			if USr.ForceTimeEntry==0 or USr.Closed then begin
+				testf=false;
+			end;
+			if testf then begin
+				StartFormat(20);
+				OutString(2,0,USr.Code,false);
+				OutString(3,0,USr.Name,false);
+				qty=0;
+				mark = RepSpec.flags[1];
+				PrintTS(RepSpec,USr.Code,da1,da2,mark,qty,RepSpec.ArtMode,foundf);
+				if RepSpec.ArtMode==0 then begin
+					OutString(6,0,qty,false);
+				end else begin
+					if foundf==false then begin
+						StartFormat(20);
+						EndFormat;
+					end;
+					Gray_Divider(0,1);
+					StartFormat(20);
+					OutString(2,0,"Всього к-ть:",false);
+					OutString(6,0,qty,false);
+					EndFormat;
+				end;  
+				EndFormat;
+				Black_Divider(0,1);
+			end;
+	   end;
+	end;
+	EndJob;
+return;
+end;
+
+function string 255 FieldNameSpec(string FieldName, var string englname)
+begin
+	string 255 res;
+	switch (FieldName) begin
+		case "Code": res = "Код";englname="Code";
+		case "CustCat": res = "Категорія клієнта";englname="Category";
+		case "PayDeal": res = "мова спл. (продаж)";englname="Pay. terms";
+		case "VATCode": res = "Код ПДВ (продаж)";englname="VAT Code";
+		case "Objects": res = "Об'єкти продажу";englname="Sales object";
+		case "VECat": res = "Кат. постач.";englname="Category";
+		case "VEPayDeal": res = "Умова спл. (придб.)";englname="Pay. terms";
+		case "VEVATCode": res = "Код ПДВ (придб.)";englname="VAT Code";
+		case "AccCost": res = "Рахунок витрат";englname="Cost account";
+		case "VEObjects": res = "Об'єкти придбання";englname="Purch. object";
+		case "Name": res = "Найменування";englname="Name";
+		case "InvAddr0": res = "Юридична адреса";englname="Address";
+		case "Phone": res = "Телефон";englname="Phone";
+		case "Classification": res = "Класифікація";englname="Classification";
+		case "DelAddr0": res = "Адреса доставки";englname="Delivery Address";
+		case "SalesMan": res = "Продавець";englname="Responsible";
+		case "RegNr1": res = "ЄДРПОУ";englname="Reg Code";
+		case "RegNr2": res = "Свідоцтво";englname="VAT Certificate";
+		case "BankAccount": res = "Р/р";englname="Bank account";
+		case "AccOperator": res = "Банк";englname="Bank code";
+		case "VATNr": res = "ІПН";englname="Tax Reg. No.";
+		otherwise res = FieldName; englname = FieldName;
+	end;
+	
+	FieldNameSpec = res;
+return;
+end;
+
+
+
+
+global 
+procedure RecHistCustRn(record RcVc RepSpec) 
+begin
+record RecordHistoryVc RHr;
+string 255 key;
+integer Segment;
+boolean trhs,testf;
+record CUVc CUr;
+string 255 tstr,res;
+
+	SetLangMode(LangUkrainian,"UKR",0);
+   StartReportNoHeaderJob("Історія змін регістру Контакти");
+
+	
+	RHr.TransDate = RepSpec.sStartDate;
+	RHr.FileName = "CUVc";
+	key = "FileDateUser"; 
+	Segment = 2;
+	if nonblank(RepSpec.f3) then begin
+		RHr.UserCode = RepSpec.f3;
+		Segment = 3;	
+	end;	
+	trhs = true;
+	StartFormat(15);
+	OutString (0,0,"Дата",false);
+	OutString (50,0,"Код",false);
+	OutString (100,0,"Найменування",false);
+	OutString (350,0,"Співробітник",false);
+	OutString (400,0,"Поле",false);
+	if RepSpec.Media<>mtScreen then begin
+		OutString (400,0,"Старе",false);
+		OutString (5000,0,"Нове",false);
+	end;
+	EndFormat;
+	black_divider(0,1);
+	while (loopkey(key,RHr,segment,trhs)) begin
+		testf = true;
+		if RHr.TransDate > RepSpec.sEndDate then begin testf = false; trhs = false; end;
+		if RHr.FileName <> "CUVc" then begin testf = false; trhs = false; end;
+		if nonblank(RepSpec.f3) and RHr.UserCode<>RepSpec.f3 then begin testf = false; trhs = false; end;
+		if nonblank(RepSpec.f4) and RHr.FieldName<>RepSpec.f4 then begin testf = false; end;
+		if testf then begin
+			CUr.Code = RHr.TransNr;
+			if readfirstmain(CUr,1,true) then begin end;
+			StartFormat(15);
+			OutString (0,0,RHr.TransDate,false);
+			OutString (50,"dblCUvc",RHr.TransNr,false);
+			OutString (100,0,CUr.Name,false);
+			OutString (350,0,RHr.UserCode,false);
+			res = FieldNameSpec(RHr.FieldName,tstr);
+			OutString (400,0,tstr,false);
+			if RepSpec.Media<>mtScreen then begin
+				OutString (350,0,RHr.OldCaption,false);
+				OutString (370,0,RHr.NewCaption,false);
+			end else begin
+				/*if nonblank (RHr.OldCaption) then begin
+					OutString (370,0,RHr.OldCaption,false);
+				end else begin
+					OutString (370,0," ",false);
+				end;
+				OutString (370,0,RHr.NewCaption,false);*/
+			end;
+			EndFormat;
+			
+			if(RepSpec.Media==mtScreen)then begin
+				StartFormat(15);
+					OutString (0,0,"Старе значення:",false);
+					if nonblank (RHr.OldCaption) then begin
+						OutString (100,0,RHr.OldCaption,false);
+					end else begin
+						OutString (100,0," ",false);
+					end;
+				EndFormat;
+				StartFormat(15);
+					OutString (0,0,"Нове значення:",false);
+					OutString (100,0,RHr.NewCaption,false);
+				EndFormat;
+			end;
+			gray_divider(0,1);
+		end;
+	end;
+	EndJob;
+return;
+end;
+
+
+
+global
+procedure ChangedTSRn(record RcVc RepSpec)
+begin
+
+	record TSVc TSr;
+	row TSVc TSrw;
+	integer i,rwcnt;
+	record UserVc USr;
+	boolean trhs,testf;
+	
+  SetLangMode(LangUkrainian,"UKR",0);
+
+   StartReportNoHeaderJob("Відредаговані табелі часу");
+	StartFormat(15);
+	OutString(0,0,"№",false);
+	OutString(50,0,"Дата",false);
+	OutString(100,0,"Співробітник",false);
+	OutString(270,0,"Коментар",false);
+	EndFormat;
+	TSr.RegDate = RepSpec.sStartDate;
+	trhs = true;
+	while (LoopKey("RegDate",TSr,1,trhs)) begin
+		testf = true;
+		if (TSr.RegDate>RepSpec.sEndDate) then begin trhs = false; testf = false; end;
+		if (testf) then begin
+			rwcnt=MatRowCnt(TSr);
+			for (i=0;i<rwcnt;i=i+1) begin
+				MatRowGet(TSr,i,TSrw);
+				if TSrw.stp==2 then begin
+					USr.Code=TSr.UserCode;
+					if ReadFirstMain(USr,1,true) then begin end;
+					StartFormat(15);
+					OutString(0,"dblTSVc",TSr.SerNr,false);
+					OutString(50,0,TSr.RegDate,false);
+					OutString(100,0,USr.Name,false);
+					OutString(270,0,TSr.Comment,false);
+					EndFormat;
+					i=rwcnt;
+				end;
+			end;
+		end;
+	end;
+	
+	
+	EndJob;
+return;
+end;

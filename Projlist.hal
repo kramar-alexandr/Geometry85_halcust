@@ -1,0 +1,527 @@
+// PRListRn.hal
+#ifdef HAL
+
+
+/*Completely changed algorithm of report by I.Pidchibiy. 6004 */
+
+
+external inner procedure HTCusts(string, string, var string);
+
+external inner procedure HTPRClass(string, var string);
+
+
+
+
+procedure HTProjects(string arg,var string res) // standard
+begin
+  string 255 a,b;
+  record PRVc PRr;
+
+  a = FirstInRange(arg,20);
+  b = LastInRange(arg,20);
+  if (blank(a) and blank(b)) then begin
+    res = USetStr(4851);
+  end else begin
+    res = USetStr(4852);
+    res = res & a;
+    if (a<>b) then begin
+      res = res & " : ";
+      res = res & b;
+    end else begin
+      PRr.Code = a;
+      if (ReadFirstMain(PRr,1,true)) then begin
+        res = res & " ";
+        res = res & PRr.Name;
+      end;
+    end;
+  end;
+  return;
+end;
+
+procedure Blankspace(Integer pix) // standard. Not used in this report 
+begin
+  StartFormat(pix);
+  EndFormat;
+  return;
+end;
+
+procedure SumProjectBudget(string project,var val bp,var val tt,var val to,var val tm,var val ts)  // standard. Not used in this report 
+begin
+  record TBBUVc TBBr;
+  Boolean found;
+
+  TBBr.PRCode = project;
+  found = true;
+  if (ReadFirstMain(TBBr,1,true)) then begin
+    tt = tt+TBBr.SumTime;
+    to = to+TBBr.SumOther;
+    tm = tm+TBBr.SumMaterial;
+    ts = ts+TBBr.SumStocked;        
+    bp = bp+TBBr.SumTime + TBBr.SumOther +TBBr.SumMaterial + TBBr.SumStocked;
+  end;    
+  return;
+end;
+
+global
+
+procedure SerchQTbyProject(string prcode,var longint qtnr,var boolean foundf) //   По коду проекта находит подтверждённый QT (берёт первый попавшийся, подтверждённый QT так как предпологается что таковая запись в базе только одина)
+begin
+Boolean TrHr;
+record QTVc QTr;
+  qtnr=-1;
+  foundf=false;
+  TrHr=true;
+  QTr.PRCode=prcode;
+  while LoopKey("PRCode",QTr,1,TrHr) begin
+    if QTr.PRCode!=prcode then begin
+    TrHr=false;
+    end;
+    if TrHr then begin
+      if QTr.Rejected==2 then begin
+      foundf=true;
+      TrHr=false;
+      qtnr=QTr.SerNr;
+      end;
+    end;
+  end;
+  return;
+end;
+
+procedure FindSeniorProjects(var string prmcode,var array string seniorpr,var array string seniorprn,var integer cntlvl)  // Рекурсивная процедура. Формирует массив старших проектов включая текущий. 
+begin
+record PRVc seniorPRr;
+Integer i;
+
+seniorPRr.Code=prmcode;
+	logtext(0,"FindSeniorProjects " & prmcode);
+  if ReadFirstMain(seniorPRr,1,true) then begin
+    cntlvl=cntlvl+1;
+    seniorpr[cntlvl]=seniorPRr.Code;
+    seniorprn[cntlvl]=seniorPRr.Name;
+    if seniorPRr.ProjType==1 then begin
+      FindSeniorProjects(seniorPRr.MotherCode,seniorpr,seniorprn,cntlvl);
+    end;
+  end;
+  return;
+end;
+
+procedure OutProj(record PRVc PRr,var integer prcnt,integer mode)   // Вывод проекта прошедшего все проверки.
+begin
+Integer cntlvl,i,rwcnt;
+array string 20 seniorpr;
+array string 60 seniorprn;
+longint qtnr;
+Boolean foundf;
+string 100 type;
+record PRClassBlock PRClassRec;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 17:40:31
+row PRClassBlock PRClassrw;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 17:40:31
+	
+	 BlockLoad(PRClassRec);
+	
+	rwcnt = MatRowCnt(PRClassRec);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(PRClassRec,i,PRClassrw);
+    if(PRClassrw.Code==PRr.PRClass)then begin
+			type = PRClassrw.Comment;
+    end;
+  end;
+  
+prcnt=prcnt+1;
+	logtext(0,"PRr.ProjType " & PRr.ProjType);
+  if PRr.ProjType==0 or PRr.ProjType==3 then begin        // вывод одиночного или самого старшего проекта
+    StartFormat(15);
+    if mode==0 then begin                                 // на экран
+      OutString(0,"DblPRCode",PRr.Code,false); //1
+      OutString(40,0,"-",false); //2
+      OutString(80,0,"-",false); //3
+      OutString(130,0,"-",false); //4
+      OutString(150,0,PRr.PRClass,false);//4,5
+      OutString(180,0,type,false); //5
+      OutString(240,0,PRr.Text0,false); //6// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 10:47:46
+      //OutString(300,0,PRr.Name,false); // cur
+
+    end else begin                                        // в Excel, File, Buffer
+      OutString(0,"DblPRCode",PRr.Code,false); //1
+      OutString(25,0,PRr.Name,false); //1
+      OutString(55,0,"-",false); //2
+      OutString(65,0,"-",false); //2
+      OutString(115,0,"-",false); //3
+      OutString(135,0,"-",false); //3
+      OutString(280,0,"-",false); //4
+      OutString(290,0,"-",false); //4
+      OutString(150,0,PRr.PRClass,false); //5
+      OutString(180,0,type,false); //5
+      OutString(220,0,"",false); //5
+      OutString(240,0,PRr.Text0,false); //6// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 10:47:57
+     // OutString(285,0,"",false); //6
+      OutString(300,0,PRr.Name,false); // cur
+    end;
+    if nonblank(PRr.Leader) then begin
+      OutString(430,0,PRr.Leader,false);
+    end else begin
+
+
+      OutString(415,0,"-",false);
+    end;
+    if mode==1 then begin   // в Excel, File, Buffer
+      if nonblankdate(PRr.StartDate) then begin
+      OutDate(416,0,PRr.StartDate,false);
+      end else begin
+        OutString(416,0,"-",false);
+      end;
+      if nonblankdate(PRr.EndDate) then begin
+      	OutDate(417,0,PRr.EndDate,false);
+      end else begin
+        OutString(417,0,"-",false);
+      end;
+      if nonblankdate(PRr.FinishedDate) then begin
+      	OutDate(427,0,PRr.FinishedDate,false);
+      end else begin
+        OutString(427,0,"-",false);
+      end;
+      if nonblankdate(PRr.PreFinishedDate) then begin
+      	OutDate(427,0,PRr.PreFinishedDate,false);
+      end else begin
+        OutString(427,0,"-",false);
+      end;
+    end;
+    SerchQTbyProject(PRr.Code,qtnr,foundf);
+    if foundf then begin
+    OutString(1,"DblQTVc",qtnr,true);
+    end else begin
+      OutString(1,0,"-",true);
+    end;
+    EndFormat;
+  end else begin                                          // вывод последнего или среднего проекта
+    for (i=0; i<6; i=i+1) begin
+    seniorpr[i]="-";
+    seniorprn[i]="-";
+    end;
+    cntlvl=6;
+    seniorpr[cntlvl]=PRr.Code;
+    seniorprn[cntlvl]=PRr.Name;
+    FindSeniorProjects(PRr.MotherCode,seniorpr,seniorprn,cntlvl);
+    StartFormat(15);
+      OutString(0,"DblPRCode",seniorpr[cntlvl],false); //1
+      if mode==1 then begin
+      OutString(0,0,seniorprn[cntlvl],false); //1
+      end;
+      if seniorpr[cntlvl-1]!="-" then begin
+        OutString(40,"DblPRCode",seniorpr[cntlvl-1],false); //2
+      end else begin
+        OutString(40,0,seniorpr[cntlvl-1],false); //2
+      end;
+      if mode==1 then begin
+      OutString(40,0,seniorprn[cntlvl-1],false); //2
+      end;
+      if seniorpr[cntlvl-2]!="-" then begin
+        OutString(80,"DblPRCode",seniorpr[cntlvl-2],false); //3
+      end else begin
+        OutString(80,0,seniorpr[cntlvl-2],false); //3
+      end;
+      if mode==1 then begin
+      OutString(80,0,seniorprn[cntlvl-2],false); //3
+      end;
+      if seniorpr[cntlvl-3]!="-" then begin
+        OutString(130,"DblPRCode",seniorpr[cntlvl-3],false); //4
+      end else begin
+        OutString(130,0,seniorpr[cntlvl-3],false); //4
+      end;
+      if mode==1 then begin
+      OutString(215,0,seniorprn[cntlvl-3],false); //4
+      end;
+      /*if seniorpr[cntlvl-4]!="-" then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 17:37:00
+        OutString(240,"DblPRCode",seniorpr[cntlvl-4],false); //5
+      end else begin
+        OutString(240,0,seniorpr[cntlvl-4],false); //5
+      end;*/
+      OutString(150,0,PRr.PRClass,false);
+      OutString(180,0,type,false); //5// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 17:36:58
+      
+      if mode==1 then begin
+      //OutString(245,0,seniorprn[cntlvl-4],false); //5
+      OutString(190,0,"",false); //5
+      end;
+      /*if seniorpr[cntlvl-5]!="-" then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 11:34:27
+        OutString(280,"DblPRCode",seniorpr[cntlvl-5],false); //6
+      end else begin
+        OutString(280,0,seniorpr[cntlvl-5],false); //6
+      end;
+      if mode==1 then begin
+      OutString(285,0,seniorprn[cntlvl-5],false); //6
+      end;*/
+      OutString(240,0,PRr.Text0,false);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 3 September 2019 18:00:43
+      OutString(300,0,PRr.Name,false); // cur
+      if nonblank(PRr.Leader) then begin
+        OutString(430,0,PRr.Leader,false);
+      end else begin
+        OutString(430,0,"-",false);
+      end;
+      if mode==1 then begin   // в Excel, File, Buffer
+        if nonblankdate(PRr.StartDate) then begin
+        OutDate(416,0,PRr.StartDate,false);
+        end else begin
+          OutString(416,0,"-",false);
+        end;
+        if nonblankdate(PRr.EndDate) then begin
+        	OutDate(417,0,PRr.EndDate,false);
+        end else begin
+          OutString(417,0,"-",false);
+        end;
+        if nonblankdate(PRr.FinishedDate) then begin
+        	OutDate(427,0,PRr.FinishedDate,false);
+        end else begin
+          OutString(427,0,"-",false);
+        end;
+        if nonblankdate(PRr.PreFinishedDate) then begin
+        	OutDate(427,0,PRr.PreFinishedDate,false);
+        end else begin
+          OutString(427,0,"-",false);
+        end;
+      end;
+      SerchQTbyProject(PRr.Code,qtnr,foundf);
+      if foundf then begin
+      OutString(1,"DblQTVc",qtnr,true);
+      end else begin
+        OutString(1,0,"-",true);
+      end;
+    EndFormat;
+  end;
+  if mode==0 then begin
+  Gray_Divider(0,1);
+  end;
+  return;
+end;
+
+function Boolean CheckIsProject(record PRVc PRr,record RcVc RepSpec,string frpr,string topr,string frcu,string tocu)  // проверка проекта на условия отчёта
+begin
+Boolean res;
+boolean flagfnd;// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 14 May 2018 15:26:51
+date bd;
+
+res=true;
+  if PRr.ProjType==3 then begin
+    if (nonblank(frpr) and ((PRr.Code<frpr) or (PRr.Code>topr))) then begin res=false; goto LCheckIsProject; end;
+  end;
+  if (nonblank(frcu) and ((PRr.CustCode<frcu) or (PRr.CustCode>tocu))) then begin res=false; goto LCheckIsProject; end;
+  if (nonblank(RepSpec.f2) and (RepSpec.f2<>PRr.Leader)) then begin res=false; goto LCheckIsProject; end;
+  
+  flagfnd = false;
+  
+  /*if RepSpec.flags[19]==1 then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 14 May 2018 15:26:52
+    if RepSpec.flags[20]==0 then begin
+      if PRr.Terminated==1 then begin
+      res=false; goto LCheckIsProject;
+      end;
+    end;
+  end else begin
+    if RepSpec.flags[20]==1 then begin
+      if PRr.Terminated<>1 then begin
+      res=false; goto LCheckIsProject;
+      end;
+    end else begin
+      res=false; goto LCheckIsProject;
+    end;
+  end;*/
+  // Edit Start ---------------------------------------------- Edit Start
+	//Monday, 14 May 2018 15:26:48
+	
+  if(RepSpec.flags[19]==1 and (PRr.Terminated==0 or PRr.Terminated==2))then begin
+  	flagfnd = true;
+  end;
+  if(RepSpec.flags[20]==1 and PRr.Terminated==1)then begin
+  	flagfnd = true;
+  end;
+  if(RepSpec.flags[21]==1 and PRr.Terminated==3)then begin
+  	flagfnd = true;
+  end;
+  
+  if(flagfnd==false)then begin
+  	res=false; goto LCheckIsProject;
+  end;
+  
+	// Edit End ---------------------------------------------- Edit End
+	
+  if (nonblank(RepSpec.FirstAcc) and (RepSpec.FirstAcc<>PRr.PRClass)) then begin res=false; goto LCheckIsProject; end;    
+  if (nonblank(RepSpec.LastAcc) and (RepSpec.LastAcc<>PRr.PrSalesMan)) then begin res=false; goto LCheckIsProject; end;   
+  if ((RepSpec.flags[10]==0) and (PRr.Type==0)) then begin res=false; goto LCheckIsProject; end;
+  if ((RepSpec.flags[11]==0) and (PRr.Type==1)) then begin res=false; goto LCheckIsProject; end;    
+  if ((RepSpec.flags[12]==0) and (PRr.Type==2)) then begin res=false; goto LCheckIsProject; end;
+  
+	if(nonblank(RepSpec.f4) and RepSpec.f4!=PRr.Text0)then begin res=false; goto LCheckIsProject; end;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 11:30:19
+  if(nonblank(RepSpec.f5) and RepSpec.f5!=PRr.MotherCode)then begin res=false; goto LCheckIsProject; end;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 16 August 2018 14:18:00
+	
+	if(RepSpec.sStartDate!=bd and RepSpec.sEndDate!=bd)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 16 April 2019 12:53:03
+		if(DateInRange(PRr.FinishedDate,RepSpec.sStartDate,RepSpec.sEndDate)==false)then begin
+			res=false; goto LCheckIsProject;
+		end;
+	end;
+	if(RepSpec.d1!=bd and RepSpec.d2!=bd)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 16 April 2019 12:53:05
+		if(DateInRange(PRr.PreFinishedDate,RepSpec.d1,RepSpec.d2)==false)then begin
+			res=false; goto LCheckIsProject;
+		end;
+	end;
+	
+LCheckIsProject:;
+CheckIsProject=res;
+  return;
+end;
+
+procedure RunInProjTreeDown(record PRVc PRr,record RcVc RepSpec,string frpr,string topr,string frcu,string tocu,var integer prcnt,var boolean checkpr,var string codd,integer mode) // Рекурсивная процедура. Пробегает по всем субпроекта для текущего проекта.
+begin
+  record PRVc PRr1;
+  Boolean foundf;  
+  if nonblank(frpr) then begin
+    if RepSpec.IncDaughter==1 then begin
+      if checkpr then begin
+        if ((PRr.Code<frpr) or (PRr.Code>topr))==false then begin
+        codd=PRr.Code;
+        checkpr=false;
+          if CheckIsProject(PRr,RepSpec,frpr,topr,frcu,tocu) then begin
+          OutProj(PRr,prcnt,mode);
+          end;
+        end;
+      end else begin
+        if CheckIsProject(PRr,RepSpec,frpr,topr,frcu,tocu) then begin
+        OutProj(PRr,prcnt,mode);
+        end;
+      end;
+    end else begin
+      if CheckIsProject(PRr,RepSpec,frpr,topr,frcu,tocu) then begin
+        if ((PRr.Code<frpr) or (PRr.Code>topr))==false then begin
+        OutProj(PRr,prcnt,mode);
+        end;
+      end;
+    end;
+  end else begin
+    if CheckIsProject(PRr,RepSpec,frpr,topr,frcu,tocu) then begin
+    OutProj(PRr,prcnt,mode);
+    end;
+  end;
+  if PRr.ProjType!=2 then begin
+    PRr1.MotherCode = PRr.Code;
+    foundf = true;
+    while (LoopKey("MotherCode",PRr1,1,foundf)) begin
+      if (PRr1.MotherCode<>PRr.Code) then begin 
+        foundf = false; 
+      end;
+      if (foundf) then begin
+        RunInProjTreeDown(PRr1,RepSpec,frpr,topr,frcu,tocu,prcnt,checkpr,codd,mode);
+      end;
+    end;
+  end;
+  if codd!="" and codd==PRr.Code then begin
+  codd="";
+  checkpr=true;
+  end;  
+ return;
+end;  
+  
+global
+procedure PRListRn(record RcVc RepSpec)
+begin
+  string 60 frpr,topr,codd;
+  string 50 frcu,tocu;
+  Integer prcnt,rw,mode;
+  string 255 tstr;
+  Boolean TrHr;
+  record PRVc PRr;
+  Boolean checkpr;
+
+  SetLangMode(LangUkrainian,"UKR",0);
+
+  frpr = FirstInRange(RepSpec.f1,60);
+  topr = LastInRange(RepSpec.f1,60);
+  frcu = FirstInRange(RepSpec.f3,50);
+  tocu = LastInRange(RepSpec.f3,50);
+  
+  StartReportJob(USetStr(4861));
+  rw = 1;
+  HTProjects(RepSpec.f1,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;
+  HTCusts(frcu,tocu,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;
+  if (nonblank(RepSpec.f2)) then begin
+  tstr = USetStr(4849);
+  tstr = tstr & " ";
+  tstr = tstr & RepSpec.f2;
+  Header(rw,tstr,1);
+  rw = rw + 1;
+  end;
+  HTPRClass(RepSpec.FirstAcc,tstr);
+  if (nonblank(tstr)) then begin
+    Header(rw,tstr,1);
+    rw = rw + 1;
+  end; 
+  if (RepSpec.IncDaughter==1) then begin
+    Header(rw,USetStr(4860),1);
+    rw = rw + 1;
+  end;
+  EndHeader;
+  StartFormat(15);
+    if (RepSpec.Media==mtFile) or (RepSpec.Media==mtExcel) or (RepSpec.Media==mtClipboard) then begin
+      OutString(0,0,"Рівень 1",false); //1
+      OutString(10,0,"Найменування 1",false); //1
+      OutString(40,0,"Рівень 2",false); //2
+      OutString(50,0,"Найменування 2",false); //2
+      OutString(100,0,"Рівень 3",false); //3
+      OutString(120,0,"Найменування 3",false); //3
+      OutString(190,0,"Рівень 4",false); //4
+      OutString(200,0,"Найменування 4",false); //4
+      OutString(210,0,"№",false); //5
+      OutString(225,0,"Тип",false); //5
+      OutString(230,0,"",false); //5
+      OutString(265,0,"Текст",false); //6
+      OutString(300,0,"Найменування поточного проекту",false); // cur
+      OutString(415,0,USetStr(4863),false);
+      OutString(416,0,"Дата початку",false);
+      OutString(417,0,"Дата завершення",false);
+      OutString(427,0,"Дата попереднього завершення",false);
+      OutString(1,0,"Cost estimate",true);
+      mode=1;
+    end else begin
+      OutString(0,0,"| 1 |",false);  //1// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 14 May 2018 15:26:42
+      OutString(40,0,"| 2 |",false);  //2
+      OutString(80,0,"| 3 |",false);  //3
+      OutString(130,0,"| 4 |",false);  //4
+      OutString(150,0,"№",false);  //5
+      OutString(180,0,"Тип",false);  //5
+      OutString(240,0,"Текст",false);  //6
+      OutString(300,0,"Найменування",false); // cur
+      OutString(430,0,USetStr(4863),false);
+      OutString(1,0,"QT",true);
+      mode=0;
+    end;
+  EndFormat;
+  Black_Divider(0,1);
+  TrHr=true;
+  prcnt=0;
+  while LoopKey("MotherCode",PRr,2,TrHr) begin  // перебор проектов не имеющих старшего проекта
+    if nonblank(PRr.MotherCode) then begin
+    TrHr=false;
+    end;
+    if TrHr then begin
+      if PRr.ProjType==0 then begin
+				checkpr=true;
+				codd="";
+				RunInProjTreeDown(PRr,RepSpec,frpr,topr,frcu,tocu,prcnt,checkpr,codd,mode);
+      end else begin
+        if CheckIsProject(PRr,RepSpec,frpr,topr,frcu,tocu) then begin
+          OutProj(PRr,prcnt,mode);
+        end;
+      end;
+    end;  //  TrHr
+  end;  // while  PRr
+  Black_Divider(350,1);
+  StartFormat(15);
+   OutString(350,0,USetStr(8897),false);
+   OutString(1,0,prcnt,true);
+  EndFormat;
+  EndJob;
+  return;
+end;
+
+#endif
+

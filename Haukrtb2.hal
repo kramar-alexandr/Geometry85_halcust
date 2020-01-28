@@ -1,0 +1,61 @@
+/* Haeukrtb2.hal*/
+external inner function string 60 UserDefined(string,string);
+
+event DefineWindows
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+  record UserVC Usr;
+  SetLangMode(LangUkrainian,"UKR",0);
+ 
+  WindowBegin("Визначте проект",PRTSSClass,CGslist,-);
+  SetWRect(20,80,600,298);
+  Sizeable(-1,-1,0,0);
+  UseView(PRVc);
+  SpawnClass(PRDClass);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,1,    "Проект",Code,false,ActCode);
+  RlColKey(131,131,  "Старший",MotherCode,false,MotherCode);
+  RlColKey(211,211,"Тип",PRClass,false,ActPRClass);
+  RlColKey(231,231,"Стадія",PRStage,false,ActPRStage);
+  RlColKey(301,301,"Опис",Name,false,ActName);
+  SearchField("Пошук");
+  EndWindow;
+  //===
+  WindowBegin("Визначте проект",PRTSTSSClass,CGslist,-);
+  SetWRect(20,80,700,298);
+  Sizeable(-1,-1,0,0);
+  UseView(PRVc);
+  SpawnClass(PRDClass);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,1,    "Проект",Code,false,TSCode);
+  //RlColKey(131,131,  "Старший",MotherCode,false,TSMotherCode);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 April 2018 13:08:42
+  //RlColKey(211,211,"Тип",PRClass,false,TSPRClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 April 2018 13:08:39
+  //RlColKey(261,261,"Стадія",PRStage,false,TSPRStage);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 April 2018 13:08:38
+  RlColKey(131,131,"Опис",Name,false,TSName);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 April 2018 19:36:15
+  SearchField("Пошук");
+  BrowseSubsetButton(-40,-15);
+  EndWindow;
+  
+  WindowBegin("Визначте проект",PRTSQTSClass,CGslist,-);
+  SetWRect(20,80,600,298);
+  Sizeable(-1,-1,0,0);
+  UseView(PRVc);
+  SpawnClass(PRDClass);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,1,    "Проект",Code,false,QTCode);
+  RlColKey(131,131,  "Старший",MotherCode,false,QTMotherCode);
+  RlColKey(211,211,"Тип",PRClass,false,QTPRClass);
+  RlColKey(231,231,"Стадія",PRStage,false,QTPRStage);
+  RlColKey(301,301,"Опис",Name,false,QTName);
+  SearchField("Пошук");
+  EndWindow;
+  
+	WindowBegin("Визначте головний проект",PR_SBSClass,CGother,HBlRecType);
+  SetWRect(240,80,700,498);
+  	StringList(9,9,-20,-10);
+  EndWindow;
+  
+  return;
+end;
+

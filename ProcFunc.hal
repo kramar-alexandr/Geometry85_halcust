@@ -1,0 +1,329 @@
+external inner function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
+
+// в этом файле только новые процедуры
+global // новая процедура
+function val GetCoefficient(string newcur, string oldcur,date ordate)
+begin
+  record ERVc ERr;
+  record BaseERVc BaseERr;
+  record BaseCurBlock BaseCurr;
+  val res, sum, FrRate, ToRate; 
+  boolean TrHs;
+  Date TransDate;
+  val ItemCost;
+  string 5 CurncyCode;
+  
+  BlockLoad(BaseCurr);
+  TrHs = true;
+  res = 0;
+  sum = 0;
+  FrRate = 0;
+  ToRate = 0;
+  ItemCost = 1;
+  TransDate = ordate;
+  CurncyCode = oldcur;
+  
+  if (CurncyCode == BaseCurr.BaseCur1) then begin 
+    sum = ItemCost;
+  end else begin
+	if (CurncyCode <> BaseCurr.BaseCur2) then begin
+	  ERr.CurncyCode = CurncyCode;
+	  ERr.Date = TransDate;
+	  while (LoopBackKey("DCKey",ERr,2,TrHs)) begin
+		if (ERr.CurncyCode == CurncyCode) and (ERr.Date <= TransDate) then begin
+		  if (blank(ERr.FrRate)) then begin
+			FrRate = 1;
+		  end else begin
+			FrRate = ERr.FrRate;
+		  end;
+		  sum = ItemCost*(FrRate/ERr.ToRate1); 		
+		  TrHs = false;
+		end;
+	  end;
+	end else begin
+	  BaseERr.Date = TransDate;
+	  while (LoopBackKey("MainKey",BaseERr,1,TrHs)) begin
+		if (BaseERr.Date <= TransDate) and (nonblank(BaseERr.Rate1)) and (nonblank(BaseERr.Rate2)) then begin
+		  sum = ItemCost*(BaseERr.Rate2/BaseERr.Rate1);
+		  TrHs = false;
+		end;
+	  end;
+	end;
+  end;
+   
+  
+  FrRate = 1;
+  ToRate = 1;
+  TrHs = true;
+  TransDate = ordate;
+  CurncyCode = newcur;
+  ResetLoop(ERr);
+ 
+  if (CurncyCode == BaseCurr.BaseCur1) then begin 
+    FrRate = 1;
+    ToRate = 1;
+  end else begin
+	if (CurncyCode <> BaseCurr.BaseCur2) then begin
+	  ERr.CurncyCode = CurncyCode;
+	  ERr.Date = TransDate;
+	  while (LoopBackKey("DCKey",ERr,2,TrHs)) begin
+		if (ERr.CurncyCode == CurncyCode) and (ERr.Date <= TransDate) then begin
+		  if (blank(ERr.FrRate)) then begin
+			FrRate = 1;
+		  end else begin
+			FrRate = ERr.FrRate;
+		  end;
+		  ToRate = ERr.ToRate1; //1st main crncy
+		  
+		  TrHs = false;
+		end;
+	  end;
+	end else begin
+	  BaseERr.Date = TransDate;
+	  while (LoopBackKey("MainKey",BaseERr,1,TrHs)) begin
+		if (BaseERr.Date <= TransDate) and (nonblank(BaseERr.Rate1)) and (nonblank(BaseERr.Rate2)) then begin
+		  FrRate = BaseERr.Rate2;
+		  ToRate = BaseERr.Rate1; //1st main crncy
+		  TrHs = false;
+		end;
+	  end;
+	end;
+  end;
+  res = (sum*ToRate)/FrRate;
+  GetCoefficient = res;
+  return;  
+end;
+
+
+global // новая процедура
+procedure TextInHeader (string item, string name, var string text, var integer rw)
+begin
+  String 150 a;
+  String 150 b;
+  
+  if blank(item) then begin
+  text = name & " - " & "All";
+  rw = rw + 1;
+  end else begin
+    a = FirstInRange(item,20);
+    b = LastInRange(item,20);
+    text = name & " - " & a & " : " & b;
+    rw = rw + 1;
+    end;
+  return;
+end;
+
+global // новая процедура
+function Boolean CheckSign(string sign)
+BEGIN
+  boolean res;
+  string 60 tstr;
+  Integer i;
+  record UserVc USr;
+  string 1 ch;
+  
+  tstr="";
+  res=true;
+  for (i=0; i<len(sign); i=i+1) begin
+  ch=mid(sign,i,1);
+    if ch!="," then begin
+    tstr=tstr & ch;
+      if i==(len(sign)-1) then begin
+        USr.Code=tstr;
+        if ReadFirstMain(USr,1,true)==false then begin
+        res=false;
+        RecordCheckError(10895," ‘пґвробґтник " & tstr & " вґдсутнґй в базґ.",-1,"OKPersons");
+        goto LCheckSign;
+        end;
+        tstr="";
+      end;
+    end else begin
+      if i==(len(sign)-1) then begin
+      res=false;
+      RecordCheckError(10895," Ќе коректний формат: " & tstr & ",",-1,"OKPersons");
+      goto LCheckSign;
+      end;
+      USr.Code=tstr;
+      if ReadFirstMain(USr,1,true)==false then begin
+      res=false;
+      if tstr=="" then begin
+      RecordCheckError(10895," Ќе коректний формат: ,,",-1,"OKPersons");
+      end else begin
+        RecordCheckError(10895," ‘пґвробґтник " & tstr & " вґдсутнґй в базґ.",-1,"OKPersons");
+      end;
+      goto LCheckSign;
+      end;
+      tstr="";
+    end;
+  end;
+  
+  LCheckSign:;  
+  CheckSign = res;
+  RETURN;
+END;
+
+global // новая процедура
+procedure OldArrayInsert(var array string Mass, var integer Count, string NewEl)
+begin
+boolean flag;
+integer i;
+
+flag = true;
+if nonblank(NewEl) then begin
+	for (i=0;i<Count;i=i+1) begin
+		if (Mass[i]==NewEl) then begin flag = false; i=count; end;
+	end;
+	if flag then begin
+		Mass[count] = NewEl; count = count+1; 
+	end;
+end;	
+return;
+end; 
+
+global // новая процедура
+procedure HourArrayInsert(var array string Mass, var integer Count, string NewEl, var array integer ArtCount, integer qty)
+begin
+boolean flag;
+integer i;
+
+flag = true;
+for (i=0;i<Count;i=i+1) begin
+	if (Mass[i]==NewEl) then begin 
+		flag = false; 
+		ArtCount[i] = ArtCount[i]+qty;
+		i=Count; 
+	end;
+end;
+return;
+end;
+
+function val AddCurncySum(string CurncyCode,val Sum, val ToRateB1, val FrRate)
+begin
+val res;
+	if CurncyCode=="UAH" then begin
+		res = Sum;
+	end else begin
+		res = Sum*ToRateB1/FrRate;
+	end;
+
+AddCurncySum = res;
+return;
+end;
+
+global 
+function integer SetAlertFlag(record POVc POr)
+begin
+record PRVc PRr;
+record POVc PO2r;
+record TBBUVc TBBr;
+row TBBUVc TBBrw;
+integer res;
+row POVc POrw;
+integer i,j;
+array string 255 ArtCode;
+array val ArtSum;
+boolean flag,trhs,testf;
+integer count;
+record QTVc QTr;
+
+	res = 0;
+	QTr.PRCode =POr.PRCode;
+	if readfirstkey("PRCode",QTr,1,true) then begin end;
+	
+	for (i=0;i<matrowcnt(POr);i=i+1) begin
+		matrowget(POr,i,POrw);
+		flag = true;
+		for (j=0;j<count;j=j+1) begin
+			if ArtCode[j]==POrw.ArtCode then begin
+				ArtSum[j] = ArtSum[j] + AddCurncySum(POr.CurncyCode,POrw.Sum,POr.FrRate,POr.ToRateB1);
+				flag = false;
+			end;
+		end;
+		if flag then begin
+			ArtCode[count] = POrw.ArtCode;
+			ArtSum[count] = AddCurncySum(POr.CurncyCode,POrw.Sum,POr.FrRate,POr.ToRateB1);
+			count = count +1;
+		end;
+	end;
+	
+	trhs = true;
+	PO2r.PRCode = POr.PRCode;
+	while loopkey("PRCode",PO2r,1,trhs) begin
+		testf = true;
+		if PO2r.PRCode<>POr.PRCode then begin testf=false;trhs=false; end;
+		if PO2r.SerNr==POr.SerNr then begin testf = false; end;
+		if testf begin
+			for (i=0;i<matrowcnt(PO2r);i=i+1) begin
+				matrowget(PO2r,i,POrw);
+				for (j=0;j<count;j=j+1) begin
+					if ArtCode[j]==POrw.ArtCode then begin
+						ArtSum[j] = ArtSum[j] + AddCurncySum(PO2r.CurncyCode,POrw.Sum,PO2r.FrRate,PO2r.ToRateB1);
+					end;
+				end;
+			end;
+		end;
+	end;
+	
+	trhs = true;
+	TBBr.PRCode = POr.PRCode;
+	while loopkey("MainKey",TBBr,1,trhs) begin
+		testf = true;
+		if TBBr.PRCode<>POr.PRCode then begin testf=false;trhs=false; end;
+		if testf begin
+			for (i=0;i<matrowcnt(TBBr);i=i+1) begin
+				matrowget(TBBr,i,TBBrw);
+				for (j=0;j<count;j=j+1) begin
+					if ArtCode[j]==TBBrw.ArtCode then begin
+						ArtSum[j] = ArtSum[j] - AddCurncySum(TBBr.CurncyCode,TBBrw.Sum,TBBr.FrRate,TBBr.ToRateB1);
+					end;
+				end;
+			end;
+		end;
+	end;
+	
+	for (j=0;j<count;j=j+1) begin
+		if  ArtSum[j]>0 then begin 	
+			res = 1;
+			j=count;
+		end;
+	end;
+	SetAlertFlag = res;
+return;
+end;
+
+global
+function boolean OnlySpaceBars(string In)
+begin
+boolean res;
+integer InLen,i;
+	InLen = len(In);
+	res = true;
+	for (i=0;i<InLen;i=i+1) begin
+		if mid(In,i,1)<>" " then begin 
+			i=InLen;
+			res = false;
+		end;
+	end;
+	OnlySpaceBars = res;
+return;
+end;
+
+global updating 
+procedure SaveHistory(string FileName, string TransNr, string FieldName, string OldCaption, string NewCaption)
+begin
+	record RecordHistoryVc RHr;
+	recordnew(RHr);
+	RHr.SerNr = NextSerNr("RecordHistoryVc",currentdate,-1,false,"");
+	RHr.FileName=FileName;
+	RHr.TransNr=TransNr;
+	RHr.FieldName=FieldName;
+	RHr.OldCaption=OldCaption;
+	RHr.NewCaption=NewCaption;
+	RHr.TransDate=currentdate;
+	RHr.UserCode=currentuser;
+	RHr.TransTime=currenttime;
+	if (RecordStore(RHr,false)) then begin end;
+return;
+end;
+
+

@@ -1,0 +1,777 @@
+external inner procedure RoundRowSum(string,string,string,var val);
+external inner procedure CalcSum(val,val,val,val,var val,Integer);
+external inner function Integer VATType(string);
+//external inner procedure GetCurncyRoundoff(string,string,var Integer,var LongInt,var Integer);
+external inner procedure SetupVATBase(var record SMVc,var Integer);
+external inner procedure AddVATBase(var record SMVc,string,val,val,Integer,Integer,Integer);
+external inner procedure CalcVATBaseVAT(record SMVc,Integer,Integer,Integer,var val,var val);
+external inner procedure PUCalcPerc(val,string,var val);
+external inner procedure ExtractObj(string,var Integer,var string);
+
+/*
+global
+procedure POSumup(var record POVc POp)
+BEGIN
+  row POVc POrw;
+  val s,ms,ms2,taxsum;
+  Integer i,rwcnt,rndtotal,roundvat;
+  LongInt roundlines;
+  record SMVc SMr;
+  Integer vatcnt;  
+  val t,cc;
+  Integer vt;
+
+  SetupVATBase(SMr,vatcnt);
+  POp.TotPalletNr = blankval;
+  POp.ShipCost = blankval;
+  POp.Cost1 = blankval;
+  POp.Cost2 = blankval;
+  POp.Cost3 = blankval;
+  POp.Cost4 = blankval;
+  POp.Cost5 = blankval;
+  POp.CustomsCost = blankval;
+  rwcnt = MatRowCnt(POp);
+  if (rwcnt>0) then begin
+    MatRowGet(POp,0,POrw);
+    vt = VATType(POrw.VATCode);
+  end;
+  for (i = 0 ; i<rwcnt ;i=i+1) begin
+    MatRowGet(POp,i,POrw);
+    s = s + POrw.Sum;
+    AddVATBase(SMr,POrw.VATCode,POrw.Sum,blankval,vatcnt,POp.InclVAT,POp.NoTAXonVAT);
+
+    POp.TotPalletNr = POp.TotPalletNr + POrw.PalletNr;
+    t = POrw.Quant*POrw.ShipCost;
+    POp.ShipCost = t + POp.ShipCost;
+    t = POrw.Quant*POrw.RowCost1;
+    POp.Cost1 = t + POp.Cost1;
+    t = POrw.Quant*POrw.RowCost2;
+    POp.Cost2 = t + POp.Cost2;
+    t = POrw.Quant*POrw.RowCost3;
+    POp.Cost3 = t + POp.Cost3;
+    t = POrw.Quant*POrw.RowCost4;
+    POp.Cost4 = t + POp.Cost4;
+    t = POrw.Quant*POrw.RowCost5;
+    POp.Cost5 = t + POp.Cost5;
+    PUCalcPerc(POrw.Price,POrw.CustomsCost,cc);
+    t = POrw.Quant*cc;
+    POp.CustomsCost = t + POp.CustomsCost;   
+  end;
+  CalcVATBaseVAT(SMr,POp.InclVAT,POp.NoTAXonVAT,vatcnt,ms,taxsum);
+  POp.TAX1Sum = taxsum;  
+  if ((POp.ExportFlag==1) or (POp.ExportFlag==2) or (vt==kVATTypeReversed)) then begin
+    ms = blankval;
+  end;
+  GetCurncyRoundoff(POp.CurncyCode,POp.PayDeal,rndtotal,roundlines,roundvat);  
+  
+  ms = Round(ms,roundvat);
+  if (POp.InclVAT>0) then begin
+    ms2 = s;
+  end else begin
+    ms2 = s + ms + POp.TAX1Sum;
+  end;    
+  ms2 = Round(ms2,rndtotal);
+  POp.ShipCost = Round(POp.ShipCost,3);
+  POp.Cost1 = Round(POp.Cost1,3);
+  POp.Cost2 = Round(POp.Cost2,3);
+  POp.Cost3 = Round(POp.Cost3,3);
+  POp.Cost4 = Round(POp.Cost4,3);
+  POp.Cost5 = Round(POp.Cost5,3);
+  POp.CustomsCost = Round(POp.CustomsCost,5);
+  POp.Sum1 = s;
+  POp.Sum3 = ms;
+  POp.Sum4 = ms2;
+  if (POp.TAX1Sum==0) then begin POp.TAX1Sum = blankval; end;
+  RETURN;
+END; */
+
+global
+function Boolean PODchrsum(record POVc POp,Integer rownr)
+BEGIN
+  Boolean res;
+  row POVc POrwp;
+  val s;
+  MatRowGet(POp,rownr,POrwp);
+  CalcSum(POrwp.VEQuant,POrwp.Price,POrwp.PriceFactor,POrwp.vRebate,s,0);
+  RoundRowSum(POp.CurncyCode,POp.PayDeal,"POVc",s); // sav 2011_08_04
+  if (s!=POrwp.Sum) then begin
+    res = true;
+    POrwp.Sum = s;
+  end;
+  MatRowPut(POp,rownr,POrwp);
+  PODchrsum = res;
+  RETURN;
+END;
+// в данном файлк все функции самописные
+
+global updating procedure UpdateTSMn (record RcVc RepSpec)
+begin
+record TSVc TSr;
+row TSVc TSrw;
+integer i;
+Boolean TrHs;
+
+TrHs=true;
+  while(LoopMain(TSr,1,TrHs)) begin
+    if MatRowCnt(TSr)>(-1) then begin
+	MatRowGet(TSr,0,TSrw);
+	TSr.UserCode=TSrw.EMCode;
+	  if (RecordStore(TSr,true)) then begin end;
+	end;
+  end;//while loop
+
+
+return;
+end;
+
+global
+updating procedure WalkAndSerchRingsInProjects(string mother,string codd,var boolean testf) // длЯ реализации 6004 
+  begin
+record PRVc PRr1;
+Boolean foundf;  
+  PRr1.MotherCode = mother;
+  foundf = true;
+  while (LoopKey("MotherCode",PRr1,1,foundf)) begin
+    if (PRr1.MotherCode<>mother) then begin 
+    foundf = false; 
+    end;
+    if (foundf) then begin
+      if codd==PRr1.Code then begin
+      testf=false;
+      goto SameSideLine;
+      end;
+      WalkAndSerchRingsInProjects(PRr1.Code,codd,testf);
+    end;
+  end;  
+  SameSideLine:;
+return;
+end;
+
+
+global 
+updating procedure RingInProjMn (record RcVc RepSpec) // длЯ реализации 6004 
+begin
+record PRVc PRr;
+integer i;
+Boolean TrHs,testf;
+string 20 codd;
+
+TrHs=true;
+testf=true;
+  while(LoopMain(PRr,1,TrHs)) begin
+    if nonblank(PRr.MotherCode) then begin
+  WalkAndSerchRingsInProjects(PRr.Code,PRr.MotherCode,testf);
+    if testf==false then begin
+    MessageBox(10895, " Ring in: " & PRr.Code);
+    goto RingError;
+    end;
+  end;
+  end;
+RingError:;
+return;
+end;
+
+global
+updating procedure WalkInSubProjects(string mother,string Identcodd,integer mode,string codd,var boolean testf) // длЯ реализации 6004 
+begin
+record PRVc PRr1;
+Boolean foundf;  
+  PRr1.MotherCode = mother;
+  foundf = true;
+  //logtext (0,"3333 " & mother & " " & Identcodd & " " & codd);
+	while (LoopKey("MotherCode",PRr1,1,foundf)) begin
+		if (PRr1.MotherCode<>mother) then begin 
+			foundf = false; 
+		end;
+		//logtext (0,"zzz " & PRr1.Code & " foundf=" & foundf & " PRr1.MotherCode=" & PRr1.MotherCode & " " & mother);
+		if (foundf) then begin
+			if mode==1 then begin
+				if codd!=PRr1.Code then begin
+					PRr1.Ident=Identcodd;
+					if (RecordStore(PRr1,true)) then begin end;
+					testf=true;
+				end else begin
+					testf=false;
+				end;
+			end;
+			if mode==2 then begin
+				if codd==PRr1.Code then begin
+					testf=false;
+					goto SameSideLine;
+				end;
+			end;
+			if testf then begin
+				WalkInSubProjects(PRr1.Code,Identcodd,mode,codd,testf);
+			end;  
+		end;
+	end;  
+  SameSideLine:;
+return;
+end;
+
+global 
+updating procedure UpdateProjMn (record RcVc RepSpec) // длЯ реализации 6004 
+begin
+record PRVc PRr;
+record PRVc PRr1;
+record PRVc PRr2;
+record PRVc corrPRr;
+integer i;
+Boolean TrHs,testf;
+string 20 codd;
+
+TrHs=true;
+testf=true;
+	
+	logtext(0,"UpdateProjMn");
+	PRr.Code = RepSpec.f1;
+  while(LoopMain(PRr,1,TrHs)) begin
+  	if(nonblank(RepSpec.f1) and RepSpec.f1!=PRr.Code)then begin TrHs = false; end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 September 2019 13:13:52
+    if nonblank(PRr.MotherCode) then begin
+    WalkInSubProjects(PRr.Code,"Nothing",2,PRr.MotherCode,testf);//TRA20
+      if testf==false then begin
+      MessageBox(10895, " Ring in: " & PRr.Code);
+      goto RingError;
+      end;
+    end;
+  end;
+  ResetLoop(PRr);
+  PRr.Code="";
+  TrHs=true;
+  PRr.Code = RepSpec.f1;
+  while(LoopMain(PRr,1,TrHs)) begin
+  	logtext(0,"UpdateProjMn " & PRr.Code);
+  	if(nonblank(RepSpec.f1) and RepSpec.f1!=PRr.Code)then begin TrHs = false; end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 September 2019 13:13:52
+    if blank(PRr.MotherCode) then begin
+      PRr1.MotherCode=PRr.Code;
+      if ReadFirstKey("MotherCode",PRr1,1,true) then begin
+				PRr.ProjType=0;
+				PRr.Ident=PRr.Code;
+      end else begin
+        PRr.ProjType=3;
+        PRr.Ident="";
+      end;
+    end else begin
+      corrPRr.Code=PRr.MotherCode;
+      if ReadFirstMain(corrPRr,1,true)==false then begin
+				MessageBox(10895, " MotherCode isn't correct: " & PRr.MotherCode & " In project - " & PRr.Code);
+				goto RingError;
+      end;
+      PRr1.MotherCode=PRr.Code;
+      if ReadFirstKey("MotherCode",PRr1,1,true) then begin
+				PRr.ProjType=1;
+				codd=PRr.MotherCode;
+				lable:;
+				PRr2.Code=codd;
+        if ReadFirstMain(PRr2,1,true) then begin
+          if nonblank(PRr2.MotherCode) then begin
+          codd=PRr2.MotherCode;
+          goto lable;
+          end else begin
+            PRr.Ident=PRr2.Code;
+          end;
+        end;
+      end else begin
+        PRr.ProjType=2;
+        codd=PRr.MotherCode;
+        lable1:;
+        PRr2.Code=codd;
+        if ReadFirstMain(PRr2,1,true) then begin
+          if nonblank(PRr2.MotherCode) then begin
+          codd=PRr2.MotherCode;
+          goto lable1;
+          end else begin
+            PRr.Ident=PRr2.Code;
+          end;
+        end;
+      end;
+    end;
+    if (RecordStore(PRr,true)) then begin end;
+  end;//while loop
+ResetLoop(PRr);  
+TrHs=true;
+testf=true;
+if(nonblank(RepSpec.f1))then begin TrHs = false; end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 September 2019 13:13:52
+PRr.ProjType=0;
+  while(LoopKey("ProjType",PRr,1,TrHs)) begin
+    if PRr.ProjType==0 then begin
+    WalkInSubProjects(PRr.Code,PRr.Code,1,"Noting",testf);//TRA20
+    end else begin
+      TrHs=false;
+    end;
+  end;
+  
+RingError:;
+return;
+end;
+
+
+global updating procedure UnResORMn (record RcVc RepSpec)
+begin
+
+record PUVc ORr;
+row ORVc ORrw;
+string 20 ord;
+string 20 order;
+boolean TrHs,testf,found;
+integer i,qty,bal,ordqty;
+
+TrHs=true;
+testf=true;
+ord=RepSpec.f1;
+ORr.SerNr=RepSpec.f1;
+if ReadFirstMain(ORr,1,true) then begin
+   ORr.OKFlag=0;
+   if RecordStore(ORr,true) then begin
+   end;
+end;
+return;
+end;
+   
+
+global updating procedure UnResPOMn (record RcVc RepSpec)
+begin
+
+record SDVc ORr;
+row ORVc ORrw;
+string 20 ord;
+string 20 order;
+boolean TrHs,testf,found;
+integer i,qty,bal,ordqty;
+
+TrHs=true;
+testf=true;
+
+
+ord=RepSpec.f1;
+ORr.SerNr=RepSpec.f1;
+if ReadFirstMain(ORr,1,true) then begin
+   ORr.OKFlag=0;
+   if RecordStore(ORr,true) then begin
+   end;
+end;
+return;
+end;
+
+global updating procedure UnResSHMn (record RcVc RepSpec)
+begin
+
+record SHVc ORr;
+row ORVc ORrw;
+string 20 ord;
+string 20 order;
+boolean TrHs,testf,found;
+integer i,qty,bal,ordqty;
+
+TrHs=true;
+testf=true;
+
+
+ord=RepSpec.f1;
+ORr.SerNr=RepSpec.f1;
+if ReadFirstMain(ORr,1,true) then begin
+   ORr.OKFlag=0;
+   if RecordStore(ORr,true) then begin
+   end;
+end;
+return;
+end;
+    
+	 
+	 global  // новая процедура
+updating procedure FindPOAmount(var row POVc POrw, string proj)
+begin
+	record POItemVc POTr;
+	boolean testf,TrHs;
+	val sum;
+	integer i;
+	record TBBUVc TBr;
+	row TBBUVc TBrw;
+	
+	POTr.PRCode=proj;
+	POTr.ArtCode=POrw.ArtCode;
+	TrHs=true;
+	testf=true;
+	sum=0;
+	while LoopKey("Item",POTr,2,TrHs) begin
+		if POTr.ArtCode!=POrw.ArtCode then begin
+			testf=false;
+			TrHs=false;
+		end;
+		if testf then begin
+			if POTr.PRCode!=proj then begin
+				testf=false;
+				TrHs=false;
+			end;
+		end;
+		if testf then begin
+			sum=sum+POTr.Sum;
+		end;
+	end;
+	TBr.PRCode=proj;
+	if ReadFirstMain(TBr,1,true) then begin end;
+	i=0;
+	while i<MatRowCnt(TBr) begin
+		MatRowGet(TBr,i,TBrw);
+		if nonblank(TBrw.ArtCode) and TBrw.ArtCode==POrw.ArtCode then begin
+			sum=sum - TBrw.Sum;
+			goto LEnd;
+		end;
+		i=i+1;
+	end;
+	LEnd:;
+	sum=sum+POrw.Sum;
+	if sum<=0 then begin
+		POrw.POAmount=0;
+	end else begin
+		POrw.POAmount=sum;
+	end;
+return;
+end;
+
+global // новая процедура
+function boolean CheckPOItem(row POVc POrw, string proj)
+begin
+boolean res;
+record TBBUVc TBr;
+row TBBUVc TBrw;
+integer i;
+res=false;
+TBr.PRCode=proj;
+if ReadFirstMain(TBr,1,true) then begin end;
+i=0;
+while (i<MatRowCnt(TBr)) begin
+	MatRowGet(TBr,i,TBrw)
+	if nonblank(TBrw.ArtCode) and TBrw.ArtCode==POrw.ArtCode then begin
+		res=true;
+	end;
+	i=i+1;
+end;
+LFailed:;
+CheckPOItem=res;
+return;
+end;
+
+updating  // новая процедура
+procedure RecDel(record POItemVc ROr)
+begin
+record POItemVc ROR2r;
+integer i;
+		ROR2r.PONr=ROr.PONr;
+		ROR2r.SerNr=ROr.SerNr;
+		if ReadFirstMain(ROR2r,2,true) then begin
+		RecordDelete(ROR2r);
+	//	DBFlush;
+	//	DBHold;
+		end;
+return;
+end;
+
+global updating // новая процедура
+function boolean POItemCreate(record POVc OR2r,row POVc OR2rw, integer i)
+begin
+boolean res,TrHs,testf,CheckPoint;
+record POItemVc ROr;
+longint number;
+
+   if nonblank(OR2rw.ArtCode) then begin
+		RecordNew(ROr);
+		CheckPoint=true;
+		ROr.SerNr=999999999;
+		if ReadLastMain(ROr,1,false) then begin
+			if ROr.SerNr!=-1 then begin
+				number=ROr.SerNr;
+				CheckPoint=false;
+			end;
+		end;
+		if CheckPoint then begin
+			number=1;
+		end else begin
+			number=number+1;
+	   end;
+		if OR2rw.Quant-OR2rw.Shipd2>0 then begin
+			ROr.SerNr=number;
+			ROr.ArtCode=OR2rw.ArtCode;
+			ROr.PONr=OR2r.SerNr;
+			ROr.TransDate=OR2r.TransDate;
+			ROr.Sum=OR2rw.Sum;
+			if (RecordStore(ROr,true)) then begin  end;
+		end;
+   end;
+	res=true;
+	POitemCreate=res;
+return;
+end;
+
+global updating // новая процедура
+function boolean POItemDelete(longint ordernr)
+begin
+boolean res,TrHs,testf;
+record POItemVc ROr,ROR2r;
+integer i;
+	TrHs=true;
+	testf=true;
+	ROr.PONr=ordernr;
+	while LoopMain(ROr,1,TrHs) begin
+		if ROr.PONr>ordernr then begin
+			TrHs=false;
+			testf=false;
+		end else begin
+			testf=true;
+		end;
+		if testf then begin
+			RecDel(ROr);
+			StepBack(ROr);
+		end;
+	end;
+	res=true;
+	POItemDelete=res;
+return;
+end;
+
+global updating  // новая процедура
+procedure UpdTSMn(record RcVc RepSpec)
+begin
+record TSVc TSr;
+	while LoopMain(TSr,1,true) begin
+		TSr.Stage=1;
+		if RecordStore(TSr,true) then begin	end;
+	end;
+return;
+end;
+
+global updating  // новая процедура
+procedure UpdQTMn(record RcVc RepSpec)
+begin
+record QTVc QTr;
+
+	while LoopMain(QTr,1,true) begin
+		QTr.Stage=0;
+		if RecordStore(QTr,true) then begin end;
+	end;
+return;
+end;
+
+global updating // новая процедура
+procedure UpdActMn(record RcVc RepSpec)
+begin
+record ActVc Actr;
+	while LoopMain(Actr,1,true) begin
+		Actr.Stage=1;
+		if RecordStore(Actr,true) then begin end;
+	end;
+return;
+end;
+
+
+global updating // новая процедура - проставление абстрактного кода 5 в фазу проекта - предположительно для работы ключа PRStage
+procedure UpdPRStagePRMn(record RcVc RepSpec)
+begin
+record PRVc PRr,OldPRr;
+	while LoopMain(PRr,1,true) begin
+		if (PRr.PRStage<>"0") and (PRr.PRStage<>"1") then begin
+			RecordCopy(OldPRr,PRr);
+			logtext(0," Old PRr.Code = " & PRr.Code);
+			PRr.PRStage=5; 
+			logtext(0," New PRr.Code = " & PRr.Code);
+			if (RecordUpdate(OldPRr,PRr,false)==0) then begin end;
+		end;
+	end;
+return;
+end;
+
+
+global updating procedure UpdTypMn(record RcVc RepSpec)// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:34
+begin
+	record PRVc PRr;
+	boolean testf;
+	
+	if(nonblank(RepSpec.f1) and nonblank(RepSpec.f2))then begin
+		if(RepSpec.f1!=RepSpec.f2)then begin
+			while(loopmain(PRr,1,true))begin
+				if(PRr.PRClass==RepSpec.f1)then begin
+					PRr.PRClass = RepSpec.f2;
+					logtext(0,"Project chanje type " & PRr.Code & " " & RepSpec.f1 & " -> " & RepSpec.f2);
+					logtext(0,PRr.PRClass);
+					recordstore(PRr,true);
+				end;
+			end;
+		end;
+	end;
+	
+return;
+end;
+
+
+global updating procedure UpdClassMn(record RcVc RepSpec)// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:32
+begin
+	record PRVc PRr;
+	boolean testf;
+	integer pos;
+	string 100 tempclass,tstr;
+	
+	if(nonblank(RepSpec.f1) and nonblank(RepSpec.f2))then begin
+		if(RepSpec.f1!=RepSpec.f2)then begin
+			while(loopmain(PRr,1,true))begin
+				if(setinset(RepSpec.f1,PRr.PRClassification))then begin
+					pos = 0;
+					tempclass = "";
+					ExtractObj(PRr.PRClassification,pos,tstr);
+					
+					while(nonblank(tstr))begin
+						if(nonblank(tstr))then begin
+							if(!setinset(tstr,RepSpec.f1))then begin
+								if(nonblank(tempclass))then begin
+									tempclass = tempclass & ",";
+								end;
+								tempclass = tempclass & tstr;
+							end;
+						end;
+						ExtractObj(PRr.PRClassification,pos,tstr);
+					end;
+					
+					if(!setinset(RepSpec.f2,tempclass))then begin
+						if(nonblank(tempclass))then begin
+							tempclass = tempclass & ",";
+						end;
+						PRr.PRClassification = tempclass & RepSpec.f2;
+					end else begin
+						PRr.PRClassification = tempclass;
+					end;
+					
+					logtext(0,"Project chanje classification " & PRr.Code & " " & RepSpec.f1 & " -> " & RepSpec.f2);
+					logtext(0,PRr.PRClassification);
+					recordstore(PRr,true);
+				end;
+			end;
+		end;
+	end;
+	
+return;
+end;
+
+global updating // новая процедура - проставление абстрактного кода 5 в фазу проекта - предположительно для работы ключа PRStage
+procedure UpdPRCurncyCodeMn(record RcVc RepSpec)
+begin
+record PRVc PRr,OldPRr;
+record QTVc QTR;
+	while LoopMain(PRr,1,true) begin
+		if (blank(PRr.CurncyCode)) then begin
+			QTr.PRCode = PRr.Code;
+			RecordCopy(OldPRr,PRr);
+			if readfirstkey("PRCode",QTr,1,true) then begin
+				PRr.CurncyCode = QTr.CurncyCode;
+			end else begin
+				PRr.CurncyCode = "UAH";
+			end;
+			if (RecordUpdate(OldPRr,PRr,false)==0) then begin end;
+		end;
+	end;
+return;
+end;
+
+global updating procedure ClearAccPOMn(record RcVc RepSpec)
+begin
+	record POVc POr;
+	record ActVc Actr;
+	boolean TrHs;
+	string 50 sernr;
+	
+	POr.SerNr = RepSpec.long1;
+	
+	if(readfirstmain(POr,1,true))then begin
+		POr.AcceptanceStatus = 1;
+		recordStore(POr,true);
+		Actr.FromFileName = "POVc";
+		Actr.FromSerNr = POr.SerNr;
+		TrHs = true;
+		while(loopkey("FromFileName",Actr,2,TrHs))begin
+			if(evaltoval(Actr.FromSerNr)!=POr.SerNr or Actr.FromFileName!="POVc")then begin TrHs = false; end;
+			
+			if(TrHs and Actr.OKFlag==0)then begin
+				Actr.OKFlag = 1;
+				Actr.ActType = "CANCL";
+				Actr.EndDate = currentdate;
+				Actr.EndTime = currenttime;
+				Actr.ActResult = "CANCL";
+				RecordStore(Actr,true);
+			end;
+		end;
+	end;
+	
+	
+return;
+end;
+
+global updating procedure ClearAccQTMn(record RcVc RepSpec)
+begin
+	record QTVc QTr;
+	record ActVc Actr;
+	boolean TrHs;
+	string 50 sernr;
+	
+	QTr.SerNr = RepSpec.long1;
+	
+	if(readfirstmain(QTr,1,true))then begin
+		QTr.AcceptanceStatus = 1;
+		QTr.Authority = "";
+		recordStore(QTr,true);
+		Actr.FromFileName = "QTVc";
+		Actr.FromSerNr = QTr.SerNr;
+		TrHs = true;
+		while(loopkey("FromFileName",Actr,2,TrHs))begin
+			if(evaltoval(Actr.FromSerNr)!=QTr.SerNr or Actr.FromFileName!="QTVc")then begin TrHs = false; end;
+			
+			if(TrHs and Actr.OKFlag==0)then begin
+				Actr.OKFlag = 1;
+				Actr.ActType = "CANCL";
+				Actr.EndDate = currentdate;
+				Actr.EndTime = currenttime;
+				Actr.ActResult = "CANCL";
+				RecordStore(Actr,true);
+			end;
+		end;
+	end;
+	
+return;
+end;
+
+
+global updating procedure NormalizeQTAuthorityVClassMn(record RcVc RepSpec)
+begin
+	record QTVc QTr;
+	boolean testf;
+	
+	QTr.SerNr = 0;
+	while(loopmain(QTr,1,true))begin
+		if(blank(QTr.Authority))then begin
+			if(QTr.AcceptanceStatus==4 or QTr.AcceptanceStatus==5)then begin
+				QTr.AcceptanceStatus = 1;
+				recordStore(QTr,true);
+			end;
+		end;
+		
+		if(nonblank(QTr.Authority))then begin
+			if(QTr.AcceptanceStatus!=4 and QTr.AcceptanceStatus!=0)then begin
+				QTr.Authority = "";
+				QTr.AcceptanceStatus = 1;
+				recordStore(QTr,true);
+			end;
+		end;
+	end;
+	
+return;
+end;
+
+global updating procedure UnOkSD160008Mn(record RcVc RepSpec)
+begin
+	record SDVc SDr;
+	
+	SDr.SerNr = 160008;
+	if(readfirstmain(SDr,1,true))then begin
+		SDr.OKFlag = 0;
+		recordstore(SDr,true);
+	end;
+	
+return;
+end;

@@ -1,0 +1,577 @@
+SourceFile("halcust\\Test",0);
+SourceFile("halcust\\Windows",3);
+
+
+begin
+	
+	recordaddbegin(IVVc,"Cust_IVVc");
+		ChangeMatrixField(Spec,M4Str,255,0);
+		RecordField(DocumentType,M4Code,20,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 April 2018 11:28:29
+ 		RecordField(DocumentsFlag,M4Str,20,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 24 September 2018 14:55:35
+	endrecordadd;
+	
+	recordaddbegin(INVc,"Cust_INVc");
+		SubsetKeyBegin2(ActCodeTS);// was added
+		StoreInBaseKey;
+		AppendFieldToKeyName(Group);
+		KeySegment(Code);
+		KeySegment(Terminated);
+		KeySegment(Group);
+	
+		KeyBegin(TSActCode);// was added
+		KeySegment(Code);
+	
+		KeyBegin(TSActName);// was added
+		KeySegment(Name);
+		KeySegment(Code);
+	
+		KeyBegin(TSAlternativeCode);// was added
+		KeySegment(AlternativeCode);
+		KeySegment(Code);
+	endrecordadd;
+	
+	recordaddbegin(PRVc,"Cust_PRVc");
+		ChangeField(Name,M4Str,255,0);
+		RecordField(ProjType,M4Int,0,0);				// was added 
+		RecordField(Ident,M4Code,20,PRVc);			// was added  
+		RecordField(PreFinishedDate,M4Date,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 30 March 2018 12:12:27
+
+		SubsetKeyBegin2(PRCode); // should not be mainkey
+		StoreInBaseKey;
+		AppendListFieldToKeyName(SalesGroup);
+		AppendListFieldToKeyName(PrSalesMan);
+		AppendListFieldToKeyName(Members);
+		KeySegment(Code);
+		KeySegment(PRClass);
+		KeySegment(MotherCode);
+
+		SubsetKeyBegin2(PRClassCode); // should not be mainkey
+		StoreInBaseKey;
+		AppendListFieldToKeyName(SalesGroup);
+		AppendListFieldToKeyName(PrSalesMan);
+		AppendListFieldToKeyName(Members);
+		KeySegment(PRClass);
+		KeySegment(MotherCode);
+		KeySegment(Code);
+		KeyBegin(ProjType);			// was added
+		KeySegment(ProjType);
+		KeySegment(Code);
+		KeyBegin(Ident);			// was added
+		KeySegment(Ident);
+		KeySegment(Code);
+		KeyBegin(IdentProjType);			// was added
+		KeySegment(Ident);
+		KeySegment(ProjType);
+		KeySegment(Code);
+	
+		KeyBegin(TSCode);			// was added
+		KeySegment(Code);
+		KeyBegin(TSMotherCode);			// was added
+		KeySegment(MotherCode);
+		KeySegment(Code);
+		KeyBegin(TSPRClass);			// was added
+		KeySegment(PRClass);
+		KeySegment(Code);
+		KeyBegin(TSPRStage);			// was added
+		KeySegment(PRStage);
+		KeySegment(Code);
+		KeyBegin(TSName);			// was added
+		KeySegment(Name);
+		KeySegment(Code);
+ 
+	 KeyBegin(QTCode);			// was added
+		KeySegment(Code);
+		KeyBegin(QTMotherCode);			// was added
+		KeySegment(MotherCode);
+		KeySegment(Code);
+		KeyBegin(QTPRClass);			// was added
+		KeySegment(PRClass);
+		KeySegment(Code);
+		KeyBegin(QTPRStage);			// was added
+		KeySegment(PRStage);
+		KeySegment(Code);
+		KeyBegin(QTName);			// was added
+		KeySegment(Name);
+		KeySegment(Code);  
+	endrecordadd;
+	
+	recordaddbegin(QTVc,"Cust_QTVc");
+		RecordField(Stage,M4Int,0,0);
+  	RecordField(Authority,M4Code,10,UserVc);
+	endrecordadd;
+	
+	RecordAddBegin(CUVc,"Cust_CUVc");
+		ChangeField(Comment,M4Str,255,0);//60-255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:42:52
+		ChangeField(Comment0,M4Str,255,0);//60-255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:43:12
+		ChangeField(Comment1,M4Str,255,0);//60-255//// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:43:20
+		ChangeField(Comment2,M4Str,255,0);//60-255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:43:24
+		RecordField(ContactCode,M4Str,20,0);
+		RecordField(FullName,M4Str,255,0);// 6.2// Edit ************************** Thursday, 19 September 2013 12:55:04
+	
+		KeyBegin(ContactCode);//6.2sav ==== added by prev
+		KeySegment(ContactCode);
+		KeySegment(Code);
+		KeyBegin(EmplCode);			
+		KeySegment(Code);  // SAV 6016
+		KeyBegin(EmplSearchKey);		
+		KeySegment(SearchKey);		
+		KeySegment(Code);// SAV 6016
+		KeyBegin(EmplName);		
+		KeySegment(Name);		
+		KeySegment(Code);// SAV 6016	
+
+	EndRecordAdd;
+
+	RecordAddBegin(POVc,"Cust_POVc");
+		ChangeField(Comment,M4Str,255,0);//60->255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:42:17
+		RecordField(Confirns,M4Mark,0,0);// was added
+		RecordField(AlertFlag,M4Mark,0,0);// SAV 2011_08_10 флажок переполнения суммы по бюджету
+		RecordField(OKDate,M4Date,0,0); // Gray-X SAV 2011_12_16 - дата простановки OKFlag	
+		ArrayField(POAmount,M4Val,0,0); // was added
+	EndRecordAdd;
+
+	RecordAddBegin(UserVc,"Cust_UserVc");
+		RecordField(TSControlPassword,M4Str,20,0);// Edit ************************** Friday, 21 February 2014 09:35:13
+	EndRecordAdd; 
+
+	RecordAddBegin(VIVc,"Cust_VIVc");
+	  ChangeField(Comment,M4Str,255,0);//60-255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:40:53
+		RecordField(OperType,M4Code,10,0);// 6.2
+		RecordField(PrelAPAcc,M4Code,10,AccVc);// was added
+		RecordField(DocumentType,M4Code,20,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 20 March 2018 14:12:18
+ 		RecordField(DocumentsFlag,M4Str,20,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 24 September 2018 14:55:35
+	EndRecordAdd;  
+	
+	RecordAddBegin(FEVIVc,"Cust_FEVIVc");
+	  ChangeField(Comment,M4Str,255,0);//60-255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:40:26
+		RecordField(Sum1,M4Val,0,0);// was added
+		RecordField(Sum2,M4Val,0,0);// was added
+		RecordField(TAXAdv,M4Val,0,0);// was added
+	EndRecordAdd;  
+	
+	
+	RecordAddBegin(TSVc,"Cust_TSVc");
+		ChangeMatrixField(PRName,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 April 2018 19:43:38
+		RecordField(UserCode,M4Code,10,UserVc);	// was added
+		RecordField(Stage,M4Int,0,0);	// was added
+		RecordField(Authority,M4UStr,60,0);	// was added for 6005
+		
+		//KeyBegin(ActSerNr);
+		SubsetKeyBegin2(ActSerNr);
+		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:53:45
+		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:53:44
+		KeySegment(SerNr);
+	
+		//KeyBegin(ActRegDate);
+		SubsetKeyBegin2(ActRegDate);
+		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:53:52
+		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:53:49
+		KeySegment(RegDate);
+		KeySegment(SerNr);
+	
+		//KeyBegin(ActOKFlag);
+		SubsetKeyBegin2(ActOKFlag);
+		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:54:02
+		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:54:00
+		KeySegment(OKFlag);
+		KeySegment(SerNr);
+	
+		//KeyBegin(ActComment);
+		SubsetKeyBegin2(ActComment);
+		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:54:08
+		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:54:08
+		KeySegment(Comment);
+		KeySegment(SerNr);
+	EndRecordAdd;  
+	
+	
+	BlockBegin(QTSettBlock,-,"");
+		RecordField(DefaultValidDays,M4Long,0,0);
+		RecordField(ReqQTClass,M4Int,0,0);
+		RecordField(DisallowInvoicemorethanQuoted,M4Int,0,0);
+		RecordField(ReqRejectDate,M4Int,0,0);
+		RecordField(RemoveRowswithZeroQuantity,M4Int,0,0);
+		RecordField(PRQTClass,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 02 12 2019 y. at 12:26:43 PM
+  EndBlock;
+  
+  RecordAddBegin(ActVc,"Cust_ActVc");
+		ChangeField(Comment,M4Str,255,0);//60->255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:42:17
+	  RecordField(Stage,M4Int,0,0);// was added
+	EndRecordAdd;
+	
+	RecordAddBegin(AT2TakeVc,"Cust_AT2TakeVc");
+		KeyBegin(RespPerson); // was added
+		KeySegment(RespPerson);
+		KeySegment(SerNr);
+	EndRecordAdd;
+	
+	RecordAddBegin(AT2UnitVc,"Cust_AT2UnitVc");
+		KeyBegin(Comment); // was added
+		KeySegment(Comment);
+		KeySegment(InventoryNr);
+	EndRecordAdd; 
+	
+	RecordAddBegin(ARVc,"Cust_ARVc");
+		RecordField(PRCode,M4Code,20,PRVc); //project
+		KeyBegin(PRCode);
+		KeySegment(PRCode);
+		KeySegment(InvoiceNr);
+	EndRecordAdd; 
+	
+	RecordAddBegin(IPVc,"Cust_IPVc");
+		ArrayField(PRCode,M4Code,20,PRVc);
+		ArrayField(KBExportNum,M4Long,0,0);	
+	EndRecordAdd; 
+	
+	  
+	RecordAddBegin(ARPayVc,"Cust_ARPayVc");
+		RecordField(PRCode,M4Code,20,PRVc); 
+		KeyBegin(PRCode);
+		KeySegment(PRCode);
+		KeySegment(CUPNr);	
+	EndRecordAdd;
+	
+	RecordAddBegin(ORVc,"Cust_ORVc");
+  	ChangeMatrixField(Price,M4Rate,0,0);//	//Edit----------------------Dima  17.11.2015  field type was changed only
+	EndRecordAdd;
+	
+	RecordAddBegin(OPVc,"Cust_OPVc");
+	  ChangeMatrixField(Comment,M4Str,255,0);//200->255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:41:28
+		ArrayField(KBExportNum,M4Long,0,0);  
+		ArrayField(VEName,M4Str,255,0);// Edit ************************** Friday, 3 November 2017 17:14:22
+	EndRecordAdd;
+	
+	RecordAddBegin(VATVIVc,"Cust_VATVIVc");
+	  ChangeField(Comment,M4Str,255,0);//60->255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:40:01
+		RecordField(VEPN,M4Str,20,0); // SAV Gray-5 2011_01_03 Поле - пн поставщика
+		RecordField(OperType,M4Code,10,0); // SAV Gray-5 2011_01_03 
+		RecordField(CredRow,M4Code,10,0); // Edit ************************** Thursday, 31 October 2013 14:08:13
+		ArrayField(Price,M4Val,0,0);// Edit ************************** Tuesday, 24 September 2013 13:39:35
+		ArrayField(vRebate,M4Val,0,0);// Edit ************************** Tuesday, 24 September 2013 13:39:36
+		KeyBegin(VEPN); // SAV Gray-5 2011_01_03 индекс по пн
+		KeySegment(VEPN);
+		KeySegment(SerNr);// Edit ************************** Wednesday, 9 January 2013 15:53:01 
+	EndRecordAdd; 
+	
+	RecordAddBegin(VATIVVc,"Cust_VATIVVc");
+		RecordField(VEPN,M4Long,0,0); 	
+		RecordField(VECorPN,M4Long,0,0);
+		RecordField(Reason,M4Code,20,0);
+		RecordField(CorReason,M4Str,60,0); 
+		RecordField(IncludedERPN,M4Int,0,0); 
+	
+		RecordField(Contract,M4Str,60,0);
+		RecordField(ContractDate,M4Date,0,0);
+		RecordField(ContractType,M4Str,60,0) 
+		RecordField(ContractPayDeal,M4Str,60,0)
+		RecordField(OperType,M4Code,10,0); 
+		RecordField(DebRow,M4Code,10,0); // Edit ************************** Thursday, 31 October 2013 14:08:59
+		ChangeMatrixField(vRebate,M4Val,0,0); //Edit***************************Sasha2,10:48 09.02.2016
+		KeyBegin(VEPN);
+		KeySegment(VEPN);
+		KeySegment(SerNr);  
+	EndRecordAdd; 
+	
+	BlockBegin(VATCodeBlock,-,"vatcode");
+		NewAutosyncHBlock(kSyncDirectionToClient);
+		RecordField(Math,M4Matrix,0,0);
+		ArrayBegin(Math,-,1);
+		ArrayField(VATCode,M4Code,10,VATCodeBlock);
+		ArrayField(Comment,M4Str,60,0);
+		ArrayField(ExVatpr,M423Val,0,0);
+		ArrayField(IncVatpr,M4Rate,0,0);//M423Val
+		ArrayField(SalesVATAcc,M4Code,10,AccVc);
+		ArrayField(PurchVATAcc,M4Code,10,AccVc);
+		ArrayField(Tax1pr,M423Val,0,0);
+		ArrayField(Tax1Acc,M4Code,10,AccVc);
+		ArrayField(PayPurchVATAcc,M4Code,10,AccVc);
+		ArrayField(PaySalesVATAcc,M4Code,10,AccVc);
+		ArrayField(ExcludeFromOfficial,M4Set,50,0);
+		ArrayField(CorSalesVATAcc,M4Code,10,AccVc);
+		ArrayField(CorPurchVATAcc,M4Code,10,AccVc);
+		ArrayField(Tax1OppAcc,M4Code,10,AccVc);
+		ArrayField(Tax1Min,M4Val,0,0);
+		ArrayField(TaxRules,M4Code,20,TaxRulesVc);
+		ArrayField(CredSalesVATAcc,M4Code,10,AccVc);
+		ArrayField(CredPurchVATAcc,M4Code,10,AccVc);
+		ArrayField(InclinTotal,M4Set,452,0);
+		ArrayField(TaxMatrixVariance,M4Code,10,AccVc);
+		ArrayField(ValidUntil,M4Date,0,0);
+		ArrayField(HotelWIPAcc,M4Code,10,AccVc);  
+		ArrayField(MinBaseAmount,M4Val,0,0);
+		ArrayField(MaxBaseAmount,M4Val,0,0);
+		ArrayField(CalcRule,M4Set,511,0);
+		ArrayField(REDpr,M423Val,0,0);
+		ArrayField(STExVatpr,M423Val,0,0);
+		ArrayField(MinRvrsVAT,M4Val,0,0);
+		ArrayField(VATRateTier,M4StrSet,633,0);
+		ArrayField(TaxExemption,M4Code,5,TaxExemptionsBlock);
+		ArrayField(VATEntity,M4Code,2,0);
+		ArrayField(CorSalesVATAcc2,M4Code,10,AccVc); // SAV 2012_01_18 Добавление столбца для недопдв в Актах клиенту
+
+		EndArray;
+  EndBlock;
+  
+  recordaddbegin(TBIVVc,"Cust_TBIVVc");
+		ChangeField(PRName,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 April 2018 19:39:36
+	endrecordadd;
+	
+	recordaddbegin(ObjVc,"Cust_ObjVc");
+		ChangeField(Comment,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 April 2018 19:40:25
+	endrecordadd;
+	
+	recordaddbegin(TBBUVc,"Cust_TBBUVc");
+		ChangeField(PRName,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 April 2018 19:41:18
+	endrecordadd;
+	
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+///Custom records************************************************************************************************************
+	
+	RecordBegin(DocumentTypeVc,-,"");
+		RecordField(Type,M4Code,20,0);
+		RecordField(Name,M4Str,100,0);
+		RecordField(Rule,M4Int,0,0);
+		RecordField(IPN,M4Str,20,0);
+		RecordField(Comment,M4Str,255,0);
+		MainKeyBegin(Type,0);
+		KeySegment(Type);
+  EndRecord;
+
+	RecordBegin(AccessRecHistoryVc,-,"");
+		RecordField(SerNr,M4Long,0,0);
+		RecordField(Code,M4Code,20,0);
+		RecordField(User,M4Code,20,0);
+		RecordField(Type,M4Code,20,0);
+		RecordField(TransDate,M4Date,0,0);
+		RecordField(TransTime,M4Time,0,0);
+		RecordField(OldComment,M4Str,60,0);
+		RecordField(NewComment,M4Str,60,0);
+		RecordField(OldBlockAccs,M4Str,255,0);
+		RecordField(NewBlockAccs,M4Str,255,0);
+		RecordField(OldAccessGroup,M4UStr,100,AccessVc);
+		RecordField(NewAccessGroup,M4UStr,100,AccessVc);
+		
+		RecordField(Math,M4Matrix,0,0);
+		ArrayBegin(Math,-,1);
+		ArrayField(Addflag,M4Int,0,0);
+		ArrayField(OldAccType,M4Int,0,0);
+		ArrayField(OldAccName,M4Str,100,0);
+		ArrayField(OldAccLevel,M4Int,0,0);
+		ArrayField(OldOpenType,M4Int,0,0);
+		ArrayField(NewAccType,M4Int,0,0);
+		ArrayField(NewAccName,M4Str,100,0);
+		ArrayField(NewAccLevel,M4Int,0,0);
+		ArrayField(NewOpenType,M4Int,0,0);
+		EndArray;
+		
+		MainKeyBegin(SerNr,0);
+		KeySegment(SerNr);
+		KeyBegin(Code);
+		KeySegment(Code);
+		KeySegment(SerNr);
+		KeyBegin(CodeDate);
+		KeySegment(Code);
+		KeySegment(TransDate);
+		KeySegment(TransTime);
+		KeySegment(SerNr);
+		KeyBegin(User);
+		KeySegment(User);
+		KeySegment(TransDate);
+		KeySegment(TransTime);
+		KeySegment(SerNr);
+		KeyBegin(DateCode);
+		KeySegment(TransDate);
+		KeySegment(TransTime);
+		KeySegment(Code);
+		KeySegment(SerNr);
+  EndRecord;
+	
+	BlockBegin(SMSConfigBlock,-,"");//Edit-------------------Vitalii 11:44 25.03.2016
+    RecordField(Login,M4Str,255,0);
+    RecordField(Password,M4Str,255,0);
+    RecordField(Balance,M4Val,0,0);
+    RecordField(Host,M4Str,255,0);
+    RecordField(Page,M4Str,255,0);
+    RecordField(LastErr,M4Str,255,0);
+    RecordField(LEDate,M4Date,0,0);
+    RecordField(LETime,M4Time,0,0);
+    RecordField(Sign,M4Str,255,0);
+	EndBlock;
+
+	RecordBegin(IVDebRowsVc,-,"");
+		RecordField(Code,M4Code,10,0);
+		RecordField(Name,M4Str,200,0);
+		MainKeyBegin(Code,0);
+		KeySegment(Code);
+		KeySegment(Name);
+		KeyBegin(Name);
+		KeySegment(Name);
+		KeySegment(Code);
+  EndRecord;
+	
+	RecordBegin(VICredRowsVc,-,"");
+		RecordField(Code,M4Code,10,0);
+		RecordField(Name,M4Str,200,0);
+		MainKeyBegin(Code,0);
+		KeySegment(Code);
+		KeySegment(Name);
+		KeyBegin(Name);
+		KeySegment(Name);
+		KeySegment(Code);
+  EndRecord;
+	
+	BlockBegin(ExportVATIVXMLBlock,-,""); // SAV 
+		RecordField(Sdate,M4Date,0,0);
+		RecordField(Edate,M4Date,0,0);
+		RecordField(SerNr,M4Long,0,0);
+	EndBlock;
+	
+	RecordBegin(OperTypeVc,-,"");
+		RecordField(Type,M4Code,10,0);
+		RecordField(Name,M4Str,100,0);
+		RecordField(Rule,M4Int,0,0);
+		RecordField(IPN,M4Str,20,0);
+		RecordField(Comment,M4Str,255,0);
+		MainKeyBegin(Type,0);
+		KeySegment(Type);
+  EndRecord;
+
+	RecordBegin(ContractsVc,-,"");// SAV Gray-5 2011_01_03
+		RecordField(SerNr,M4Long,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 12:19:02
+		RecordField(CustCode,M4Code,20,CUVc);
+		RecordField(Code,M4Str,60,0);
+		RecordField(TransDate,M4Date,0,0);
+		RecordField(PayDeal,M4Str,60,0);
+		RecordField(SearchKey,M4Str,255,0);
+		RecordField(Type,M4Str,60,0)
+		RecordField(OKFlag,M4Mark,0,0);
+		RecordField(Closed,M4Mark,0,0);
+		RecordField(ActDate,M4Date,0,0);
+	
+		MainKeyBegin(SerNr,0);
+			KeySegment(SerNr);
+		KeyBegin(Code);
+			KeySegment(Code);
+			KeySegment(SerNr);
+		KeyBegin(CodeCustCode);
+			KeySegment(Code);
+			KeySegment(CustCode);
+			KeySegment(SerNr);
+		KeyBegin(CustCode);
+		 KeySegment(CustCode);
+		 KeySegment(SerNr);
+		KeyBegin(TransDate);
+		 KeySegment(TransDate);
+		 KeySegment(SerNr);
+		KeyBegin(OKFlag);
+		 KeySegment(OKFlag);
+		 KeySegment(SerNr);
+		KeyBegin(Closed);
+		 KeySegment(Closed);
+		 KeySegment(SerNr);
+		KeyBegin(SearchKey);
+		 KeySegment(SearchKey);
+		 KeySegment(SerNr);
+		KeyBegin(ActCode);
+			KeySegment(Code);
+		 KeySegment(SerNr);
+		KeyBegin(ActTransDate);
+		 KeySegment(TransDate);
+		 KeySegment(SerNr);
+		KeyBegin(ActCustCode);
+		 KeySegment(CustCode);
+		 KeySegment(SerNr);
+		KeyBegin(ActOKFlag);
+		 KeySegment(OKFlag);
+		 KeySegment(SerNr);
+		KeyBegin(ActSearchKey);
+		 KeySegment(SearchKey);
+		 KeySegment(SerNr);	
+		KeyBegin(ActDate);
+			KeySegment(ActDate);
+			KeySegment(SerNr);
+	EndRecord;
+	/*
+	BlockBegin(IVTBlock,-,"");//SAV 2011_12_20 from 6.3
+		RecordField(IVFromORRate,M4Set,461,0);
+  EndBlock;
+  */
+	BlockBegin(KBSettBlock,-,"");
+		RecordField(StartNum,M4Long,0,0);
+		RecordField(FileName,M4Long,0,0);
+		RecordField(FileDate,M4Date,0,0);
+		RecordField(Path,M4Str,2550,0);
+	EndBlock; 
+		
+	RecordBegin(RecordHistoryVc,-,""); // SAV 2011_09_08
+		RecordField(SerNr,M4Long,0,0);
+		SerialNoBlock(RecHistSerBlock);
+		RecordField(TransNr,M4Str,100,0);
+		RecordField(FileName,M4Str,20,0);
+		RecordField(UserCode,M4Code,10,UserVc);
+		RecordField(TransDate,M4Date,0,0);
+		RecordField(TransTime,M4Time,0,0);
+		RecordField(FieldName,M4Str,100,0);
+		RecordField(OldCaption,M4Str,255,0);
+		RecordField(NewCaption,M4Str,255,0);
+		MainKeyBegin(SerNr,0);
+		KeySegment(SerNr);
+		KeyBegin(FileName);
+		KeySegment(FileName);
+		KeySegment(SerNr);
+		KeyBegin(TransDate);
+		KeySegment(TransDate);
+		KeySegment(SerNr);
+		KeyBegin(UserCode);
+		KeySegment(UserCode);
+		KeySegment(SerNr);
+		KeyBegin(FileTransNr);
+		KeySegment(FileName);
+		KeySegment(TransNr);
+		KeySegment(SerNr);
+		KeyBegin(FileDateUser);
+		KeySegment(FileName);
+		KeySegment(TransDate);
+		KeySegment(UserCode);
+		KeySegment(SerNr);
+	EndRecord;
+	
+	BlockBegin(RecHistSerBlock,-,"");	//Edit-------------------Dima 30.11.2015 (from Hansa 6 -> 8)
+		RecordField(Math,M4Matrix,0,0);
+		ArrayBegin(Math,-,1);
+		ArrayField(TSerStart,M4Long,0,0);
+		ArrayField(TSerEnd,M4Long,0,0);
+		ArrayField(StartDate,M4Date,0,0);
+		ArrayField(EndDate,M4Date,0,0);
+		ArrayField(TSerCom,M4Str,20,0);
+		ArrayField(DonotGenTrans,M4Set,32,0);
+		EndArray;
+  EndBlock;
+	
+	RecordBegin(POItemVc,-,""); // our record
+		RecordField(SerNr,M4Long,0,0);
+		RecordField(ArtCode,M4Code,20,INVc);
+		RecordField(PRCode,M4Code,20,PRVc);
+		RecordField(Sum,M4Val,0,0);
+		RecordField(TransDate,M4Date,0,0);
+		RecordField(PONr,M4Long,0,0);
+		MainKeyBegin(SerNr,0);
+		KeySegment(SerNr);
+	
+		KeyBegin(Item);
+		KeySegment(ArtCode);
+		KeySegment(PRCode);
+		KeySegment(PONr);
+		KeySegment(SerNr);
+  EndRecord;
+	    
+ 	return;
+end;

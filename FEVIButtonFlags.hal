@@ -1,0 +1,178 @@
+external inner function Boolean AllowCurChange(string,Boolean);
+
+global
+procedure FEVIDClassButtonFlags(Integer wn,var Boolean duplOK,var Boolean newOK,var Boolean saveOK,var Boolean restOK)
+begin
+ // duplOK = false; // 62
+ // newOK = false;  // 62
+  return;
+end;
+
+
+global
+function Boolean FEVIDClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
+BEGIN
+  Boolean res,umf;
+  record FEVIVc FEVI2r;
+  record FEVIVc FEVIr;
+  row FEVIVc FEVIrw;
+  Integer normalmode,updatemode;
+  Integer rwcnt,orwcnt;
+  record APVc APr;
+ 
+  res = false;
+  normalmode = 0;//Rs_normal
+  updatemode = 2;//Rs_update  
+  GetWindowRecord(wn,FEVIr);
+  if (WindowState(wn)==updatemode) then begin
+    res = false;
+    GetPrevWindowRecord(wn,FEVI2r);    
+    if (FEVI2r.OKFlag!=0) then begin
+      switch (fieldname) begin
+        case "LangCode": ;
+        case "CredRow": ;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 1 March 2019 16:14:14
+        otherwise goto LFEVIDClassActiveEditField;
+      end;
+    end;  
+	 //
+	res = true;	 // 62 ????
+	//
+    if (FEVIr.VINr!=-1) then begin
+      switch (fieldname) begin
+        case "TransDate": ;
+        case "SerNr": ;
+        case "RefStr": ;
+        case "LangCode": ;
+        case "VEEventDate": ;
+        case "VEEventNr": ;
+        case "PMComment": ;
+        otherwise goto LFEVIDClassActiveEditField;
+      end;
+    end;
+    if (FEVIr.PrepaymentNr!=-1) then begin
+      switch (fieldname) begin
+        case "TransDate": ;
+        case "SerNr": ;
+        case "RefStr": ;
+        case "LangCode": ;
+        case "VEEventDate": ;
+        case "VEEventNr": ;
+        case "PMComment": ;
+        otherwise goto LFEVIDClassActiveEditField;
+      end;
+    end;
+  end;
+  res = true;
+LFEVIDClassActiveEditField:;  
+  FEVIDClassActiveEditField = res;
+  RETURN;
+END;
+
+global
+function Boolean FEIVDClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
+BEGIN
+  Boolean res;
+  record FEIVVc FEIVr;
+  row FEIVVc FEIVrw;
+  
+  if (wnst!=2) then begin//Rs_update
+    res = true;
+    GetWindowRecord(wn,FEIVr);
+    if ((FEIVr.OrderNr!=-1) or (FEIVr.IVNr!=-1)) then begin
+      res = true;//res = false; // 62
+      if (FEIVr.IVNr==-1) then begin
+        switch (fieldname) begin
+          case "QuantFract": res = true;
+          case "LangCode": res = true;
+        end;
+      end;
+    end else begin
+      switch (fieldname) begin
+			case "PrepaymentNr": res = true; // res = false; // 62
+        case "TransDate": res = true;
+        case "LangCode": res = true;
+        case "FrRate": 
+          if (AllowCurChange(FEIVr.CurncyCode,false)==false) then begin res = false; end;
+        case "ToRateB1": 
+          if (AllowCurChange(FEIVr.CurncyCode,false)==false) then begin res = false; end;
+        case "ToRateB2": 
+          if (AllowCurChange(FEIVr.CurncyCode,false)==false) then begin res = false; end;
+        case "BaseRate1": 
+          if (AllowCurChange(FEIVr.CurncyCode,true)==false) then begin res = false; end;
+        case "BaseRate2": 
+          if (AllowCurChange(FEIVr.CurncyCode,true)==false) then begin res = false; end;
+        case "Price": 
+          if (UserCanAction("ChangePrices",true)==false) then begin res = false; end;
+        case "vRebate": 
+          if (UserCanAction("ChangePrices",true)==false) then begin res = false; end;
+        case "Sum": 
+          if (UserCanAction("ChangePrices",true)==false) then begin res = false; end;
+      end;
+    end;
+  end else begin
+    res = true;
+    GetPrevWindowRecord(wn,FEIVr);
+    if (FEIVr.OKFlag!=0) then begin
+      res = false;
+      switch (fieldname) begin
+        case "SalesMan": res = true;
+        case "InvComment": res = true;
+        case "VATNr": res = true;
+        case "ClientContact": res = true;
+        case "Addr0": res = true;
+        case "Addr1": res = true;
+        case "Addr2": res = true;
+        case "Addr3": res = true;
+        case "InvAddr3": res = true;
+        case "InvAddr4": res = true;
+        case "LangCode": res = true;
+        case "Phone": res = true;
+        case "Fax": res = true;
+        case "PrepaymentNr": res = false;
+        case "PMComment": res = true;
+      end;
+    end else begin
+      GetWindowRecord(wn,FEIVr);
+      if ((FEIVr.OrderNr!=-1) or (FEIVr.IVNr!=-1)) then begin
+        res = true; //res = false; // 62
+        if (FEIVr.IVNr==-1) then begin
+          switch (fieldname) begin
+            case "QuantFract": res = true;
+          end;
+        end;
+        switch (fieldname) begin
+          case "SerNr": res = true;
+          case "LangCode": res = true;
+          case "TransDate": res = true;
+          case "PrepaymentNr": res = true;//res = false;  // 62
+          case "PMComment": res = true;
+        end;
+      end else begin
+        switch (fieldname) begin
+			 case "PrepaymentNr": res = true;//res = false; // 62
+          case "TransDate": res = true;
+          case "LangCode": res = true;
+          case "PMComment": res = true;
+          case "FrRate": 
+            if (AllowCurChange(FEIVr.CurncyCode,false)==false) then begin res = false; end;
+          case "ToRateB1": 
+            if (AllowCurChange(FEIVr.CurncyCode,false)==false) then begin res = false; end;
+          case "ToRateB2": 
+            if (AllowCurChange(FEIVr.CurncyCode,false)==false) then begin res = false; end;
+          case "BaseRate1": 
+            if (AllowCurChange(FEIVr.CurncyCode,true)==false) then begin res = false; end;
+          case "BaseRate2": 
+            if (AllowCurChange(FEIVr.CurncyCode,true)==false) then begin res = false; end;
+          case "Price": 
+            if (UserCanAction("ChangePrices",true)==false) then begin res = false; end;
+          case "vRebate": 
+            if (UserCanAction("ChangePrices",true)==false) then begin res = false; end;
+          case "Sum": 
+            if (UserCanAction("ChangePrices",true)==false) then begin res = false; end;
+        end;
+      end;
+    end;
+  end;
+  FEIVDClassActiveEditField = res;
+  RETURN;
+END;

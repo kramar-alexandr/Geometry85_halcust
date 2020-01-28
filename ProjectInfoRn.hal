@@ -1,0 +1,269 @@
+
+SetLangMode(LangUkrainian,"UKR",0);
+
+global procedure krProjectInfoRn(record RcVc RepSpec)
+begin
+Record PRVc PRr;
+Record IVVc IVr;
+Record QTVc QTr;
+Record VIVc VIr;
+Record POVc POr;
+string 50 project,salesman,keystr,custcode;
+date sd,ed;	
+integer i,mtrw,keyint,ari;
+boolean TrHs,testf,foundhist,foundmov;
+boolean TrHsIV,testfIV;
+boolean TrHsQT,testfQT;
+boolean TrHsVI,testfVI;
+boolean TrHsPO,testfPO;
+val IVSum,VISum,QTSum;
+val sIVSum,sVISum,sQTSum;
+val eIVSum,eVISum,eQTSum;
+array string 100 VIName;
+array val VIVals;
+
+	sd = RepSpec.sStartDate;
+	ed = RepSpec.sEndDate;
+	
+	project = RepSpec.f1;
+	salesman = RepSpec.f2;
+	custcode = RepSpec.f3;
+	PRr.Code = "";
+	keystr = "Code";
+	keyint = 1;
+	
+	
+	if(nonblank(salesman))then begin
+		PRr.PrSalesMan = salesman;
+		keystr = "PrSalesMan";
+		keyint = 1;
+	end;
+	if(nonblank(custcode))then begin
+		PRr.CustCode = custcode;
+		keystr = "CustCode";
+		keyint = 1;
+	end;
+	if(nonblank(project))then begin
+		PRr.Code = project;
+		keystr = "Code";
+		keyint = 1;
+	end;
+	startreportnoheaderjob("Projects details");
+		
+		
+		startformat(15);
+			OutString(0,0,"Project",false);
+			OutString(50,0,"Description",false);
+			OutString(200,0,"Amount invoiced net of vat",true);
+			OutString(240,0,"Supl.",true);
+			OutString(320,0,"Purchases, net of vat",true);
+			OutString(350,0,"Revenue",false);
+			OutString(400,0,"Budget (QT)",false);
+			OutString(1,0,"Difference",true);
+		endformat;
+		
+		TrHs = true;
+		while(loopkey(keystr,PRr,keyint,TrHs))begin
+			testf = true;
+			if(nonblank(salesman) and PRr.PrSalesMan!=salesman and blank(custcode))then begin testf = false; TrHs = false; end;
+			if(nonblank(custcode) and PRr.CustCode!=custcode)then begin testf = false; TrHs = false; end;
+			if(nonblank(project) and PRr.Code!=project)then begin testf = false; TrHs = false; end;
+			
+			if(nonblank(salesman) and nonblank(custcode))then begin
+				if(PRr.PrSalesMan!=salesman)then begin testf = false; end;
+			end;
+			
+			IVSum = 0;
+			VISum = 0;
+			QTSum = 0;
+			
+			sIVSum = 0;
+			sVISum = 0;
+			sQTSum = 0;
+			
+			eIVSum = 0;
+			eVISum = 0;
+			eQTSum = 0;
+			
+			foundhist = false;
+			foundmov = false;
+			if(testf)then begin
+				TrHsIV = true;
+				IVr.PRCode = PRr.Code;
+				while(loopkey("PRCode",IVr,1,TrHsIV))begin
+					testfIV = true;
+					if(IVr.PRCode!=PRr.Code)then begin testfIV = false; TrHsIV = false; end;
+					if(IVr.Invalid>0)then begin testfIV = false; end;
+					if(IVr.OKFlag==0)then begin testfIV = false; end;
+					
+					if(testfIV)then begin
+						foundhist = true;
+						if(dateinrange(IVr.TransDate,sd,ed))then begin foundmov = true; end;
+						if(nonblank(project))then begin
+							foundmov = true;
+						end;
+						if(IVr.TransDate<sd)then begin
+							sIVSum = sIVSum + IVr.Sum1;
+						end else begin
+							if(IVr.TransDate<=ed)then begin
+								IVSum = IVSum + IVr.Sum1;
+							end else begin
+								eIVSum = eIVSum + IVr.Sum1;
+							end;
+						end;
+						
+					end;
+				end;
+				resetloop(IVr);
+				
+				TrHsPO = true;
+				POr.PRCode = PRr.Code;
+				
+				ari = 0;
+				while(loopkey("PRCode",POr,1,TrHsPO))begin
+					testfPO = true;
+					if(POr.PRCode!=PRr.Code)then begin TrHsPO = false; testfPO = false; end;
+					if(POr.OKFlag==0)then begin testfPO = false; end;
+					
+					if(testfPO)then begin
+						TrHsVI = true;
+						VIr.POSerNr = POr.SerNr;
+						while(loopkey("POSerNr",VIr,1,TrHsVI))begin
+							testfVI = true;
+							if(VIr.POSerNr!=POr.SerNr)then begin testfVI = false; TrHsVI = false; end;
+							if(VIr.Invalid>0)then begin testfVI = false; end;
+							if(VIr.OKFlag==0)then begin testfVI = false; end;
+							
+							if(testfVI)then begin
+								foundhist = true;
+								if(dateinrange(VIr.TransDate,sd,ed))then begin foundmov = true; end;
+								if(nonblank(project))then begin
+									foundmov = true;
+								end;
+								if(VIr.TransDate<sd)then begin
+									sVISum = sVISum + VIr.PayVal - VIr.CalcVATVal;
+								end else begin
+									if(VIr.TransDate<=ed)then begin
+										VISum = VISum + VIr.PayVal - VIr.CalcVATVal;
+										VIName[ari] = VIr.VEName;
+										VIVals[ari] = VIr.PayVal - VIr.CalcVATVal;
+										ari = ari + 1;
+									end else begin
+										eVISum = eVISum + VIr.PayVal - VIr.CalcVATVal;
+									end;
+								end;
+							end;
+						end;
+						resetloop(VIr);
+					end;
+				end;
+				resetloop(POr);
+				
+				TrHsQT = true;
+				QTr.PRCode = PRr.Code;
+				while(loopkey("PRCode",QTr,1,TrHsQT))begin
+					testfQT = true;
+					if(QTr.PRCode!=PRr.Code)then begin testfQT = false; TrHsQT = false; end;
+					if(QTr.Rejected!=2)then begin testfQT = false; end;
+	
+					
+					if(testfQT)then begin
+						foundhist = true;
+						if(dateinrange(QTr.QTDate,sd,ed))then begin foundmov = true; end;
+						if(nonblank(project))then begin
+							foundmov = true;
+						end;
+						/*if(QTr.QTDate<sd)then begin
+							sQTSum = sQTSum + QTr.Sum1;
+						end else begin
+							if(QTr.QTDate<=ed)then begin*/
+								QTSum = QTSum + QTr.Sum1;
+							/*end else begin
+								eQTSum = eQTSum + QTr.Sum1;
+							end;
+						end;*/
+						
+					end;
+				end;
+				resetloop(QTr);
+			end;
+			
+			if(foundhist)then begin
+				if(foundmov)then begin
+						startformat(15);
+							OutString(0,"DblPRVc",PRr.Code,false);
+							OutString(50,0,PRr.Name,false);
+						endformat;
+						if(sIVSum!=0 or sVISum!=0)then begin
+							startformat(15);
+								OutString(0,0,"На початок періоду",false);
+								OutString(50,0,"",false);
+								OutString(200,0,sIVSum,true);
+								OutString(220,0,"",false);
+								OutString(320,0,sVISum,true);
+								OutString(350,0,"",false);
+								OutString(400,0,"",false);
+								OutString(1,0,"",true);
+							endformat;
+						end;
+						if(ari>0)then begin
+							for(i=0;i<ari;i=i+1)begin
+								startformat(15);
+									OutString(0,0,"",false);
+									OutString(50,0,"",false);
+									OutString(100,0,"",true);
+									OutString(270,0,VIName[i],true);
+									OutString(320,0,VIVals[i],true);
+									OutString(350,0,"",false);
+									OutString(400,0,"",false);
+									OutString(1,0,"",true);
+								endformat;
+							end;
+						end;
+						
+						if(IVSum!=0 or VISum!=0)then begin
+							startformat(15);
+								OutString(0,0,"За період",false);
+								OutString(50,0,"",false);
+								OutString(200,0,IVSum,true);
+								OutString(220,0,"",false);
+								OutString(320,0,VISum,true);
+								OutString(350,0,"",false);
+								OutString(400,0,"",false);
+								OutString(1,0,"",true);
+							endformat;
+						end;
+						
+						if(eIVSum!=0 or eVISum!=0)then begin
+							startformat(15);
+								OutString(0,0,"За межами періоду",false);
+								OutString(50,0,"",false);
+								OutString(200,0,eIVSum,true);
+								OutString(220,0,"",false);
+								OutString(320,0,eVISum,true);
+								OutString(350,0,"",false);
+								OutString(400,0,"",false);
+								OutString(1,0,"",true);
+							endformat;
+						end;
+						startformat(15);
+							OutString(0,0,"Разом",false);
+							OutString(50,0,"",false);
+							OutString(200,0,IVSum+sIVSum+eIVSum,true);
+							OutString(220,0,"",false);
+							OutString(320,0,VISum+sVISum+eVISum,true);
+							OutString(350,0,IVSum+sIVSum+eIVSum-(VISum+sVISum+eVISum),false);
+							OutString(400,0,QTSum,false);
+							OutString(1,0,IVSum+sIVSum+eIVSum-QTSum,true);
+						endformat;
+					Gray_Divider(0,1);
+				end;
+			end;
+		end;
+		
+		
+		
+	endjob;
+
+return;
+end;

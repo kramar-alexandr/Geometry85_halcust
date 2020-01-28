@@ -1,0 +1,1927 @@
+/* Haukrsl.hal */
+
+external inner function Boolean TouchScreenLook();
+external inner function string 60 UserDefined(string,string);
+external inner function string 60 TileUserDefined(string,Integer,var Integer);
+external inner function real VATZoneButtonsLabelsUKR(real,real,real,real);
+
+function real IVDClassFunctionButtons()
+begin
+  Real v,vs,hs,h2,h,v3;
+  string 20 label;
+  Integer colnr;
+
+  SetLangMode(LangUkrainian,"UKR",0);
+
+  v = 12; hs = 87; h2 = 85; vs = 50;v3 = 52;
+  h = 17;
+  label = TileUserDefined("IVDClass",1,colnr);
+  if (blank(label)) then begin
+    label = "Товари 1";
+  end;  
+  ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItemsSet1",label,colnr);
+  label = TileUserDefined("IVDClass",2,colnr);
+  if (blank(label)) then begin
+    label = "Товари 2";
+  end;  
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItemsSet2",label,colnr);
+  label = TileUserDefined("IVDClass",3,colnr);
+  if (blank(label)) then begin
+    label = "Товари 3";
+  end;  
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItemsSet3",label,colnr);
+  label = TileUserDefined("IVDClass",4,colnr);
+  if (blank(label)) then begin
+    label = "Товари 4";
+  end;  
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItemsSet4",label,colnr);
+  label = TileUserDefined("IVDClass",5,colnr);
+  if (blank(label)) then begin
+    label = "Товари 5";
+  end;  
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItemsSet5",label,colnr);
+  label = TileUserDefined("IVDClass",6,colnr);
+  if (blank(label)) then begin
+    label = "Товари 6";
+  end;  
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItemsSet6",label,colnr);
+  label = TileUserDefined("IVDClass",7,colnr);
+  if (blank(label)) then begin
+    label = "Товари 7";
+  end;  
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItemsSet7",label,colnr);
+  label = TileUserDefined("IVDClass",8,colnr);
+  if (blank(label)) then begin
+    label = "Більше";
+  end;  
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileMoreItems",label,colnr);
+LIVDClassFunctionButtons:;
+  IVDClassFunctionButtons = v;
+  return;
+end;
+
+function real FunctionButtons(string dclass)
+begin
+  Real v;
+  
+  switch (dclass) begin
+    case "IVDClass": v = IVDClassFunctionButtons;
+  end;
+LFunctionButtons:;
+  FunctionButtons = v;
+  return;
+end;
+
+function real ItemButtons(string dclass,Integer tilenr)
+begin
+  Real v,vs,hs,h2,h;
+  Integer i,rwcnt,j,butnr;
+  record ItemButtonsBlock IBb;
+  row ItemButtonsBlock IBrw;
+  string 255 procstr;
+
+  SetLangMode(LangUkrainian,"UKR",0);
+
+  v = 72; hs = 87; h2 = 80; vs = 60;
+  h = 17;
+  butnr = 1;
+  BlockLoad(IBb);
+  rwcnt = MatRowCnt(IBb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IBb,i,IBrw);
+    if (IBrw.TileNr==tilenr) then begin
+      if (IBrw.ButtonType<=1) then begin
+        procstr = dclass & "PasteItem";
+        j = i + 1;
+        procstr = procstr & j;
+      end else begin
+        procstr = "RestAccTile" & (StringToInt(IBrw.ArtCode)+10);
+        j = i + 1;
+        //procstr = procstr & j;
+      end;
+      ColourPushButton(h,v,h+85,v+50,procstr,IBrw.Label,IBrw.colnr);
+      h = h+hs;
+      if (Mod(butnr,8)==0) and (butnr!=0) then begin
+        h = 17;
+        v = v + vs;
+      end;
+      butnr = butnr + 1;
+      if (butnr==33) then begin
+        goto LItemButtons;
+      end;
+    end;
+  end;
+LItemButtons:;
+  ItemButtons = v;
+  return;
+end;
+
+
+function real DrawPaymentModesButtons_IV(real pv)
+begin
+  real h,v,vm,vs,v3,h2,h3,h4;
+  record LocalMachineBlock LMb;
+  record RestPMBlock RestPMb;
+  row RestPMBlock RestPMbrw;
+  Integer i,rwcnt,pmcnt;
+  Boolean treatedf;
+  string 255 label;
+  Integer colnr;
+  
+  SetLangMode(LangEnglish,"UKR",0);
+
+  v = pv+195;
+  h2 = 85; v3 = 50; vs = 37; h3 = 180; h4 = 280;
+  h = 17;
+  BlockLoad(RestPMb);
+  BlockLoad(LMb);
+  rwcnt = MatRowCnt(RestPMb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RestPMb,i,RestPMbrw);
+    if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+      pmcnt = pmcnt + 1;
+    end;
+  end;
+  if (pmcnt>2) then begin
+    pmcnt = 1;
+    h = 17;;
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(RestPMb,i,RestPMbrw);
+      if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+        label = RestPMbrw.Label;
+        colnr = RestPMbrw.colnr;
+        if (colnr<=0) then begin colnr = 2; end;
+        h2 = 85;
+        if (len(label)>10) then begin h2 = len(label)*85/10; end;
+        if (pmcnt==3) then begin
+          ColourPushButton(h,v,h+85,v+50,"RestPMOtherIVsm","Інше",2);
+          h = h+87;
+          i = rwcnt;
+        end else begin
+          switch (RestPMbrw.rowstp) begin
+            case kInvoiceRowTypeLoyaltyPointsPayment:
+              if (blank(label)) then begin label = "Готівка"; end;            
+              ColourPushButton(h,v,h+85,v+50,"CashIVsm" & pmcnt,label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeCashPayment:
+              if (blank(label)) then begin label = "Готівка"; end;            
+              ColourPushButton(h,v,h+85,v+50,"CashIVsm" & pmcnt,label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeCreditCardPayment:
+              if (blank(label)) then begin label = "Кред. картка"; end;            
+              ColourPushButton(h,v,h+85,v+50,"CredCardIVsm" & pmcnt,label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeGiftVoucherPayment:
+              if (blank(label)) then begin label = "Rcv. GV"; end;            
+              ColourPushButton(h,v,h+85,v+50,"GCRIVsm" & pmcnt,label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeChequePayment:
+              if (blank(label)) then begin label = "Чек"; end;            
+              ColourPushButton(h,v,h+85,v+50,"ChequeIVsm" & pmcnt,label,colnr);
+              h=h+87;
+          end;
+        end;
+        pmcnt = pmcnt + 1;
+        treatedf = true;
+      end;
+    end;
+    ColourPushButton(h,v,h+85,v+50,"IVFinishAndPrint","Finish",1); // Prints Receipt, closes record and opens new window
+  end else begin
+/*  
+    for (i=0;i<3;i=i+1) begin
+      MatRowGet(RestPMb,i,RestPMbrw);
+      if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+        label = RestPMbrw.Label;
+        colnr = RestPMbrw.colnr;
+        if (colnr<=0) then begin colnr = 9; end;
+        h2 = 85;
+        if (len(label)>10) then begin h2 = len(label)*85/10; end;
+        switch (RestPMbrw.rowstp) begin
+          case kInvoiceRowTypeCashPayment:
+            if (blank(label)) then begin label = "Cash"; end;            
+            ColourPushButton(h=h+87,v,h+85,v+50,"CashIVsm",label,2);
+          case kInvoiceRowTypeCreditCardPayment:
+            if (blank(label)) then begin label = "Cred. Card"; end;            
+            ColourPushButton(h=h+87,v,h+85,v+50,"CredCardIVsm",label,2);
+          case kInvoiceRowTypeGiftVoucherPayment:
+            if (blank(label)) then begin label = "Rcv. GV"; end;            
+            ColourPushButton(h=h+87,v,h+85,v+50,"GCRIVsm",label,2);
+          case kInvoiceRowTypeChequePayment:
+            if (blank(label)) then begin label = "Rcv. GV"; end;            
+            ColourPushButton(h=h+87,v,h+85,v+50,"ChequeIVsm",label,2);
+        end;
+        treatedf = true;
+      end;
+    end;
+    if (treatedf) then begin
+      ColourPushButton(h,v,h+85,v+50,"IVFinishAndPrint","Finish",1); // Prints Receipt, closes record and opens new window
+    end;
+*/    
+  end;
+  if (treatedf==false) then begin
+    ColourPushButton(h=17,v,h+85,v+50,"CashIVsm","Готівка",2);
+    ColourPushButton(h=h+87,v,h+85,v+50,"CredCardIVsm","Кред. картка",2);
+    ColourPushButton(h=h+87,v,h+85,v+50,"GCRIVsm","Rcv. GV",2);
+    ColourPushButton(h=h+87,v,h+85,v+50,"IVFinishAndPrint","Закінчити",1); // Prints Receipt, closes record and opens new window
+  end;
+  DrawPaymentModesButtons_IV = h;
+  return;
+end;
+
+global
+procedure DefineIVDClass()
+begin  
+
+  Real h,h1,h2,h3,h4,h5,h6,h7,hs,hm,v,v3,l,vs,vm,f,t,x,v2;
+  string 60 label;
+
+  SetLangMode(LangUkrainian,"UKR",0);
+    
+  WindowBegin("Акт/накладна",IVDClass,CGview,-); // основна€
+  SetWRect(20,80,620,420);
+  Sizeable(-1,-1,0,0);
+  UseView(IVVc);
+  ActiveFieldOnNew("CustCode");  
+  CommunicateButton;
+  Tile(0,48+22,false,"",CustCode);
+  EditField(75,vm=(v=6), 82,"№",Normal,SerNr,false,TSerSClass);
+  EditField(75,v+=20,95, "Клієнт",Normal,CustCode,false,CUSClass);
+  EnterSkip(PayDeal);
+  EditField(h=216,v=vm,-40,"Наймен.",Normal,Addr0,false,0);
+  v = v+24;
+  TileButton(1,"Умови");
+  TileButton(2,"Товари");
+  TileButton(3,"Валюта");
+  TileButton(4,"Відвантаження");
+  TileButton(5,"Номери");
+  TileButton(6,"Юр. адреса");
+  TileButton(7,"Адреса доставки");
+//  CheckBox(210,v,0,"OK",OKFlag);
+  Tile(1,92,false,"1",InvDate);
+  vs = 20; h1 = 110; h2 = 300; h3 = 480;
+  EditField(h1,vm=(v=6),82,"Дата",Normal,InvDate,false,PasteCurDate);
+  EditField(h1,v+=vs,25,"Ум. спл.",Normal,PayDeal,false,PDSClass);//PDMSClass);
+  EditField(h1,v+=vs,82,"Дата спл.",Normal,PayDate,false,PasteCurDate);
+  EditField(h1,v+=vs,82,"Дата опер.",Normal,TransDate,false,PasteCurDate);
+  EditField(h2,v=vm,135,"Посилання",Normal,OurContact,false,0);
+  EditField(h3+50,v,50,"Продавець",Normal,SalesMan,false,UserSClass);
+  EditField(h3+50,v+20,70,"Тип документу",Normal,DocumentType,false,DocumentTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 20 March 2018 14:13:00
+  EditField(h3+50,v+40,70,"Наявн. докум.",Normal,DocumentsFlag,false,DocumentsFlagSCLass);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 24 September 2018 14:57:33
+
+//  ColourPushButton(-100,v,-20,v+60,"TestIVDClassCardData","Test" & chr(10) & "CardData",4);
+  EditField(h2,v+=vs, 135,"Конт. особа",Normal,ClientContact,false,ContactSClass);
+  EditField(h2,v+=vs,135,"Об'єкти",Normal,Objects,false,ObjSClass);
+  EditField(h2,v+=vs,230,"Офіц. сер №",Normal,OfficialSerNr,false,LegalInvNrSClass);
+//  SoftEditField(h3+50,v,100,"Control Code"  ,ViewOnly ,"TaxAuthIDCC",false,0,M4Str,60);
+  EnterSkip(Math);
+  Tile(2,190,true,"2",Math);
+  CheckBox(20,-20,0,"OK",OKFlag);
+  EditField(65,-41,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(180,-41,70,"Фрахт",Normal,FrPrice,true,0);
+  EditField(180,-21,70,"Дод. податок",ViewOnly,TAX1Sum,true,0);
+  EditField(300,-41,80,"ПДВ",ViewOnly ,Sum3,true,0);
+  EditField(300,-21,80,"Под. 2",ViewOnly,TAX2Sum,true,0);
+  EditField(430,-21,95,"Осн.",ViewOnly,BaseSum4,true,0);
+  EditField(-133,-41,95,"Разом",ViewOnly ,Sum1,true,0);
+  EditField(-133,-21,95,"Всього",ViewOnly ,Sum4,true,0);
+  v = 24;
+  MatrixBegin(4,v,-50,-49,-,200);
+  MatTypedRow(stp);
+  Flip(0);
+  MatCol(t=kInvoiceRowTypeNormal,32,"Товар",0,ArtCode,false,INSClass);
+//  MatCol(t,94,"Var",0,VARList,true,VARSClass);
+//  MatCol(t,144,"Qty",0,Quant,true,0);
+  MatCol(t,94,"Кіл-ть",0,Quant,true,MATVARINSClass);
+  EnterSkip(ArtCode);
+  MatText(t=kInvoiceRowTypeCredit,32,"Кредитує акт/накл.",true);
+  MatCol(t,208,"",0,OrdRow,false,ARSClass);
+  MatCol(t,-216,"",0,Spec,false,0);//MatText(t,-216,"",true);
+  MatText(t=kInvoiceRowTypeInterest,32,"Відсоток",true);
+  MatCol(t,98,"",0,ArtCode,false,0);
+  MatCol(t,153,"",0,Quant,true,0);
+  MatCol(t,188,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeDownpayment,32,"Аванс",true);
+  MatColTL(t,122,"",0,-1,ViewOnly,0,ArtCode,true,0); 
+  MatColTL(t,188,"",0,-1,ViewOnly,0,Quant,true,0);
+  MatCol(t,238,"",0,Spec,false,0);
+  MatColTL(t,-170,"",0,-1,Normal,0,Sum,true,0); //?? TL?
+  MatCol(t,-70,"",0,SalesAcc,false,AccSClass);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypePrepayment,32,"Передплата клієнта",true);
+  MatCol(t,170,"",0,CUPNr,true,ARPay2SClass);
+  MatCol(t,-300,"",0,Spec,false,0);
+  MatCol(t,-170,"",0,Price,true,0);// Price holds the VAT sum, Recipe holds the date of prepaym. BasePrice holds amount in base 1, TAX1Reb holds TAX1Sum
+  MatCol(t,-100,"",0,Sum,true,0);
+  MatText(t=kInvoiceRowTypeLoan,32,"Займ",true);
+  MatCol(t,98,"",0,CuAccCode,true,CuAccSClass);
+  MatCol(t,-350,"",0,SalesAcc,true,AccSClass);
+  MatCol(t,-230,"",0,Objects,false,0);
+  MatCol(t,-110,"",0,Sum,true,0);
+  MatCol(t,-30,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypeLoanInterest,32,"% займу",true);
+  MatCol(t,98,"",0,CuAccCode,true,CuAccSClass);
+  MatCol(t,-350,"",0,SalesAcc,true,AccSClass);
+  MatCol(t,-230,"",0,Objects,false,0);
+  MatCol(t,-110,"",0,Sum,true,0);
+  MatCol(t,-30,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypeVoid,28,"Відміна",false);
+  MatColTL(t,65,"Підпис",0,-1,ViewOnly,0,VoidedSign,false,0);
+  MatCol(t,100,"Товар",0,ArtCode,false,INSClass);
+  MatCol(t,150,"К-ть",0,Quant,true,MATVARINSClass);
+  MatCol(t,190,"Ціна",0,Price,true,0);
+  MatCol(t,250,"Найменування",0,Spec,false,0);
+  MatCol(t,-195,"Сер. №",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-110,"%",0,vRebate,true,0);
+  MatCol(t,-80,"Сума",0,Sum,true,0);
+  MatText(t=kInvoiceRowTypeSubtotal,32,"Разом",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatColTL(t,-140,"Сума",0,-1,ViewOnly,0,Sum,true,0);
+//  MatCol(t,-70,"Cost",0,Cost,true,0);
+  MatText(t=kInvoiceRowTypeHidden,32,"Цей рядок і всі наступні не відображати при друк.",false);
+  MatText(t=kInvoiceRowTypeCorrection,32,"K",true);
+  MatCol(t,47,"Товар",0,ArtCode,false,INSClass);
+  MatCol(t,94,"Кіл-ть",0,Quant,true,0);
+  MatText(t=kInvoiceRowTypeRetention,32,"Утримання",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatColTL(t,-210,"SalesAcc",0,-1,0,0,SalesAcc,false,AccSClass);
+  MatColTL(t,-110,"Сума",0,-1,0,0,Sum,true,0);
+  MatCol(t,-30,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypeGiftVoucherSold,32,"ПС",true);
+  MatCol(t,58,"",0,GCNr,false,GCSClass);
+  MatCol(t,-316,"",0,Spec,false,0);
+  MatCol(t,-84,"Сума",0,Sum,true,0);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);  
+  MatText(t=kInvoiceRowTypeGiftVoucherPayment,32,"ПСТ",true);
+  MatCol(t,58,"",0,GCNr,false,GCSSClass);
+  MatCol(t,-316,"",0,Spec,false,0);
+  MatCol(t,-84,"Сума",0,Sum,true,0);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);  
+  MatText(t=kInvoiceRowTypeCashPayment,32,"Готівка",true);
+  MatCol(t,68,"Сума",0,Sum,true,0);
+  MatCol(t,108,"Валюта",0,CurncyCode,true,CurncyCodeSClass);
+  MatCol(t,-280,"Опис",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeLoyaltyPointsPayment,32,"LOYPA",true);
+  MatCol(t,68,"Сума",0,Sum,true,0);
+  MatCol(t,108,"Бали",0,Points,true,0);
+  MatCol(t,148,"Валюта",0,CurncyCode,true,CurncyCodeSClass);
+  MatCol(t,-280,"Опис",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeLoyaltyPointsBonus,28,"LOYBO",true);
+  MatCol(t,68,"Бали",0,Points,true,0);
+  MatCol(t,141,"Опис",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeCreditCardPayment,32,"CC",true);
+  MatCol(t,58,"Сума",0,Sum,true,0);
+  MatCol(t,-280,"",0,CreditCard,false,CreditCardSClass);
+  MatCol(t,-84,"Авторизація",0,AuthorizationCode,false,0);
+  MatText(t=kInvoiceRowTypeHeader,32,"Заголовок",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowType18,28,"Зарезервовано",true); // Don't use this number
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowType19,28,"Зарезервовано",true); // Don't use this number
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypePerceptionTax,32,"Податковий збір",true);
+  MatCol(t,132,"",0,CuAccCode,false,0);
+  MatCol(t,252,"",0,TAX2Prc,true,0);
+  MatCol(t,292,"",0,Sum,true,0);
+  MatCol(t,372,"",0,SalesAcc,false,0);
+  MatCol(t,452,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeWithholdingTax,32,"Под. утримання",true);
+  MatCol(t,132,"",0,WHTax,false,WHTaxSClass);
+  MatCol(t,172,"",0,SalesAcc,false,AccSClass);
+  MatCol(t,292,"",0,Sum,true,0);
+  MatCol(t,392,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeMultiBuyDiscount,32,"Кампанія",true);
+  MatCol(t,152,"",0,MBRCode,false,0);
+  MatCol(t,192,"",0,ArtCode,false,AccSClass);
+  MatCol(t,-400,"",0,Spec,false,0);
+  MatCol(t,-270,"",0,Quant,true,0);
+  MatCol(t,-235,"",0,Price,true,0);
+  MatCol(t,-135,"",0,vRebate,true,0);
+  MatCol(t,-100,"",0,Sum,true,0);
+/*
+  MatText(t=kInvoiceRowTypePreviousDownpayment,32,"Prev. Down Payment",true);
+  MatColTL(t,152,"",0,-1,ViewOnly,0,CUPNr,true,0); 
+  MatColTL(t,222,"",0,-1,ViewOnly,0,ServiceDelDate,true,0);
+  MatColTL(t,-200,"",0,-1,Normal,0,Price,true,0);
+  MatColTL(t,-100,"",0,-1,Normal,0,Sum,true,0);
+*/  
+//t = 21 kInvoiceRowTypeChequePayment  
+  Flip(1);
+//  MatCol(t=kInvoiceRowTypeNormal,194,"Найменування",0,Spec,false,0);
+  MatCol(t=kInvoiceRowTypeNormal,144,"Найменування",0,Spec,false,0);
+  MatCol(t,-235,"Ціна",0,Price,true,0);
+//  MatColTL(t,-235,"",0,M45Val,Normal,0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Сума",0,Sum,true,0);
+  MatCol(t=kInvoiceRowTypeInterest,-260,"",0,OrdRow,true,0);
+  MatCol(t,-235,"",0,BasePrice,true,0);
+  MatCol(t,-135,"",0,vRebate,true,0);
+  MatCol(t,-100,"",0,Sum,true,0);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Найменування",0,Spec,false,0);
+  MatCol(t,-235,"Ціна",0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Сума",0,Sum,true,0);
+  Flip(2);
+  MatCol(t=kInvoiceRowTypeNormal,144,"Найменування",0,Spec,false,0);
+  MatCol(t,-360,"Рахунок",0,SalesAcc,false,AccSClass);
+  MatCol(1,-310,"Період",0,PeriodCode,false,AutSimPerSClass);
+  MatCol(t,-255,"Склад",0,Location,false,LocationSClass);
+  MatCol(t,-180,"Місце",0,PosCode,false,UsedPosSClass);
+  MatCol(t,-124,"Об'єкти",0,Objects,false,ObjSClass);
+  MatCol(t,-30,"ПДВ",0,VATCode,false,VATCodeSClass);
+  MatCol(t=kInvoiceRowTypeInterest,-70,"",0,SalesAcc,false,AccSClass);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);
+//  MatCol(t=kInvoiceRowTypePrepayment,-224,"",0,SalesAcc,false,AccSClass);
+//  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Найменування",0,Spec,false,0);
+  MatCol(t,-250,"Рахунок",0,SalesAcc,false,AccSClass);
+  MatCol(t,-170,"Майб.пер.",0,PeriodCode,false,AutSimPerSClass);
+  MatCol(t,-104,"Об'єкти",0,Objects,false,ObjSClass);
+  MatCol(t,-30,"ПДВ",0,VATCode,false,VATCodeSClass);
+  Flip(3);
+  MatCol(t=kInvoiceRowTypeNormal,144,"Найменування",0,Spec,false,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-380,"Ціна",0,Price,true,0);
+    MatCol(t,-315,"%",0,vRebate,true,0);
+    MatCol(t,-280,"В-ть вал2",0,BasePriceB2,true,0);
+    MatCol(t,-210,"Вар-ть",0,BasePrice,true,0);
+    MatCol(t,-140,"Прибуток",0,rowGP,true,0);
+    MatCol(t,-70,"FIFO",0,FIFO,true,0);
+  end else begin
+    MatCol(t,-235,"Ціна",0,Price,true,0);
+    MatCol(t,-135,"%",0,vRebate,true,0);
+    MatCol(t,-100,"Сума",0,Sum,true,0);
+  end;
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Найменування",0,Spec,false,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-315,"Ціна",0,Price,true,0);
+    MatCol(t,-245,"%",0,vRebate,true,0);
+    MatCol(t,-210,"Вар-ть",0,BasePrice,true,0);
+    MatCol(t,-140,"Прибуток",0,rowGP,true,0);
+    MatCol(t,-70,"FIFO",0,FIFO,true,0);
+  end else begin
+    MatCol(t,-235,"Ціна",0,Price,true,0);
+    MatCol(t,-135,"%",0,vRebate,true,0);
+    MatCol(t,-100,"Сума",0,Sum,true,0);
+  end;
+  Flip(4);
+  MatCol(t=kInvoiceRowTypeNormal,144,"Description",0,Spec,false,0);
+  MatCol(t,-310,"Serial No",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-240,"P.Factor",0,PriceFactor,true,0);
+  MatCol(t,-180,"Recipe",0,Recepy,true,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-110,"Row FIFO",0,FIFORowVal,true,0);
+  end else begin
+  end;
+  MatCol(1,-40,"Коеф.",0,Coefficient,true,0);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Найменування",0,Spec,false,0);
+  MatCol(t,-310,"Сер. №",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-240,"Фактор",0,PriceFactor,true,0);
+  MatCol(t,-180,"Структура",0,Recepy,true,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-110,"FIFO по рядку",0,FIFORowVal,true,0);
+  end else begin
+  end;
+  MatCol(t,-40,"Коеф.",0,Coefficient,true,0);
+  Flip(5);
+  MatCol(t=kInvoiceRowTypeNormal,144,"Найменуванняв",0,Spec,false,0);
+  MatCol(t,-315,"Од-ця",0,UnitCode,false,UnitSClass);
+  MatCol(t,-260,"Кіл. од.",0,UnitFactQuant,true,0);
+  MatCol(t,-200,"Шир.",0,UnitXval,true,0);
+  MatCol(t,-160,"Вис.",0,UnitYval,true,0);
+  MatCol(t,-120,"Глиб.",0,UnitZval,true,0);
+  MatCol(t,-80,"Ціна од-ці",0,UnitFactPrice,true,0);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Найменування",0,Spec,false,0);//New Row Type..
+  MatCol(t,-315,"Од-ця",0,UnitCode,false,UnitSClass);
+  MatCol(t,-260,"К-ть од.",0,UnitFactQuant,true,0);
+  MatCol(t,-200,"Шир.",0,UnitXval,true,0);
+  MatCol(t,-160,"Вис.",0,UnitYval,true,0);
+  MatCol(t,-120,"Глиб.",0,UnitZval,true,0);
+  MatCol(t,-80,"Ціна од-ці",0,UnitFactPrice,true,0);
+  Flip(6);
+  MatCol(t=kInvoiceRowTypeNormal,144,"Опис",0,Spec,false,0);
+  MatCol(t,-250,"Контракт обслуг.",0,CUServiceHistNr,false,0);
+  MatCol(t,-170,"Кред. рядок",0,CreditedRow,false,0);
+  MatCol(t,-86,"Податок",0,RepaExVAT,true,0);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Опис",0,Spec,false,0);
+  MatCol(t,-80,"Податок",0,RepaExVAT,true,0);
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;
+  vs = 22;
+  v = 18; VTab(-35,v,-16,v+vs,ToolFlip,1,"A");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,2,"B");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,3,"C");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,4,"D");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,5,"E");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,6,"F");
+  Tile(3,70,false,"3",FrRate);
+  vs = 20;
+  EditField(h=110,v=6,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(h2=295,v,50,"Курс",Normal,FrRate,true,0);
+  EditField(h3=360,v,50,":",Normal,ToRateB1,true,0);
+  StaticText(h3+60,v+12,"Осн. валюта 1",false);
+  EditField(h,v+=vs,50,"Осн. валюта 1",Normal,BaseRate1,true,0);
+  EditField(h3,v,50,":",Normal,ToRateB2,true,0);
+  StaticText(h3+60,v+12,"Осн. валюта 2",false);
+  EditField(h,v+=vs,50,"Осн. валюта 2",Normal,BaseRate2,true,0);
+  Tile(4,170,false,"4",ShipDeal);
+  vs = 20;
+  EditField(h=110,v=6,60,"Умова відвантаж.",Normal,ShipDeal,false,ShipDealSClass);
+  EditField(h2=360,v,60,"Спосіб відвантаж.",Normal,ShipMode,false,DMSClass);
+  EditField(h,v+=vs,  30,"Рівень нагадув.",Normal,LastRemndr,false,0);
+  EditField(h2,v,95,"Дата останньго нагадув.",Normal,LastRemDate,false,PasteCurDate);
+  EditField(h,v+=vs,  50,"Прейскурант",Normal,PriceList,false,PLDefSClass);
+  EditField(h2,v,  50,"Таблиця знижок",ViewOnly,RebCode,false,0); 
+//  EditField(h,v+=vs,60,"% знижки",ViewOnly,DiscPerc,false,0);
+//  EditField(h2,v,90,"Сума знижки",ViewOnly,DiscSum,false,0);
+  EditField(h,v+=vs,  50,"Відсоток",Normal,IntCode,false,IntSClass);
+  EditField(h2,v,80,"Рахунок дебіторів",Normal,ARAcc,false,AccSClass);
+  EditField(h,v+=vs,80,"Разом: кількість",ViewOnly,TotQty,true,0);
+  EditField(h2,v,80,"Комісія",ViewOnly,TotWeight,true,0);
+  EditField(h,v+=vs,80,"об'єм",ViewOnly,TotVolume,true,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    EditField(h2,v,70,"Приб. разом",ViewOnly,TotGP,false,0);
+  end;
+  EditField(h,v+=vs,80,"Коміс.",Normal,Commision,true,0);
+  EditField(h2,v,80,"Разом з коміс.",ViewOnly,SumIncCom,true,0);
+  EditField(h,v+=vs,80,"Стат. значення",Normal,StatVal,true,0);
+  EditField(h3=560,v,80,"Група продажу",ViewOnly,SalesGroup,true,0);
+  EditField(h2,v,80,"Дата надання послуг",Normal,ServiceDelDate,false,PasteCurDate);
+  CheckBox(h3=(h2+120),v=10,0,"Поновити склад",UpdStockFlag);
+  CheckBox(h3,v+=16,0,"Без нагадувань",NoRemndrFlag);
+  CheckBox(h3,v+=16,0,"Без пені",NoInterestFlag);
+  CheckBox(h3,v+=16,0,"Без зборів",NoColectionFlag);
+  CheckBox(h3,v+=16,0,"Суперечливий",DisputedFlag);
+  CheckBox(h3,v+=16,0,"Інформація про клієнта",ARonTR);
+  CheckBox(h3,v+=16,0,"Не відсилати як ел. накл.",NoEInvoice);
+  CheckBox(h3,v+=16,0,"Фіскальний акт/накл.",FiscalFlag);
+  Tile(5,210,false,"5",OrderNr); vs = 20;
+  EditField(h,v=6,80,"№ рахунка",ViewOnly,OrderNr,false,0);
+  EditField(h2,v,-20,"№ рахунка у клієнта",Normal,CustOrdNr,false,0);
+  EditField(h,v+=vs,95,"Замовник",ViewOnly,OrgCust,false,0);
+  EditField(h2,v,-20,"Сортування",Normal,Sorting,false,0);
+  EditField(h,v+=vs,60,"Склад",Normal,Location,false,LocationSClass);
+  EditField(h2,v,  50,"Мова",Normal,LangCode,false,LangSClass);
+  EditField(h2+150,v,  -20,"Посилання",Normal,RefStr,false,0);
+  EditField(h,v+=vs,95,"Проект",Normal,PRCode,false,0);
+  EditField(h2,v   ,80,"Замовлення на обсл.",ViewOnly,SVONr,false,0);
+  EditField(h2+150,v,80,"Банк",Normal,BankCode,false,BankSClass);
+  EditField(h,v+=vs,  150,"Кредитна карта",Normal,CreditCard,false,CreditCardSClass);
+  EditField(h2,v,  80,"Авторизація",Normal,AuthorizationCode,false,0);
+  EditField(h2+150,v,80,"Філія",Normal,BranchID,false,AllCUSClass);
+//  EditField(h,v+=vs,  150,"E-Inv Exp. Date",ViewOnly,EInvExpDate,false,0);//Tx server
+//  EditField(h2,v,  80,"E-Inv Exp. Qty",ViewOnly,EInvExpQty,false,0);
+//  CheckBox(h3,v,0,"E-Invoice Exported",EInvExpFlag);
+  EditField(h,v+=vs,95,"Ідент. номер",ViewOnly ,TaxAuthID,false,0);
+  EditField(h2,v,80,"Контрольний код",ViewOnly ,TaxAuthIDCC,false,0);
+  EditField(h,v+=vs, -20,"Коментар",Normal,InvComment,false,0);
+  EditField(h,v+=vs, 100,"Статус",Normal,Status,false,SetSClass);
+  EditField(h2,v,80,"Управ. кред. №",ViewOnly ,CredManNr,false,0);
+  EditField(h,v+=vs, 100,"Час",Normal,TransTime,false,SetSClass);
+  EditField(h2,v,80,"Дата дії CAE до",ViewOnly,CAEExpiry,false,0);
+  EditField(h2+150,v,-20,"CAE",ViewOnly,CAE,false,0);
+  EditField(h,v+=vs,100,"Накопичувальна картка",Normal,LoyaltyCardNr,false,LoyaltyCardSClass);
+  EditField(h2,v,100,"Накопичувальні бали",ViewOnly,Points,true,0);
+  EditField(h2+260,v,-20,"Програма лояльності",ViewOnly,LCMLevel,false,LCMemberLevelSClass);
+  Tile(6,230,false,"6",Addr1); vs = 20;
+  label = UserDefined("CUVc","InvAddr0");
+  if (blank(label)) then begin label = "Акт/накл. на"; end;
+  EditField(h=110,v=6,-20,label,Normal,Addr1,false,0);
+  label = UserDefined("CUVc","InvAddr1");
+  if (blank(label)) then begin label = "Адресу"; end;
+  EditField(h,v+=vs, -20,label,Normal,Addr2,false,0);
+  label = UserDefined("CUVc","InvAddr2");
+  EditField(h,v+=vs, -20,label,Normal,Addr3,false,0);
+  label = UserDefined("CUVc","InvAddr3");
+  EditField(h,v+=vs, -20,label,Normal,InvAddr3,false,0);
+  label = UserDefined("CUVc","InvAddr4");
+  EditField(h,vm=(v+=vs), -20,label,Normal,InvAddr4,false,0);
+  EditField(h,vm=(v+=vs),150,"ІПН",Normal,VATNr,false,0);
+  EditField(h,v+=vs,100,"Телефон",Normal,Phone,false,0);
+  EditField(h,v+=vs,100,"Факс",Normal,Fax,false,0);
+  v = VATZoneButtonsLabelsUKR(h+4,v+=40,140,16);
+  	SoftEditField(h3=520,v=16,123,"Статус затвердж.",ViewOnly,"AcceptanceStatusFlag",false,0,M4Str,255);
+/*
+  ButtonFrame(h3=520,v=vm+16,123,6,"Статус затвердження");
+  RadioButton(h3,v,kAcceptanceStateNotRequired,0,"не потрібно",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotStarted,0,"не розпочато",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotRequested,0,"не було запиту",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStatePending,0,"очікування",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateApproved,0,"затверджено",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateRejected,0,"незатверджено",AcceptanceStatus);  */
+  Tile(7,150,false,"7",ShipAddr0); vs = 20;
+  EditField(h=110,v=6,-20,"Відвантаження",Normal,ShipAddr0,false,0);
+  EditField(h,v+=vs, -20,"Адреса",Normal,ShipAddr1,false,0);
+  EditField(h,v+=vs, -20,"",Normal,ShipAddr2,false,0);
+  EditField(h,v+=vs, -20,"",Normal,ShipAddr3,false,0);
+  EditField(h,v+=vs, -20,"",Normal,DelAddr3,false,0);
+  EditField(h,v+=vs, -20,"",Normal,DelAddr4,false,0);
+  EditField(h,v+=vs,80,"Адреса",Normal,DelAddrCode,false,DelAddrSClass);
+  EditField(h2=300,v,80,"Регіон",Normal,Region,false,RegionSClass); 
+  EditField(h3+50,v,-20,"Перевізник",Normal,FreightCode,false,FreightCompanySClass);
+  EnterSkip(InvDate);
+  SpecialMenu("Статус товару",'I',0,"ItemStatusIVDsm");
+  SpecialMenu("Пошук товару",'f',1,"ItemSearchDsm");
+  SpecialMenu("Статус акту/накл.",'r',2,"IVInfoIVDsm");
+  SpecialMenu("Попередні відпускні ціни",' ',15,"IVLastSPrsm");
+  SpecialMenu("Додати заголовок",' ',12,"HeaderLineIVDsm");
+  SpecialMenu("Додати прихований рядок",' ',12,"HiddenLineIVDsm");
+  SpecialMenu("Додати податок",' ',19,"RepaIVsm");
+  SpecialMenu("Додати утримання",' ',25,"RetentionLineIVDsm"); 
+  SpecialMenu("Додати разом",' ',12,"SubTotalLineIVDsm");
+  SpecialMenu("Відправити для затвердження",' ',6,"IVSendforAcceptanceIVDsm");
+  SpecialMenu("Перерахувати в осн. вал.1",' ',14,"SwitchToBase1IVDsm");
+  SpecialMenu("Пов'язати з передплатою",' ',4,"ConnectToPrepayIVDsm");
+  SpecialMenu("Перерахувати знижку",' ',11,"RecalcDiscountIVDsm");
+  SpecialMenu("Перерахувати вагу та об'єм",' ',10,"RecalcWeightIVDsm");
+  SpecialMenu("Поновити товари валют. прейскуранту",' ',5,"UpdatePricesIVDsm");
+  SpecialMenu("Роздрукувати касовий ордер",' ',7,"PrintCashInOutIVDsm");
+  SpecialMenu("Роздрукувати проформу акту/накл.",' ',3,"PrintProformaIVDsm");
+  SpecialMenu("Друкувати на фіскальний принтер",' ',19,"PrintToFiscPrntIVDsm");
+  SpecialMenu("Сплата кредитною карткою",' ',22,"CCPayIVDsm");
+  SpecialMenu("Внесок",' ',24,"EditInstalmentIVDsm");
+  SpecialMenu("Повторити eл. акт/накладну",' ',21,"ResendEIVDsm");
+  SpecialMenu("Відправити/відправити повторно Аргентинський ел. акт/накл.",'a',17,"SendArgEInvDsm");
+  SpecialMenu("Відкрити запис операції",'t',8,"OpenTRFromIV");
+  SpecialMenu("Створити прибутковий ордер",' ',1,"DoCLInFromIVD");
+  SpecialMenu("Кредитувати акт/накладну",' ',20,"CreateCreditNoteIVDsm");
+  SpecialMenu("Створити кредитну угоду",' ',25,"CreateCredManIVsm");
+  SpecialMenu("Створити контракт",' ',13,"COFromIVDsm");
+  SpecialMenu("Коригуючий акт/накладна",' ',16,"CorrectionIVsm");
+  SpecialMenu("Створити акт/накл. EDI",' ',9,"DoEDIInvFromIVD");
+  SpecialMenu("Створити E-Mail",'m',23,"CreateMailFromIVDsm");
+  SpecialMenu("Створити Податкову накл.",' ',18,"FirstEventIVDsm");
+  SpecialMenu("Створити платежі по внесках",' ',6,"CreateInstalmentsIVDsm");
+  SpecialMenu("Податкова накладна (нова)",' ',17,"VATCorrectionIVsm");// SAV Gray-5 2011_01_03
+  SpecialMenu("Знижка менеджера",' ',24,"MgrsDiscOverrideIVDsm"); 
+  SpecialMenu("Відкрити таблицю податків",' ',25,"TestVatMatrixIVDsm"); 
+
+//  SpecialMenu("Test Mex E-Invoices",'1',0,"TestMexEInvoices");
+  EndWindow;
+  return;
+end;
+
+event DefineWindows
+begin
+  Real h,h1,h2,h3,h4,h5,h6,h7,hs,hm,v,v3,l,vs,vm,f,t,x,v2;
+  string 60 label;
+  
+  SetLangMode(LangUkrainian,"UKR",0);
+
+  if (TouchScreenLook) then begin
+    
+  WindowBegin("Акт/накладна",IVDClass,CGview,-);
+  SetWRect(20,80,620,650);
+  Sizeable(-1,-1,0,0);
+  UseView(IVVc);
+  ActiveFieldOnNew("CustCode");
+  //Tile(0,285,false,"",CustCode);
+  Tile(0,305,false,"",CustCode);
+  EditField(40,vm=(v=6), 82,"№",Normal,SerNr,false,TSerSClass);
+  EditField(h=200,v=vm,95, "Клієнт",Normal,CustCode,false,CUSClass);
+  EnterSkip(Math);
+  EditField(h+150,v=vm,-40,"Наймен.",Normal,Addr0,false,0);
+
+  /* moved
+  v = v+24;
+  ColourPushButton(h=10,v=v+17,h+60,v+33,"IVDClassTileTerms","Умови",9);
+  ColourPushButton(h=h+62,v,h+60,v+33,"IVDClassIVLCLASS","Акти/накладні",9);
+  ColourPushButton(h=h+62,v,h+60,v+33,"IVDClassTileItems","Товари",9);
+  ColourPushButton(h=h+62,v,h+60,v+33,"IVDClassTileButtons","Кнопки",9);
+
+  ColourPushButton(h=10,v+=35,h+60,v+33,"IVDClassToolEnterText","Номер",2);
+  ColourPushButton(h=h+62,v,h+60,v+33,"IVDClassToolLogin","Логін",2);
+  ColourPushButton(h=h+62,v,h+60,v+33,"IVDClassToolKeyPadDelete","Знищити",2);
+  ColourPushButton(h=h+62,v,h+60,v+33,"IVDClassToolKeyPadEnter","Enter_",2);
+
+  ColourPushButton(h=10,v+=35,h+60,v+33,"GCIVsm","П/сер.",2);
+  ColourPushButton(h=h+62,v,h+60,v+33,"GCRIVsm","Rcv.",2);
+  ColourPushButton(h=h+62,v,h+60,v+33,"CashIVsm","Готівка",2);
+  ColourPushButton(h=h+62,v,h+60,v+33,"CredCardIVsm","Кред.кт.",2);
+
+  ColourPushButton(h=10+62,v+=35,h+60,v+33,"IVDClassToolIVReturn","Поверн.",2);
+  */
+  
+//  ColourPushButton(h=h+62,v,h+60,v+33,"IVDClassTileCurrency","Валюта",9);
+
+  MatrixBegin(15,45,-30,180,-,199);  
+  MatTypedRow(stp);
+  MatOverStrike(ovst);
+  MatCol(t=kInvoiceRowTypeNormal,28,"Товар",0,ArtCode,false,INSClass);
+  MatCol(t,90,"Кіл.",0,Quant,true,MATVARINSClass);
+  EnterSkip(ArtCode);
+  MatCol(t,120,"Ціна",0,Price,true,0);
+  MatCol(t,180,"Опис",0,Spec,false,0);
+  MatCol(t,-195,"Сер. №",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-110,"%",0,vRebate,true,0);
+  MatCol(t,-80,"Сума",0,Sum,true,0);
+  MatText(t=kInvoiceRowTypeVoid,28,"Відміна",false);
+  MatColTL(t,65,"Підпис",0,-1,ViewOnly,0,VoidedSign,false,0);
+  MatCol(t,100,"Товар",0,ArtCode,false,INSClass);
+  MatCol(t,150,"Кіл.",0,Quant,true,MATVARINSClass);
+  MatCol(t,190,"Ціна",0,Price,true,0);
+  MatCol(t,250,"Опис",0,Spec,false,0);
+  MatCol(t,-195,"Сер. №",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-110,"%",0,vRebate,true,0);
+  MatCol(t,-80,"Сума",0,Sum,true,0);
+  MatText(t=3,28,"Кред. акт/накл.",true);
+  MatCol(t,208,"",0,OrdRow,false,ARSClass);
+  MatCol(t,-216,"",0,Spec,false,0);//MatText(t,-216,"",true);
+  MatText(t=4,32,"Процент",true);
+  MatCol(t,98,"",0,ArtCode,false,0);
+  MatCol(t,153,"",0,Quant,true,0);
+  MatCol(t,188,"",0,Spec,false,0);
+  MatText(t=5,28,"Авансовий платіж",true);
+  MatColTL(t,120,"",0,-1,ViewOnly,0,ArtCode,true,0); 
+  MatColTL(t,180,"",0,-1,ViewOnly,0,Quant,true,0);
+  MatCol(t,238,"",0,Spec,false,0);
+  MatColTL(t,-170,"",0,-1,Normal,0,Sum,true,0); //?? TL?
+  MatCol(t,-70,"",0,SalesAcc,false,AccSClass);
+  MatCol(t,-30,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=6,28,"Номер передплати",true);
+  MatCol(t,170,"",0,CUPNr,true,ARPay2SClass);
+  MatCol(t,-200,"",0,Spec,false,0);
+  MatCol(t,-120,"",0,Price,true,0);// Price holds the VAT sum, Recipe holds the date of prepaym. 
+  MatCol(t,-70,"",0,Sum,true,0);
+  MatText(t=10,32,"Цей рядок та всі під ним не будуть друкуватись",false);
+  MatText(t=11,28,"K",true);
+  MatCol(t,28,"Товар",0,ArtCode,false,INSClass);
+  MatCol(t,80,"Кіл.",0,Quant,true,MATVARINSClass);
+  MatCol(t,110,"Ціна",0,Price,true,0);
+  MatCol(t,160,"Опис",0,Spec,false,0);
+  MatCol(t,-110,"%",0,vRebate,true,0);
+  MatCol(t,-80,"Сума",0,Sum,true,0);
+  MatText(t=13,28,"GV",true);
+  MatCol(t,68,"",0,GCNr,false,GCSClass);
+  MatCol(t,168,"",0,Spec,false,0);
+  MatCol(t,-84,"Сума",0,Sum,true,0);
+  MatCol(t,-28,"",0,VATCode,false,VATCodeSClass);  
+  MatText(t=14,28,"GVR",true);
+  MatCol(t,68,"",0,GCNr,false,GCSSClass);
+  MatCol(t,-279,"",0,Spec,false,0);
+  MatCol(t,-84,"Сума",0,Sum,true,0);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);  
+  MatText(t=15,28,"Готівка",true);
+  MatCol(t,68,"Сума",0,Sum,true,0);
+  MatCol(t,148,"Валюта",0,CurncyCode,true,CurncyCodeSClass);
+  MatCol(t,218,"Спосіб оплати",0,PayMode,true,PMSClass);
+  MatCol(t,-400,"Spec",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeCreditCardPayment,28,"Копія",true);
+  MatCol(t,68,"Сума",0,Sum,true,0);
+  MatCol(t,148,"Ум. спл.",0,PayMode,true,PMSClass);
+  MatCol(t,208,"",0,CreditCard,false,CreditCardSClass);
+  MatCol(t,-204,"Авторизація",0,AuthorizationCode,false,0);
+  MatText(t=17,28,"Заголовок",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=18,28,"Зарезервовано",true); // Don't use this number
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=19,28,"Зарезервовано",true); // Don't use this number
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeChequePayment,28,"Чек",true);
+  MatCol(t,68,"Сума",0,Sum,true,0);
+  MatCol(t,148,"Валюта",0,CurncyCode,true,CurncyCodeSClass);
+  MatCol(t,218,"Сп. оплати",0,PayMode,true,PMSClass);
+  MatCol(t,-400,"Опис",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypePerceptionTax,32,"Податкові збори",true);
+  MatCol(t,132,"",0,CuAccCode,false,0);
+  MatCol(t,252,"",0,TAX2Prc,true,0);
+  MatCol(t,292,"",0,Sum,true,0);
+  MatCol(t,372,"",0,SalesAcc,false,0);
+  MatCol(t,452,"",0,Spec,false,0);
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;   
+  CheckBox(15,v+170,0,"OK",OKFlag);
+  EditFieldTLX(-500,v+164,200,"Решта",M4Val,ViewOnly,100,30,patM4black,RetnValue,true,0);
+  EditFieldTLX(-220,v+164,200,"Сума",M4Val,ViewOnly,100,30,patM4black,Sum4,true,0);  
+/*
+  EditField(-450,v+164,140,"Change",ViewOnly,RetnValue,true,0);
+  EditField(-150,v+164,140,"Sum",ViewOnly,Sum4,true,0);
+
+  v = v+25;
+*/  
+  h = DrawPaymentModesButtons_IV(v+12);
+  
+  v = v+195+12;
+/*  
+  ColourPushButton(h=17,v,h+85,v+50,"CashIVsm","Cash",2);
+  ColourPushButton(h=h+87,v,h+85,v+50,"CredCardIVsm","Cred. Card",2);
+  ColourPushButton(h=h+87,v,h+85,v+50,"GCIVsm","Sell GV",2);
+  ColourPushButton(h=h+87,v,h+85,v+50,"GCRIVsm","Rcv. GV",2);
+*/  
+  ColourPushButton(h=h+87,v,h+85,v+50,"IVDClassToolKeyPadDelete","Скасувати",9);
+  ColourPushButton(h=h+87,v,h+85,v+50,"IVDClassToolKeyPadEnter","Ввести",9);
+  ColourPushButton(h=h+87,v,h+85,v+50,"IVDClassTileButtons","Кнопки",9);
+  ColourPushButton(h=h+87,v,h+85,v+50,"IVDClassToolLogin","Вхід",9);
+  
+  if (GuiType==kGuiCocoa) then begin
+    TileButton(1,"1");
+    TileButton(2,"2");
+    TileButton(3,"3");
+    TileButton(4,"4");
+    TileButton(5,"5");
+    TileButton(6,"6");
+    TileButton(7,"7");
+    TileButton(8,"8");
+    TileButton(9,"9");
+    TileButton(10,"10");
+    TileButton(11,"11");
+    TileButton(12,"12");
+  end;
+  
+  Tile(1,400,false,"1",-);
+  v = 6; h = 90; h2 = 350; vs = 20;
+  v = FunctionButtons("IVDClass");
+  v = ItemButtons("IVDClass",1);  
+  Tile(2,400,false,"2",-);
+  v = 6; h = 90; h2 = 350; vs = 20;
+  v = FunctionButtons("IVDClass");
+  v = ItemButtons("IVDClass",2);  
+  Tile(3,400,false,"3",-);
+  v = 6; h = 90; h2 = 350; vs = 20;
+  v = FunctionButtons("IVDClass");
+  v = ItemButtons("IVDClass",3);  
+  Tile(4,400,false,"4",-);
+  v = 6; h = 90; h2 = 350; vs = 20;
+  v = FunctionButtons("IVDClass");
+  v = ItemButtons("IVDClass",4);  
+  Tile(5,400,false,"5",-);
+  v = 6; h = 90; h2 = 350; vs = 20;
+  v = FunctionButtons("IVDClass");
+  v = ItemButtons("IVDClass",5);  
+  Tile(6,400,false,"6",-);
+  v = 6; h = 90; h2 = 350; vs = 20;
+  v = FunctionButtons("IVDClass");
+  v = ItemButtons("IVDClass",6);  
+  Tile(7,400,false,"7",-);
+  v = 6; h = 90; h2 = 350; vs = 20;
+  v = FunctionButtons("IVDClass");
+  v = ItemButtons("IVDClass",7);  
+
+  Tile(8,200,true,"8",-);
+  v = 24;
+  h2 = 99+55;
+  v2 = -50;  
+  StringList(9,v+1-4,h2,200);
+  RecordList2(h2+25,v-6,h2+300,270,"INVc");
+  if (false) then begin
+    RlColKey(4,4,    "№",Code,false,DICode);
+    RlColKey(51,51,"Опис",Name,false,DIName);  
+  end else begin
+    RlColKey(4,4,"Опис",Name,false,DIName);    
+    RlCol(-1,-1,"",colnr,true);
+  end;
+  h = 6+2; 
+  v2 = -50;
+  ColourPushButton(h,v2,h+60,v2+33,"IVDClassToolFileDesktop","Початок",2);
+  h = h+72;
+  ColourPushButton(h,v2,h+60,v2+33,"IVDClassToolUp","Назад",2);
+
+  Tile(9,112,false,"9",PayDeal);
+  vs = 20; h1 = 110; h2 = 300; h3 = 480;
+  EditField(h1,vm=(v=6),82,"Дата",Normal,InvDate,false,PasteCurDate);
+  EditField(h1,v+=vs,25,"Ум. спл.",Normal,PayDeal,false,PDSClass);//PDMSClass);
+  EditField(h1,v+=vs,82,"Дата спл.",Normal,PayDate,false,PasteCurDate);
+  EditField(h1,v+=vs,82,"Дата опер.",Normal,TransDate,false,PasteCurDate);
+  EditField(h1,v+=vs,82,"№ рах. у кл.",Normal,CustOrdNr,false,PasteCurDate);
+  EditField(h2,v=vm,135,"Посилання",Normal,OurContact,false,0);
+  EditField(h3+50,v,50,"Мова",Normal,LangCode,false,LangSClass);
+  EditField(h2,v+=vs, 135,"Конт. особа",Normal,ClientContact,false,ContactSClass);
+  EditField(h3+50,v,50,"Продавець",Normal,SalesMan,false,UserSClass);
+  EditField(h2,v+=vs,135,"Склад",Normal,Location,false,LocationSClass);
+  EditField(h3+50,v,50,"Час операції",Normal,TransTime,false,0);
+  EditField(h2,v+=vs,135,"Офіц. сер №",Normal,OfficialSerNr,false,LegalInvNrSClass);
+  EditField(h3+50,v,50,"Каса",Normal,MachineName,false,0);
+  EditField(h2,v+=vs,135,"Сортування",Normal,Sorting,false,0);
+  EditField(h3+50,v,50,"Гр. скринька",Normal,DrawerCode,false,0);
+  EnterSkip(Math);
+  Tile(10,70,false,"10",FrRate);
+  vs = 20;
+  EditField(h=110,v=6,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(h2=295,v,50,"Курс",Normal,FrRate,true,0);
+  EditField(h3=360,v,50,":",Normal,ToRateB1,true,0);
+  StaticText(h3+60,v+12,"Базова вал. 1",false);
+  EditField(h,v+=vs,50,"Базова вал. 1",Normal,BaseRate1,true,0);
+  EditField(h3,v,50,":",Normal,ToRateB2,true,0);
+  StaticText(h3+60,v+12,"Базова вал. 2",false);
+  EditField(h,v+=vs,50,"Базова вал. 2",Normal,BaseRate2,true,0);
+  vm = -160; hm = 500; vs = 37; h2 = 40; v3 = 33;
+/*  
+  v2 =(v+=30);
+  h = hm-2; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad1","1_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad2","2_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad3","3_",2);
+  v = v+vs;
+  h = hm-2; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad4","4_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad5","5_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad6","6_",2);
+  v = v+vs;
+  h = hm-2; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad7","7_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad8","8_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad9","9_",2);
+  v = v+vs;
+  h = hm-2; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad0","0_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPad00","00_",2);
+  h = h+42; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolKeyPadPoint",".",2);
+  v = v2;
+  h = hm+140; ColourPushButton(h,v,h+80,v+v3,"IVDClassToolKeyPadEnter","Enter_",2);
+  v = v+vs; ColourPushButton(h,v,h+80,v+v3,"IVDClassToolKeyPadDelete","Delete",2);
+  v = v2;
+  h = hm-100; ColourPushButton(h,v,h+80,v+v3,"IVDClassToolKeyPadAdd","Add",2);
+  v = v+vs; ColourPushButton(h,v,h+80,v+v3,"IVDClassToolKeyPadExact","Exact",2);
+*/  
+  Tile(11,250,false,"11",-); 
+  v = 12; hs = 92; h2 = 90; vs = 50;v3 = 52;
+  h = 150;
+  ColourPushButton(h,v,h+h2,v+v3,"IVInfoIVDsm","Статус",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"HiddenLineIVDsm","Прих. рядок",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassOpenCalendar","Календар",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassNewActivity","Діяльність",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileItems","Товари",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"PrintIVReceiptDsm","Друк. чек",20);
+  v = 66;
+  h = 150;  ColourPushButton(h,v,h+h2,v+v3,"IVDClassTileTerms","Умови",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassAddressTile","Адреса",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassIVLCLASS","Акти/накладні",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolEnterText","Номер",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"IVDClassToolIVReturn","Поверн.",20);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"CCPayIVDsm","Копія платежу",20);
+  v = v+54;
+  h = 150; ColourPushButton(h,v,h+h2,v+v3,"GCIVsm","Продати ПС",2);
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v3,"OpenCashDrawer","Відкр. гр. скриньку",1);
+  Tile(12,90,false,"12",Addr1);
+  vs = 20;
+  EditField(h=110,v=6,-20,"Одержувач",Normal,Addr1,false,0);
+  EditField(h,v+=vs, -20,"Адреса",Normal,Addr2,false,0);
+  EditField(h,v+=vs, -20,"",Normal,Addr3,false,0);
+  EditField(h,v+=vs, -20,"",Normal,InvAddr3,false,0);
+  EditField(h,vm=(v+=vs), -20,"",Normal,InvAddr4,false,0);
+  
+  SpecialMenu("Статус товару",'I',0,"ItemStatusIVDsm");
+  SpecialMenu("Пошук товару",'f',1,"ItemSearchDsm");
+  SpecialMenu("Створити прибутковий ордер",' ',1,"DoCLInFromIVD");
+  SpecialMenu("Статус акту/накладної",'r',2,"IVInfoIVDsm");
+  SpecialMenu("Звіт сесії ЕККА",' ',1,"POSEventIVDsm");
+  SpecialMenu("Роздрукувати проформу акту/накл.",' ',3,"PrintProformaIVDsm");
+  SpecialMenu("Зв'язати з передплатою",' ',4,"ConnectToPrepayIVDsm");
+  SpecialMenu("Поновити товари валют. прейскуранту",' ',5,"UpdatePricesIVDsm");
+  SpecialMenu("Створити платежі по внесках",' ',6,"CreateInstalmentsIVDsm");
+  SpecialMenu("Роздрукувати касовий ордер",' ',7,"PrintCashInOutIVDsm");
+  SpecialMenu("Відкрити запис операції",'t',8,"OpenTRFromIV");
+  SpecialMenu("Створити накладну EDI",' ',9,"DoEDIInvFromIVD");
+  SpecialMenu("Перерахувати вагу та об'єм",' ',10,"RecalcWeightIVDsm");
+  SpecialMenu("Перерахувати знижку",' ',11,"RecalcDiscountIVDsm");
+  SpecialMenu("Додати заголовок",' ',12,"HeaderLineIVDsm");
+  SpecialMenu("Додати прихований рядок",' ',12,"HiddenLineIVDsm");
+  SpecialMenu("Створити контакт",' ',13,"COFromIVDsm");
+  SpecialMenu("Перерахувати в осн. вал.1",' ',14,"SwitchToBase1IVDsm");
+  SpecialMenu("Попередні ціни продажу",' ',15,"IVLastSPrsm");
+  SpecialMenu("Коригуючий акт/накладна",' ',16,"CorrectionIVsm");
+  SpecialMenu("Податкова накладна (нова)",' ',17,"VATCorrectionIVsm"); // SAV Gray-5 2011_01_03
+  SpecialMenu("Створити податкову накладну",' ',18,"FirstEventIVDsm");
+  SpecialMenu("Відправити на фіск. пристрій",' ',19,"PrintToFiscPrntIVDsm");
+  SpecialMenu("Надходження готівки",' ',20,"POSMoneyInsm");
+  SpecialMenu("Видача готівки",' ',21,"POSMoneyOutsm");
+  SpecialMenu("Відкрити сесію",' ',22,"OpenPOSSessionsm");
+  SpecialMenu("Закрити сесію",' ',23,"ClosePOSSessionsm");
+  SpecialMenu("Інкасація",' ',24,"IVDClassCashupRnsm");
+  SpecialMenu("Знижка менеджера",' ',25,"MgrsDiscOverrideIVDsm"); 
+  EndWindow;
+ 
+  end else begin
+    DefineIVDClass;
+  end;
+  
+   if (ValuePack(11)) then begin // Hotel
+    WindowBegin("Акти/накладні",IVLClass,CGmlist,-);
+    SetWRect(20,80,760,291);
+    Sizeable(-1,-1,0,0);
+    SpawnClass(IVDClass);
+    UseView(IVVc);
+    FormName(PrintIVL);
+    RecordList(4,17,-21,-39);
+    RlColKey(4,2,"№",SerNr,false,SerNr);
+    RlColKey(70,70,"OK",OKFlag,false,OKFlag);
+    RlColKey(105,105,"Дата",InvDate,false,InvDate);
+    RlColKey(180,180,"Офіційний №",OfficialSerNr,false,OfficialSerNr);    
+    RlColKey(287,287,"Замовлення №",OrderNr,false,OrderNr);
+    RlColKey(360,360,"Резерв. №",JobNr,false,JobNr);
+    RlColKey(430,430,"Клієнт",CustCode,false,CustCode);
+    RlColKey(490,490,"Найменування",Addr0,false,Name);
+    RlColKey(-110,-110,"Всього",Sum4,true,Sum4);
+    RlCol(-39,-39,"",CredMark,true);
+    RlCol(-30,-30,"Вал.",CurncyCode,true);
+    RlCol(-1,-1,"",Invalid,true);
+    SearchField("Пошук");
+    BrowseSubsetButton(-40,-15);
+    SpecialMenu("OK",'G',0,"OKIVLsm");
+    SpecialMenu("Роздрукувати проформу акту/накл.",' ',1,"PrintIVLsm");
+    SpecialMenu("Статус акту/накл.",'r',2,"IVInfoIVLsm");
+    SpecialMenu("Відправити/відправити повторно Аргентинський ел. акт/накл.",'a',3,"SendArgEInvLsm");
+    EndWindow;
+  end else begin
+    WindowBegin("Акти/накладні",IVLClass,CGmlist,-);
+    SetWRect(20,80,700,291);
+    Sizeable(-1,-1,0,0);
+    SpawnClass(IVDClass);
+    UseView(IVVc);
+    FormName(PrintIVL);
+    RecordList(4,17,-21,-39);
+    RlColKey(4,2,"№",SerNr,false,SerNr);
+    RlColKey(70,70,"ОК",OKFlag,false,OKFlag);
+    RlColKey(105,105,"Дата",InvDate,false,InvDate);
+    RlColKey(180,180,"Офіційний №",OfficialSerNr,false,OfficialSerNr);    
+    RlColKey(287,287,"Замовлення №",OrderNr,false,OrderNr);
+    RlColKey(360,360,"Клієнт",CustCode,false,CustCode);
+    RlColKey(430,430,"Найменування",Addr0,false,Name);
+    RlColKey(-110,-110,"Всього",Sum4,true,Sum4);
+    RlCol(-39,-39,"",CredMark,true);
+    RlCol(-30,-30,"Вал.",CurncyCode,true);
+    RlCol(-1,-1,"",Invalid,true);
+    SearchField("Пошук");
+    BrowseSubsetButton(-40,-15);
+    SpecialMenu("OK",'G',0,"OKIVLsm");
+    SpecialMenu("Роздрукувати проформу акту/накл.",' ',1,"PrintIVLsm");
+    SpecialMenu("Статус акту/накл.",'r',2,"IVInfoIVLsm");
+    SpecialMenu("Відправити/відправити повторно Аргентинський ел. акт/накл.",'a',3,"SendArgEInvLsm");
+    EndWindow;
+  end;
+  
+/*
+  WindowBegin("Визначте звіт про інкасацію",SLCashupRClass,CGRcW,RcType);
+  SetWRect(20,80,450,275);
+  vs = 20; h=120; h2=250;
+  PeriodField(h=120,v=6,"Період");
+  EditFieldTL(h,v+=20, 60,"Машина",M4Str,Normal,30,f1,false,0);
+  EditFieldTL(h,v+=20, 60,"Скринька",M4UStr,Normal,5,f4,false,DrawerSClass);
+  v = v + 40; vm = v;  
+  ButtonFrame(h,vs=v,170,2,"Фнкція");
+  RadioButton(h,v,0,0,"зведений",flags[1]); 
+  RadioButton(h,v+=16,1,0,"докладний",flags[1]);
+  CheckBox(h,v+=32,0,"Зпис операції",flags[2]);
+  CheckBox(h,v+=32,0,"Без сесій",flags[3]);
+  EndWindow;
+
+  WindowBegin("Визначте інкасацію",SLCashupVClass,CGMnt,RcType);
+  SetWRect(20,80,450,275);
+  vs = 20; h=120; h2=250;
+  PeriodField(h=120,v=6,"Період");
+  EditFieldTL(h,v+=20, 60,"Рахунок",M4UStr,Normal,10,AccStr,false,AccSClass);
+  EditFieldTL(h,v+=20, 60,"Машина",M4Str,Normal,30,f1,false,0);
+  EditFieldTL(h,v+=20, 60,"Скринька",M4UStr,Normal,5,f4,false,DrawerSClass);
+  CheckBox(h,v+=32,0,"Без сесій",flags[3]);
+  EndWindow;
+*/
+
+  WindowBegin("Платіж клієнта",IPDClass,CGview,-);
+  SetWRect(20,80,920,380);
+  Sizeable(-1,-1,0,0);
+  UseView(IPVc);
+  ActiveFieldOnNew("TransDate");
+  h = 100; h2 = 262; h3 = 470;v = 6;
+  //Tile(0,50,false,"",SerNr);
+  EditField(h,v, 80,"Номер",St_i,SerNr,false,TSerSClass);
+  EditField(h2,v,82,"Дата операції",Normal,TransDate,false,PasteCurDate);
+  EnterSkip(PayMode);
+  EditField(h3-50,v,-140,"Посилання",Normal,RecNumber,false,0);
+  HalPushButton(-120,v,-60,v+20,"ClientBankIPDsm","Експорт");
+  EditField(h,v+=25,30,"Спосіб сплати",Normal,PayMode,false,PMSClass);
+  EnterSkip(Math);
+  EditField(h2,v,-40,"Коментар",Normal,Comment,false,0);
+  EnterSkip(Math);
+/*  
+  Tile(1,30,false,"1",Math);
+  vs = 20;
+//  CheckBox(h,v=6,0,"Отримано",ReceivedFlag);
+//  CheckBox(h+100,v,0,"Відхилено",RejectedFlag);
+//  CheckBox(h,v=6,0,"Інформація о клієнте в зап. опер.",ARonTR);
+*/
+  //  Tile(1,180,true,"1",Math);
+  EditField(-267,-21,40,"Валюта",Normal,PayCurCode,false,CurncyCodeSClass);
+  EditField(-142,-21,-40,"Отримано",Normal,CurPayVal,true,0);
+  h=4; v=61;
+  MatrixBegin(h,v+10,-50,-24,-,299);
+  vm = v;
+  MatTypedRow(stp);
+  MatOverStrike(ovst);
+  Flip(0);
+  MatCol(t=kReceiptRowTypeNormal,30,"Акт/накл.",0,InvoiceNr,false,ARSClass);
+  EnterSkip(RecVal);
+  MatCol(t,105,"Клієнт",0,CustCode,false,CUSClass);
+  MatCol(t=kReceiptRowTypeSettlementDiscount,30,"",0,InvoiceNr,false,ARSClass);
+  MatText(t,105,"Знижка",false);
+  MatCol(t,190,"Об'єкт",0,Objects,false,ObjSClass);
+  MatCol(t,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  EnterSkip(InvoiceNr);
+  MatCol(t=kReceiptRowTypeWriteoff,30,"",0,InvoiceNr,false,ARSClass);
+  MatText(t,105,"Списано",false);
+  MatCol(t,-460,"",0,WriteOffAcc,false,AccSClass);
+  MatCol(t=kReceiptRowTypeBankFee,30,"",0,InvoiceNr,false,ARSClass);  
+  MatText(t,-480,"Ком.банку",true);
+  MatCol(t,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"Сума банку",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(1);
+  EnterSkip(PayDate);
+  MatCol(t=kReceiptRowTypeNormal,190,"Текст",0,CustName,false,0);
+  MatColTL(t,320,"Проект",0,M4UStr,ViewOnly,0,PRCode,false,PRSClass);// 62// Edit ************************** Friday, 9 September 2016 12:06:49
+  MatCol(t,-350,"Дата сплати",0,PayDate,false,0);
+  EnterSkip(RecVal);
+  MatCol(t,-260,"Вал. банку",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"Сума банку",0,BankVal,true,0);
+  MatCol(t,-130,"Вал. зап.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(2);
+  MatCol(t=kReceiptRowTypeNormal,190,"Текст",0,CustName,false,0);
+  MatCol(t,-350,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-310,"Сума відкр. накл.",0,InvOutstand,false,0);
+  MatCol(t,-220,"Заг. сума накл.",0,InvVal,true,0);
+  MatCol(t,-130,"Вал. зап.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(3);
+  MatCol(t=kReceiptRowTypeNormal,190,"Текст",0,CustName,false,0);
+  MatCol(t,-270,"Сп. спл.",0,PayMode,false,PMSClass);
+  MatCol(t,-220,"№ чека",0,ChequeNr,false,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(4);
+  MatCol(t=kReceiptRowTypeNormal,190,"Текст",0,CustName,false,0);
+  MatCol(t,-320,"№ рахунка",0,OrderNr,false,ORSClass);
+  MatCol(t,-230,"№ п/плати",0,CUPNr,false,ARPaySClass);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(5);
+  MatCol(t=kReceiptRowTypeNormal,190,"Текст",0,CustName,false,0);
+  MatCol(t,-310,"ПДВ",0,VATCode,false,VATCodeSClass);
+  MatCol(t,-270,"Сума ПДВ",0,VATVal,false,0);
+  MatCol(t,-200,"Податок",0,TAX1Sum,false,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(6);
+  MatCol(t=kReceiptRowTypeNormal,190,"Текст",0,CustName,false,0);
+  MatCol(t,-260,"Об'єкти",0,Objects,false,ObjSClass);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(7);
+  MatCol(t=kReceiptRowTypeNormal,190,"Round Off A/C",0,RoundOffAcc,false,AccSClass);
+  MatCol(t,-360,"Round Off",0,RoundOff,true,0);
+  MatCol(t,-300,"Внесок",0,InstNr,false,ARInstallSClass);
+  MatCol(t,-170,"Посилання",0,rkRecNumber,false,0);
+  MatCol(t,-70,"Кліент-банк",0,KBExportNum,false,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(8);
+  MatCol(t=kReceiptRowTypeNormal,190,"Рахунок дебіторів",0,ARAcc,false,AccSClass);
+  MatCol(t,-320,"Cred. Man. No.",0,CredManNr,false,CredManSClass);
+  MatCol(t,-220,"Коментар",0,Comment,false,0);
+  MatCol(t,-180,"Округлення",0,rkRecNumber,false,0);
+  //// 62 !!!!!!!!!!
+  MatColTL(t,-80,"Проект",0,M4UStr,ViewOnly,0,PRCode,false,PRSClass);// 62
+  //// 62
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  Flip(9);
+  MatCol(t=kReceiptRowTypeNormal,200,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-410,"Bank Amount",0,BankVal,true,0);
+//  MatCol(t,-340,"Bank Fee",0,BankFeeVal,true,0);
+  MatCol(t,-280,"To B. Cur. 1",0,ToRateB1BankVal,true,0);
+  MatCol(t,-210,"B. Cur. 1",0,B1BankVal,true,0);
+  MatCol(t,-140,"B. Cur. 2",0,B2BankVal,true,0);
+//  MatCol(t,-200,"Fee %",0,BankFeePrc,true,0); /* What was this ?? */
+//  MatCol(t,-70,"Coef. Value",0,Coef,true,0);
+  MatCol(t=kReceiptRowTypeWriteoff,-390,"Вал. накл.",0,InvCurncy,true,0);
+  MatCol(t,-350,"Сума накл.",0,InvVal,true,0);
+  MatCol(t,-260,"Вал.",0,BankCurncy,true,CurncyCodeSClass);
+  MatCol(t,-220,"На р/р",0,BankVal,true,0);
+  MatCol(t,-130,"Вал.",0,RecCurncy,true,CurncyCodeSClass);
+  MatCol(t,-90,"Отримано",0,RecVal,true,0);
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;
+  vs = 22;
+  v=v+ 1; VTab(-35,v,-16,v+vs,ToolFlip,1,"A");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,2,"B");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,3,"C");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,4,"D");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,5,"E");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,6,"F");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,7,"G");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,8,"H");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,9,"I");
+  vs = 20;
+  CheckBox(25,v=-21,0,"OK",OKFlag);
+  CheckBox(h+100,v,0,"Інформація про клієнта в записах операцій",ARonTR);
+  SpecialMenu("Додати знижку",' ',0,"CashDiscountIPDsm");
+  SpecialMenu("Додати списання",' ',1,"NewWriteoffIPDsm");
+  SpecialMenu("Додати комісію банку",' ',2,"NewFeeIPDsm");  
+  SpecialMenu("Додати рядок утримання",' ',8,"IPPasteWithholdingIPDsm");
+  SpecialMenu("Розподілити чеки",' ',13,"DistributeChequesIPDsm");
+  SpecialMenu("Розподілити суму",' ',3,"IPExpandIPDsm");
+  SpecialMenu("Розрахувати суму",'=',4,"CalculateFieldIPDsm");
+  SpecialMenu("Списати аванс",' ',5,"WriteofPrepayIPDsm");
+  SpecialMenu("Перевірити суму платежу",' ',6,"IPInfoIPDsm");  
+  SpecialMenu("Відкрити запис операції",'t',9,"OpenTRFromIP");
+  SpecialMenu("Створити діяльність",'c',14,"ActFromIPDsm");
+  SpecialMenu("Створити прибутковий ордер",' ',11,"CLInFromIPDsm");
+  SpecialMenu("Створити передплату",' ',7,"DownPayFromIPDsm");
+  SpecialMenu("Створити E-Mail",'m',18,"CreateMailFromIPDsm");
+  SpecialMenu("Створити податкову накладну",' ',12,"FirstEventIPDsm");
+  SpecialMenu("Виписати  на передплату",' ',10,"IVFromPrepIPDsm");
+  SpecialMenu("Створити под. накладну клієнту",' ',17,"VATCorrectionIPDsm");
+  SpecialMenu("Сплата кредитною карткою",' ',15,"CCPayIPDsm");
+  SpecialMenu("Виписка банку",' ',16,"BankStIPDsm");
+  SpecialMenu("Роздрукувати касову книгу",' ',8,"PrintCashInOutIPDsm");
+  EndWindow;
+
+  WindowBegin("Платежі клієнтів",IPLClass,CGmlist,-);
+  SetWRect(20,80,509,291);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(IPDClass);
+  UseView(IPVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,1,    "Номер",SerNr,false,SerNr);
+  RlColKey(76,71,  "OK",OKMark,false,OKMark);
+  RlColKey(106,106,"Дата опер.",TransDate,false,TransDate);
+  RlColKey(180,180,"Посилання",RecNumber,false,RecNumber);
+  RlCol   (270,270,"Коментар",Comment,false);
+  RlColKey   (-121,-121,"Сума",CurPayVal,true,CurPayVal);
+  RlCol   (-30,-30,"Вал.",PayCurCode,true);
+  SearchField("Пошук");
+  SpecialMenu("OK",'G',0,"OKIPLsm");
+  EndWindow;
+  
+  WindowBegin("Податкові накладні (зв.)",FEIVDClass,CGview,-);
+  SetWRect(20,80,620,420);
+  Sizeable(-1,-1,0,0);
+  UseView(FEIVVc);
+  FormName(FEIVForm);
+  v = 6; vs = 20; h = 100; h3 = 480;
+  Tile(0,68,false,"",PrepaymentNr);
+  EditField(75,vm=(v=6), 80,"Номер",Normal,SerNr,false,TSerSClass);
+  EditField(75,v+=20,80, "Клієнт",Normal,CustCode,false,CUSClass);
+  EditField(h=250,v=vm,-40,"Найменування",Normal,Addr0,false,0);
+  TileButton(1,"Умови");
+  TileButton(2,"Товари");
+  TileButton(3,"Валюти");
+  TileButton(4,"Зв'язки");
+  Tile(1,72,false,"1",TransDate);
+  vs = 20; h1 = 110; h2 = 300;
+  EditField(h1,vm=(v=6),82,"Дата операції",Normal,TransDate,false,PasteCurDate);
+  EditField(h1,v+=vs,82,"Продавець",Normal,SalesMan,false,UserSClass);
+  EditField(h1,v+=vs,82,"Дата акту/накл.",Normal,IVTransDate,false,PasteCurDate);
+  EditField(h2,v=vm,135,"Відповідальний",Normal,OurContact,false,0);
+  EditField(h3+50,v,50,"Мова",Normal,LangCode,false,LangSClass);
+  EditField(h2,v+=vs,135,"Об'єкт",Normal,Objects,false,ObjSClass);
+  EditField(h2,v+=vs, -40,"Коментар",Normal,InvComment,false,0);
+  EnterSkip(Math);
+  Tile(2,120,true,"2",Math);
+  EditField(65,-41,70,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+//  EditField(190,-41,70,"Фрахт",Normal,FrPrice,true,0);
+//  EditField(190,-21,70,"Дод.под.",ViewOnly,TAX1Sum,true,0);
+  EditField(310,-41,80,"ПДВ",ViewOnly ,Sum3,true,0);
+  EditField(310,-21,95,"Осн.1",ViewOnly,BaseSum4,true,0);
+  EditField(-133,-41,95,"Разом",ViewOnly ,Sum1,true,0);
+  EditField(-133,-21,95,"Всього",ViewOnly ,Sum4,true,0);
+  v = 24;
+  MatrixBegin(4,v,-50,-49,-,200);
+  MatTypedRow(stp);
+  Flip(0);
+  MatCol(t=1,32,"Товар",0,ArtCode,false,INSClass);
+  MatCol(t,94,"Кіл-ть",0,Quant,true,0);
+  MatCol(t,144,"Факт.",0,QuantFract,true,0);
+  MatText(t=2,32,"Підпис",true);
+  MatCol(t,108,"",0,Sign,false,0);
+  MatText(t,160,"Стара дата оп.",true);
+  MatColTL(t,290,"",0,-1,ViewOnly,-1,OldTransDate,false,0);
+  MatText(t=3,32,"Кредитує акт/накл.",true);
+  MatCol(t,208,"",0,OrdRow,false,0);
+  MatCol(t,-216,"",0,Spec,false,0);//MatText(t,-216,"",true);
+  MatText(t=11,32,"K",true);
+  MatCol(t,47,"Товар",0,ArtCode,false,INSClass);
+  MatCol(t,94,"Кіл.",0,Quant,true,0);  
+  MatCol(t,144,"Факт.",0,QuantFract,true,0);
+  Flip(1);
+  MatCol(t=1,194,"Опис",0,Spec,false,0);
+  MatCol(t,-235,"Ціна за од-цю",0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Сума",0,Sum,true,0);
+  MatCol(t=11,194,"Опис",0,Spec,false,0);
+  MatCol(t,-235,"Ціна за од-цю",0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Сума",0,Sum,true,0);  
+  Flip(2);
+  MatCol(t=1,194,"Опис",0,Spec,false,0);
+  MatCol(t,-250,"Рахунок",0,SalesAcc,false,AccSClass);
+  MatCol(t,-170,"Об'єкти",0,Objects,false,ObjSClass);
+  MatCol(t,-24,"ПДВ",0,VATCode,false,VATCodeSClass);
+  MatCol(t=11,194,"Опис",0,Spec,false,0);
+  MatCol(t,-250,"Рахунок",0,SalesAcc,false,AccSClass);
+  MatCol(t,-170,"Об'єкти",0,Objects,false,ObjSClass);
+  MatCol(t,-24,"ПДВ",0,VATCode,false,VATCodeSClass);  
+  Flip(3);
+  MatCol(t=1,144,"Опис",0,Spec,false,0);
+  MatCol(t,-315,"Од. вим.",0,UnitCode,false,UnitSClass);
+  MatCol(t,-260,"К-ть од.",0,UnitFactQuant,true,0);
+  MatCol(t,-200,"Вис.",0,UnitXval,true,0);
+  MatCol(t,-160,"Шир.",0,UnitYval,true,0);
+  MatCol(t,-120,"Глиб.",0,UnitZval,true,0);
+  MatCol(t,-80,"Ціна тов. од.",0,UnitFactPrice,true,0);
+  MatCol(t=11,144,"Опис",0,Spec,false,0);//New Row Type..
+  MatCol(t,-315,"Од. вим.",0,UnitCode,false,UnitSClass);
+  MatCol(t,-260,"К-ть од.",0,UnitFactQuant,true,0);
+  MatCol(t,-200,"Вис.",0,UnitXval,true,0);
+  MatCol(t,-160,"Шир.",0,UnitYval,true,0);
+  MatCol(t,-120,"Глиб.",0,UnitZval,true,0);
+  MatCol(t,-80,"Ціна тов. од.",0,UnitFactPrice,true,0);
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;
+  CheckBox(25,v=-21,0,"OK",OKFlag);
+  vs = 22;
+  v = 18; VTab(-35,v,-16,v+vs,ToolFlip,1,"A");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,2,"B");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,3,"C");
+  Tile(3,70,false,"3",FrRate);
+  vs = 20;
+  EditField(h=110,v=6,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(h2=295,v,50,"Курс",Normal,FrRate,true,0);
+  EditField(h3=360,v,50,":",Normal,ToRateB1,true,0);
+  StaticText(h3+60,v+12,"Осн. вал. 1",false);
+  EditField(h,v+=vs,50,"Осн. вал. 1",Normal,BaseRate1,true,0);
+  EditField(h3,v,50,":",Normal,ToRateB2,true,0);
+  StaticText(h3+60,v+12,"Осн. вал. 2",false);
+  EditField(h,v+=vs,50,"Осн. вал. 2",Normal,BaseRate2,true,0);
+  Tile(4,70,false,"4",PMComment);
+  h3 = 480;
+  EditField(h,v=6,50,"Акт/накл.",Normal,IVNr,false,0);
+  EditField(h2,v,50,"№ передплати",Normal,PrepaymentNr,false,0);
+  EditField(h3,v,50,"№ рахунка",Normal,OrderNr,false,0);
+  EditField(h,v+=vs, -40,"Умова платежу",Normal,PMComment,false,0);  
+  EndWindow;
+  
+  WindowBegin("Податкові накладні (звич.)",FEIVLClass,CGmlist,-);
+  SpawnClass(FEIVDClass);
+  SetWRect(10,80,640,298);
+  Sizeable(-1,-1,0,0);
+  UseView(FEIVVc);
+  FormName(PrintFEIVL);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Номер",SerNr,false,SerNr);
+  RlColKey(64,64,"OK",OKFlag,false,OKFlag);
+  RlColKey(94,94,"Дата",TransDate,false,TransDate);
+  RlColKey(174,174,"Клієнт",CustCode,false,CustCode);
+  RlColKey(234,234,"№ передпл.",PrepaymentNr,false,PrepaymentNr);
+  RlColKey(294,294,"Акт/накл.",IVNr,false,IVNr);
+  RlColKey(-266,-266,"Найменування",Addr0,false,Name);
+  RlCol(-50,-50,"Сума",Sum4,true);
+  RlCol(-15,-15,"",CredMark,true);
+  SearchField("Пошук");
+  EndWindow;
+
+  WindowBegin("Визначте дебіторську заборгованість",ARRClass,CGRcW,RcType);
+  SetWRect(20,80,532,360);
+  Tile(0,20,false,"",f1);
+  EditFieldTL(h=150,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  TileButtons(v,2);
+  Tile(1,340,false,"1",f3);
+  v = 6;
+   EditFieldTL(h,vm=v, 50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20 ,70,"Класифікація",M4UStr,Normal,30,f4,false,CClassSClass);
+  EditFieldTL(h,v+=20 ,70,"Види класифікації",M4UStr,Normal,60,f5,false,CTypeSClass);
+  EditFieldTL(h,v+=20, 50, "Продавець",   M4UStr,Normal,10,f2,false,UserSClass);
+  EditFieldTL(h,v+=20, 150, "Об'єкти",M4UStr,Normal,60,ObjStr,false,ObjSClass);
+  EditFieldTL(h,v+=20, 50, "Типи об'єктів",M4UStr,Normal,5,ObjType,false,OTSClass);
+  EditFieldTL(h,v+=20, 50, "Валюта",M4UStr,Normal,5,CurncyCode,false,CurncyCodeSClass);
+  EditFieldTL(h,v+=20, 50, "Термін більше ніж",   M4Long,Normal,0,long1,false,0);
+  EditFieldTL(h,v+=20, 82, "Дата",   M4Date,Normal,0,d1,false,PasteCurDate);
+  EditFieldTL(h,v3=(v+=20), 50, "Рахунок дебіторів",   M4UStr,Normal,10,AccStr,false,AccSClass);
+  ButtonFrame(h=20,v=(vm=(v3+=42)),123,2,"Суми");
+  RadioButton(h,v,0,0,"осн. вал. 1",flags[2]);
+  RadioButton(h,v+=16,1,0,"в валюті",flags[2]);
+  ButtonFrame(h,v+=45,123,2,"Сортувати за");
+  RadioButton(h,v,0,0,"номером",flags[1]);
+  RadioButton(h,v+=16,1,0,"найменуванням",flags[1]);
+  ButtonFrame(h+=148,v=vm,140,4,"Платежі на баланс");
+  RadioButton(h,v,0,0,"враховувати",flags[21]);
+  RadioButton(h,v+=16,1,0,"лише на баланс",flags[21]);
+  RadioButton(h,v+=16,2,0,"пропускати",flags[21]);  
+  CheckBox(h,v+=18,0,"Відображати номери передплат",flags[20]);
+  ButtonFrame(h+=168,v=90,123,7,"Функція");
+  RadioButton(h,v,0,0,"детальний",ArtMode);
+  RadioButton(h,v+=16,1,0,"зведений",ArtMode);
+  RadioButton(h,v+=16,2,0,"за періодами",ArtMode);
+  RadioButton(h,v+=16,5,0,"за періодами - докладно",ArtMode);
+  RadioButton(h,v+=16,3,0,"сальдо",ArtMode);
+  RadioButton(h,v+=16,4,0,"курсова різниця",ArtMode);
+  RadioButton(h,v+=16,6,0,"курсова різниця, докладно",ArtMode);
+  ButtonFrame(h,v=vm,123,2,"Статус");
+  RadioButton(h,v,0,0,"несплачені",flags[0]);
+  RadioButton(h,v+=16,2,0,"прострочені",flags[0]);
+  ButtonFrame(h,v+=40,123,3,"Суперечливі");
+  RadioButton(h,v,0,0,"враховувати",flags[3]);
+  RadioButton(h,v+=16,1,0,"виключати",flags[3]);
+  RadioButton(h,v+=16,2,0,"лише",flags[3]); 
+  ButtonFrame(h,v=20,123,7,"Клієнт"); // SAV 2011_08_08
+  RadioButton(h,v,0,0,"Відкриті",flags[4]);
+  RadioButton(h,v+=16,1,0,"Закриті",flags[4]);
+  RadioButton(h,v+=16,2,0,"Всі",flags[4]);
+  Tile(2,300,false,"2",Language);
+  v = 6;h=130;
+  EditFieldTL(h,v, 50, "Мова",M4UStr,Normal,5,Language,false,LangSClass);
+  CheckBox(h,v+=30,0,"Підсумки в осн. валюті 2",flags[12]);
+  CheckBox(h,v+=16,0,"Лише рахунки пені",flags[13]);
+  CheckBox(h,v+=16,0,"Відобразити коментар до акту/накл.",flags[14]);
+  CheckBox(h,v+=16,0,"Відображати офіційний серійний №",flags[23]);
+  CheckBox(h,v+=16,0,"Відображати рахунки дебіторів",flags[18]);
+  CheckBox(h,v+=16,0,"Відображати внески",flags[19]);
+  CheckBox(h,v+=16,0,"За періодами (з актами/накл.)",flags[22]);
+  CheckBox(h,v+=16,0,"Пропускати акти/накл. без нагадування",flags[16]);
+  CheckBox(h,v+=16,0,"Пропускати акти/накл. без зборів",flags[17]); 
+  EndWindow;
+
+  WindowBegin("Статистика розрахунків з клієнтами",SLStatRClass,CGRcW,RcType);
+  SetWRect(20,80,400,240);
+  v= 6; vs = 20;
+  PeriodField(h=135,v, "Період");
+  EditFieldTL(h,v+=vs, 60,"Клієнт",M4Str,Normal,20,f1,false,CUSClass);
+  EditFieldTL(h,v+=vs ,60,"Категорія",M4Str,Normal,5,f2,false,CCatSClass);
+  EditFieldTL(h,v+=vs, 60,"Дата початкового сальдо",M4Date,Normal,20,d2,false,PasteCurDate); 
+  EditFieldTL(h,v+=vs, 60,"Відобразити сальдо на дату",M4Date,Normal,20,d1,false,PasteCurDate); 
+  CheckBox(h,v+=24,0,"Сортувати за категоріями",flags[0]);
+  StaticText(260,v+=30, "Дозволено лише повний рік",true);
+  EndWindow;  
+
+  WindowBegin("Створити рахунки пені",CUIntVClass,CGMnt,RcType);
+  SetWRect(20,80,450,300);
+  PeriodField(h=170,v=6,"За період");
+  EditFieldTL(h,v+=20,150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20, 50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20, 50, "Продавець",   M4Code,Normal,10,FirstAcc,false,UserSClass);
+  EditFieldTL(h,v+=20,82,"Період: з",M4Date,Normal,0,d1,false,PasteCurDate);
+  EditFieldTL(h,v+=20,82,"по",M4Date,Normal,0,d2,false,PasteCurDate);
+  EditFieldTL(h,v+=20,82,"Дата",M4Date,Normal,0,RegDate,false,PasteCurDate);
+  EditFieldTL(h,v+=20 ,70,"Рахунок дебіторів",M4UStr,Normal,10,AccStr,false,AccSClass);  
+  CheckBox(h-50,v+=30,0,"В т.ч. період на акт/накл.",flags[1]);
+  CheckBox(h-50,v+=17,0,"Не розраховувати пеню",flags[2]);
+  EndWindow;
+ 
+  WindowBegin("Визначте історію платежів клієнтів",CUPayHistoryRClass,CGRcW,RcType);
+  SetWRect(20,80,432,230);
+  vs = 20;
+  PeriodField(h=120,v=6,"Період");
+  EditFieldTL(h,v+=vs, 170,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=vs, 50,"Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  ButtonFrame(h=80,vm=(v+=41),200,2,"Функція");
+  RadioButton(h,v,0,0,"зведений",ArtMode);
+  RadioButton(h,v+=16,1,0,"докладний",ArtMode);
+  EndWindow;
+
+  WindowBegin("Визначте несплачені акти/накл.",ARSClass,CGslist,-);
+  SetWRect(64,80,750,298);// 62
+  Sizeable(150,150,0,0);
+  UseView(ARVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,    "Акт/накл.",InvoiceNr,false,InvoiceNr);
+  RlColKey(70,70,  "Термін спл.",DueDate,false,DueDate);
+  RlColKey(143,143,  "№ для друку",OfficialSerNr,false,OfficialSerNr);
+  RlColKey(250,250,"Клієнт",CustCode,false,CustCode);
+  RlColKey(330,330,"Найменування",CustName,false,CustName);
+RlColKey(-170,-170, "Проект",PRCode,true,PRCode);// добавление столбца ѕроект // 62
+  RlColKey(-70,-70, "Сума",RVal,true,RVal);
+  SearchField("Пошук");
+  EndWindow;
+
+  WindowBegin("Визначте передплату",ARPaySClass,CGslist,-);
+  SetWRect(20,80,820,298);// 62
+  Sizeable(150,150,0,0);
+  UseView(ARPayVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,    "Номер",CUPNr,false,CUPNr);
+  RlColKey(90,90,    "№ рахунка",OrderNr,false,OrderNr);
+  RlColKey(180,180,  "Дата спл.",PayDate,false,PayDate);
+  RlColKey(255,255,"Клієнт",CustCode,false,CustCode);
+  RlColKey(310,310,"Найменування",CustName,false,CustName);
+  RlColKey(-310,-310, "Проект",PRCode,true,PRCode); // добавление столбца ѕроект// 62
+  RlCol(-210,-210, "ПДВ",VATVal,true);
+  RlCol(-150,-150, "Сума",RVal,true);
+  RlCol(-90,-90, "Зарезерв.",BookRVal,true);
+  RlCol(-30,-30, "Валюта",CurncyCode,false);
+  SearchField("Пошук");
+  EndWindow;
+
+  WindowBegin("Визначте передплату",ARPay2SClass,CGother,HBlRecType);
+  SetWRect(40,80,600,298);
+  Sizeable(-1,-1,-1,0);
+  ToolBar;
+  HalPushButton(-120,v,-20,v+10,"ARPay2SClassOpenARPayClass","Усі передплати");
+  EndToolBar;
+  HalPushButton(h=9,v=3,h+80,v+10,"ARPay2SClassSortCUPNr","Номер");
+  HalPushButton(h=h+80,v,h+65,v+10,"ARPay2SClassSortOrderNr","№ рахунка");
+  HalPushButton(h=h+65,v,h+80,v+10,"ARPay2SClassSortPayDate","Дата спл.");
+//  HalPushButton(h=h+80,v,h+80,v+10,"","Customer");
+//  HalPushButton(h=h+80,v,h+200,v+10,"","Name");
+  HalPushButton(h=h+80,v,h+90,v+10,"","ПДВ");
+  HalPushButton(h=h+90,v,h+85,v+10,"","Сума");
+  HalPushButton(h=h+85,v,h+90,v+10,"","Зарезерв.");
+  HalPushButton(h=h+90,v,h+35,v+10,"","Валюта");
+  StringList2(9,29,-24,-5);
+  SearchField("Пошук");
+  SoftEditField(1000,1000,-20,"Сортувати",Normal ,"ARPay2SClassSorting",false,0,M4Str,255);
+  EndWindow;
+
+/*
+  WindowBegin("Визначте внески",ARInstallSClass,CGslist,-);
+  SetWRect(64,80,600,298);
+  Sizeable(150,150,0,0);
+  UseView(ARInstallVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,    "Акт/накл.",InvoiceNr,false,InvoiceNr);
+  RlColKey(60,60,  "Термін сплати",DueDate,false,DueDate);
+  RlColKey(185,185,"Клієнт",CustCode,false,CustCode);
+  RlColKey(-140,-140, "No.",InstallNr,false,InstallNr);
+  RlCol(-100,-100, "Сума",RVal,true);
+  SearchField("Пошук");
+  EndWindow;
+*/
+  WindowBegin("Оберіть відкритий внесок",ARInstallSClass,CGother,HBlRecType);
+  SetWRect(240,80,650,291);
+  Sizeable(-1,-1,-1,0);
+  StringList(9,9,-20,-10);
+  EndWindow;
+
+  WindowBegin("Оберіть відкритий внесок",ARInstSClass,CGother,HBlRecType);
+  SetWRect(240,80,520,291);
+  Sizeable(-1,-1,-1,0);
+  StringList(9,9,-20,-10);
+  EndWindow;
+
+  WindowBegin("Внесок",ARInstallDClass,CGview,-);
+  SetWRect(20,80,400,200);
+  UseView(ARInstallVc);
+  BrowseButtons(false);
+  h = 150; v = 6;
+  EditField(h,v, 82,"Терм. спл.",Normal,DueDate,false,PasteCurDate);
+  EditField(h,v+=20,82, "До спл.",Normal,RVal,false,0);
+  EditField(h,v+=20,82, "В осн. валюті",ViewOnly,BookRVal,false,0);
+  EndWindow;    
+
+  WindowBegin("Створення e-mail по журналу відкр. актів/накл. клієнтам",ARSEmailVClass,CGMnt,RcType);
+  SetWRect(20,80,450,450);
+  EditFieldTL(h=200,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  EditFieldTL(h,v+=20,20, "Затримано днів (не менше ніж)",   M4Int,Normal,5,Comparison,false,0);
+//  EditFieldTL(h,v+=vs ,80,"Min. Turnover",M4Val,Normal,0,vals0,true,0);// this is too slow
+  EditFieldTL(h,v+=vs ,80,"Мін. сальдо",M4Val,Normal,0,vals2,true,0);
+  EditFieldTL(h,v+=vs ,80,"Мін. кіл-ть актів/накл.",M4Long,Normal,0,long1,true,0);
+  EditFieldTL(h,v+=20,80,"На дату",M4Date,Normal,0,d1,false,PasteCurDate);
+  EditFieldTL(h,v+=20,80,"Дод. вартість",M4Val,Normal,0,vals1,false,0);
+  EditFieldTL(h,v+=20,50,"Мова",M4Str,Normal,5,Language,false,LangSClass);
+  CheckBox(80,v+=30,0,"Враховувати відкриті кред. акти/накл.",flags[9]);
+  CheckBox(80,v+=16,0,"Пропускати журнал без ліній",flags[16]);
+  CheckBox(80,v+=16,0,"Відправляти е-mail автоматично",flags[17]);
+/*  CheckBox(80,v+=30,0,"Endast kunder med saldo",flags[1]);*/
+  ButtonFrame(h=80,vm=(v+=40),123,2,"Акти/накладні");
+  RadioButton(h,v,0,0,"відкриті",flags[0]);
+  RadioButton(h,v+=16,2,0,"прострочені",flags[0]);
+  ButtonFrame(h,v+=40,123,2,"Суми");
+  RadioButton(h,v,0,0,"Основна валюта",flags[4]);
+  RadioButton(h,v+=16,1,0,"Валюта",flags[4]);
+  ButtonFrame(h=250,v=vm,123,3,"Статус");
+  CheckBox(h,v,0,"Проп. суперечливі",flags[11]);
+  CheckBox(h,v+=16,0,"Проп. без нагадувань",flags[12]);
+  CheckBox(h,v+=16,0,"Проп. не складені",flags[13]);
+  EndWindow;
+
+  WindowBegin("Визначте журнал відкритих актів/накл. клієнтам",ARS2RClass,CGRcW,RcType);
+  SetWRect(20,80,450,450);
+  EditFieldTL(h=180,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,100, "Проект",   M4UStr,Normal,20,f6,false,PRSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,150, "Об'єкт",   M4Code,Normal,20,ObjStr,false,ObjSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  EditFieldTL(h,v+=20,20, "Днів затримки (не менше)",   M4Int,Normal,5,Comparison,false,0);
+//  EditFieldTL(h,v+=vs ,80,"Мін. оборот",M4Val,Normal,0,vals0,true,0);// this is too slow
+  EditFieldTL(h,v+=vs ,80,"Мін. сальдо",M4Val,Normal,0,vals2,true,0);
+  EditFieldTL(h,v+=vs ,80,"Мін. кіл-ть актів/накл.",M4Long,Normal,0,long1,true,0);
+  EditFieldTL(h,v+=20,80,"На дату",M4Date,Normal,0,d1,false,PasteCurDate);
+/*  CheckBox(20,v+=20,0,"Endast kunder med saldo",flags[1]);*/
+  ButtonFrame(h=30,vm=(v+=40),123,2,"Акти/накладні");
+  RadioButton(h,v,0,0,"відкриті",flags[0]);
+  RadioButton(h,v+=16,2,0,"прострочені",flags[0]);
+  ButtonFrame(h,v+=40,123,2,"Суми");
+  RadioButton(h,v,0,0,"основна валюта",flags[4]);
+  RadioButton(h,v+=16,1,0,"валюта",flags[4]);
+  CheckBox(h,v+=30,0,"Лише передплати",flags[10]);
+  CheckBox(h,v+=16,0,"Відображати № передплати",flags[14]);
+  CheckBox(h,v+=16,0,"Враховувати відкриті кред. акти/накл.",flags[9]);
+  CheckBox(h,v+=16,0,"Відображати офіційний серійний №",flags[15]);
+  ButtonFrame(h+=200,v=vm,123,3,"Статус");
+  CheckBox(h,v,0,"Проп. суперечливі",flags[11]);
+  CheckBox(h,v+=16,0,"Проп. без нагадувань",flags[12]);
+  CheckBox(h,v+=16,0,"Проп. не складені",flags[13]);
+  ButtonFrame(h,v+=40,123,2,"Клієнти");
+  RadioButton(h,v,0,0,"Відкриті",flags[16]);
+  RadioButton(h,v+=16,1,0,"Закриті",flags[16]);
+  RadioButton(h,v+=16,2,0,"Всі",flags[16]);
+  EndWindow;
+
+  WindowBegin("Визначте журнал відкритих актів/накл. клієнтам",ARSRClass,CGRcW,RcType);
+  SetWRect(20,80,450,440);
+  EditFieldTL(h=180,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,150, "Об'єкт",   M4Code,Normal,20,ObjStr,false,ObjSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  EditFieldTL(h,v+=20,20, "Днів затримки (не менш ніж)",   M4Int,Normal,5,Comparison,false,0);
+//  EditFieldTL(h,v+=vs ,80,"Мін. оборот",M4Val,Normal,0,vals0,true,0);// this is too slow
+  EditFieldTL(h,v+=vs ,80,"Мін. сальдо",M4Val,Normal,0,vals2,true,0);
+  EditFieldTL(h,v+=vs ,80,"Мін. кіл-ть акт./накл.",M4Long,Normal,0,long1,true,0);
+  EditFieldTL(h,v+=20,80,"На дату",M4Date,Normal,0,d1,false,PasteCurDate);
+  EditFieldTL(h,v+=20,80,"Додаткова вартість",M4Val,Normal,0,vals1,false,0);
+  EditFieldTL(h,v+=20,50,"Мова",M4Str,Normal,5,Language,false,LangSClass);
+  ButtonFrame(h=80,vm=(v+=40),123,2,"Акти/накл.");
+  RadioButton(h,v,0,0,"відкриті",flags[0]);
+  RadioButton(h,v+=16,2,0,"прострочені",flags[0]);
+  ButtonFrame(h,v+=40,123,2,"Відображати в");
+  RadioButton(h,v,0,0,"основній валюті",flags[4]);
+  RadioButton(h,v+=16,1,0,"валюті документу",flags[4]);
+  CheckBox(h,v+=30,0,"Збільшити рівень нагадувань",flags[2]);
+  CheckBox(h,v+=16,0,"Лише авансові платежі",flags[10]);
+  CheckBox(h,v+=16,0,"Відображ. № передплати",flags[14]);
+  CheckBox(h,v+=16,0,"Відображати офіційний серійний №",flags[15]);
+  CheckBox(h,v+=16,0,"Лише клієнти без нагадувань",flags[3]);
+  ButtonFrame(h+=150,v=vm,123,2,"Статус");
+  CheckBox(h,v,0,"Пропускати суперечливі",flags[11]);
+  CheckBox(h,v+=16,0,"Пропускати без нагадувань",flags[12]);
+  CheckBox(h,v+=16,0,"Пропускати не складені",flags[13]);
+  CheckBox(h,v+=26,0,"Враховувати відкриті кред. акти/накл.",flags[9]);
+  CheckBox(h,v+=16,0,"Пропускати якщо без рядків",flags[16]);
+  EndWindow;
+
+  WindowBegin("Визначте лист дебітору",DebtLetRClass,CGRcW,RcType);
+  SetWRect(20,80,450,440);
+  EditFieldTL(h=180,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,150, "Об'єкт",   M4Code,Normal,20,ObjStr,false,ObjSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  EditFieldTL(h,v+=20,20, "Днів затримки (не менш ніж)",   M4Int,Normal,5,Comparison,false,0);
+//  EditFieldTL(h,v+=vs ,80,"Мін. оборот",M4Val,Normal,0,vals0,true,0);// this is too slow
+  EditFieldTL(h,v+=vs ,80,"Мін. сальдо",M4Val,Normal,0,vals2,true,0);
+  EditFieldTL(h,v+=vs ,80,"Мін. кіл-ть акт./накл.",M4Long,Normal,0,long1,true,0);
+  EditFieldTL(h,v+=20,80,"На дату",M4Date,Normal,0,d1,false,PasteCurDate);
+  EditFieldTL(h,v+=20,80,"Додаткова вартість",M4Val,Normal,0,vals1,false,0);
+  EditFieldTL(h,v+=20,50,"Мова",M4Str,Normal,5,Language,false,LangSClass);
+  ButtonFrame(h=80,vm=(v+=40),123,2,"Акти/накл.");
+  RadioButton(h,v,0,0,"відкриті",flags[0]);
+  RadioButton(h,v+=16,2,0,"прострочені",flags[0]);
+  ButtonFrame(h,v+=40,123,2,"Відображати в");
+  RadioButton(h,v,0,0,"основній валюті",flags[4]);
+  RadioButton(h,v+=16,1,0,"валюті документу",flags[4]);
+  CheckBox(h,v+=30,0,"Збільшити рівень нагадувань",flags[2]);
+  CheckBox(h,v+=16,0,"Лише авансові платежі",flags[10]);
+  CheckBox(h,v+=16,0,"Відображ. № передплати",flags[14]);
+  CheckBox(h,v+=16,0,"Відображати офіційний серійний №",flags[15]);
+  ButtonFrame(h+=150,v=vm,123,2,"Статус");
+  CheckBox(h,v,0,"Пропускати суперечливі",flags[11]);
+  CheckBox(h,v+=16,0,"Пропускати без нагадувань",flags[12]);
+  CheckBox(h,v+=16,0,"Пропускати не складені",flags[13]);
+  CheckBox(h,v+=26,0,"Враховувати відкриті кред. акти/накл.",flags[9]);
+  CheckBox(h,v+=16,0,"Пропускати якщо без рядків",flags[16]);
+  EndWindow;
+
+  WindowBegin("Визначте відомість розрахунків з клієнтами",CuPer2RClass,CGRcW,RcType);
+  SetWRect(20,80,440,400);
+  EditFieldTL(h=110,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  PeriodField(h,v+=20,"Період");
+  EditFieldTL(h,v+=20 ,70,"Рахунок дебіторів",M4UStr,Normal,10,FirstAcc,false,AccSClass);  
+  StaticText(h+80,v+13,"ігнор. в поч. сальдо та зведеному звіті",false);
+ // EditFieldTL(h,v+=20,250,"Object",M4UStr,Normal,60,ObjStr,false,ObjSClass);
+  /*problems with CSView there is no object*/
+
+  CheckBox(h,v+=25,0,"Суми у валюті",flags[2]);
+  CheckBox(h,v+=16,0,"Від'ємні значення в кред. актах/накл.",flags[7]);
+/* What is this, the code can't work.*/
+/* If I don't get any other information, I will delete the code */
+/*  CheckBox(20,v+=25,0,"Inbetalningar per dag i klump",flags[3]);*/
+  CheckBox(h,v+=16,0,"Окрема сторінка на кожного клієнта",flags[6]);
+  CheckBox(h,v+=16,0,"Відображати офіційний серійний №",flags[15]);
+  CheckBox(h,v+=16,0,"Підсумувати платежі",flags[8]);
+  CheckBox(h,v+=16,0,"Відобразити акти/накл.",flags[9]);
+  CheckBox(h,v+=16,0,"Відобр. поч. сальдо акт./накл.",flags[10]);
+  ButtonFrame(h=50,vm=(v+=40),123,2,"Функція");
+  RadioButton(h,v,0,0,"зведений",ArtMode);
+  RadioButton(h,v+=16,1,0,"докладний",ArtMode);
+  
+  ButtonFrame(h,v+=40,200,3,"Клієнти");
+  RadioButton(h,v,0,0,"всі",flags[1]);
+  RadioButton(h,v+=16,1,0,"із запис. операцій або поч. сальдо",flags[1]);
+  RadioButton(h,v+=16,2,0,"із сальдо (зведений)",flags[1]);
+  
+  ButtonFrame(h2=220,v=vm,123,2,"Сортування (докладний)");
+  RadioButton(h2,v,0,0,"Дата операції",flags[5]);
+  RadioButton(h2,v+=16,1,0,"Дата сплати",flags[5]);
+  
+  //CheckBox(h,v=v-130,0,"Include received Receipts",flags[4]);
+  EndWindow;
+
+// What is the difference between this and the next selection window??
+  WindowBegin("Визначте відомість розрахунків з клієнтами e-mail",CUPerEmailVClass,CGMnt,RcType);
+  SetWRect(64,80,509,380);
+  EditFieldTL(h=120,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  PeriodField(h,v+=20,"Період");
+  EditFieldTL(h,v+=20,250,"Об'єкт",M4UStr,Normal,60,ObjStr,false,ObjSClass);
+  EditFieldTL(h,v+=20,80,"Дата",M4Date,Normal,0,d1,false,PasteCurDate);
+  ButtonFrame(h,vm=(v+=40),200,3,"Клієнти");
+  RadioButton(h,v,0,0,"всі",flags[1]);
+  RadioButton(h,v+=16,1,0,"із запис. операцій чи поч. сальдо",flags[1]);
+  RadioButton(h,v+=16,2,0,"із сальдо",flags[1]);
+  CheckBox(h,v+=24,0,"Платежі",flags[8]);
+  CheckBox(h,v+=16,0,"Відображ. акти/накл.",flags[9]);
+  CheckBox(h,v+=16,0,"Відображ. поч. сальдо акт./накладих",flags[10]);
+  CheckBox(h,v+=16,0,"Формат PDF",flags[28]);
+  CheckBox(h,v+=16,0,"Відправляти е-mail автоматично",flags[11]);
+  EndWindow;
+  
+  WindowBegin("Відправити відомість розрахунків",SendPerStatVClass, CGMnt,RcType);
+  SetWRect(20,80,420,420);
+  EditFieldTL(h=110,v=6, 150,"З адреси",   M4UStr,Normal,30,f2,false,0);
+  EditFieldTL(h,v+=20, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  PeriodField(h,v+=20,"Період");
+  CheckBox(h,v+=25,0,"Лише клієнти з залишком",flags[1]);
+  CheckBox(h,v+=16,0,"Суми в валюті",flags[2]);
+  CheckBox(h,v+=16,0,"Від'ємні значення для кредитових актів/накл.",flags[7]);
+  ButtonFrame(h,vm=(v+=70),123,2,"Функція");
+  RadioButton(h,v,0,0,"зведений",ArtMode);
+  RadioButton(h,v+=16,1,0,"детальний",ArtMode);
+  ButtonFrame(h,v+=45,123,2,"Сортування (детальний)");
+  RadioButton(h,v,0,0,"дата операції",flags[5]);
+  RadioButton(h,v+=16,1,0,"дата сплати",flags[5]);
+  EndWindow;
+
+  WindowBegin("Визначте відомість розрахунків з клієнтами",CuPerRClass,CGRcW,RcType);
+  SetWRect(20,80,410,300);
+  EditFieldTL(h=120,v=6, 150,"Клієнт",   M4UStr,Normal,30,f1,false,CUSClass);
+  EditFieldTL(h,v+=20,50, "Категорія",   M4UStr,Normal,5,f3,false,CCatSClass);
+  EditFieldTL(h,v+=20,50, "Класифікація",   M4UStr,Normal,30,f4,false,CClassSClass);
+  PeriodField(h,v+=20,"Період");
+  EditFieldTL(h,v+=20,250,"Об'єкт",M4UStr,Normal,60,ObjStr,false,ObjSClass);
+  EditFieldTL(h,v+=20,82,"Дата",M4Date,Normal,0,d1,false,PasteCurDate);
+  ButtonFrame(h,vm=(v+=40),200,3,"Клієнти");
+  RadioButton(h,v,0,0,"всі",flags[1]);
+  RadioButton(h,v+=16,1,0,"із запис. операцій чи поч. сальдо",flags[1]);
+  RadioButton(h,v+=16,2,0,"із сальдо",flags[1]);
+  CheckBox(h,v+=24,0,"Підсумувати платежі",flags[8]);
+  CheckBox(h,v+=16,0,"Відображ. акти/накл.",flags[9]);
+  CheckBox(h,v+=16,0,"Відображ. поч. сальдо акт./накладих",flags[10]);
+  EndWindow;
+
+  WindowBegin("Визначте поновлення класифікації клієнтів",CustUpClass, CGMnt,RcType);
+  SetWRect(90,80,509,357);
+  EditFieldTL(h=170,v=6, 170,"Клієнти",   M4UStr,Normal,50,f1,false,CUSClass);
+  EditFieldTL(h,v+=20, 170,"Класифікація", M4UStr,Normal,30,f4,false,CClassSClass);
+  EditFieldTL(h,v+=20, 170,"Товар",   M4UStr,Normal,41,f2,false,INSClass);
+  EditFieldTL(h,v+=20, 170,"Група товарів",   M4UStr,Normal,20,f3,false,ITSClass);
+  EditFieldTL(h,v+=20, 50,"Обороти більше ніж",M4Val,Normal,0,vals0,false,0);
+  EditFieldTL(h,v+=20, 50, "Валюта продажу (клієнт)",M4UStr,Normal,5,CurncyCode,false,CurncyCodeSClass);
+  PeriodField(h,v+=20,"Товар проданий за період");
+  ButtonFrame(h,v+=40,170,2,"Функція");
+  RadioButton(h,v,0,0,"знищити",flags[0]);
+  RadioButton(h,v+=16,1,0,"додати",flags[0]);
+  ButtonFrame(h=70,v+=40,300,3,"Клієнти");
+  RadioButton(h,v,0,0,"всі ",flags[1]);
+  RadioButton(h,v+=16,1,0,"що придбали товар або товар з групи",flags[1]);
+  RadioButton(h,v+=16,2,0,"що не придбали товар або товар з групи",flags[1]);
+  EndWindow;
+  
+
+   WindowBegin("Визначте журнал актів/накладних",IVJRClass,CGRcW,RcType);
+   SetWRect(20,80,550,420);
+   vs = 20;
+   hs=148;
+   Tile(0,20,false,"",f1);
+   EditFieldTL(h=150,v=6, 150,"Акт/накладна №",   M4Str,Normal,30,f1,false,0);
+   TileButtons(v,2);
+   Tile(1,400,false,"1",f2);
+   v = 6;
+   PeriodField(h,vm=v,"Період");
+   EditFieldTL(h,v+=vs ,150,"Клієнт",M4UStr,Normal,50,f2,false,CUSClass);
+   EditFieldTL(h,v+=vs ,70,"Категорія",M4UStr,Normal,5,f3,false,CCatSClass);
+   EditFieldTL(h,v+=vs ,70,"Види класифікації",M4UStr,Normal,60,f5,false,CTypeSClass);
+   EditFieldTL(h,v+=vs ,70,"Класифікація",M4UStr,Normal,30,f4,false,CClassSClass);
+   EditFieldTL(h,v+=vs ,100,"Продавець",M4UStr,Normal,10,AccStr,false,UserSClass);
+   EditFieldTL(h,v+=vs,250,"Об'єкт",M4UStr,Normal,60,ObjStr,false,ObjSClass);
+   EditFieldTL(h,v+=vs,50,"Тип об'єкту",M4UStr,Normal,5,ObjType,false,OTSClass);
+   EditFieldTL(h,v+=vs,50,"Проект",M4UStr,Normal,20,FirstAcc,false,PRSClass);
+   EditFieldTL(h,v+=vs,100,"Склад",M4UStr,Normal,60,LastAcc,false,LocationSClass);
+   EditFieldTL(h,v+=vs,50,"Умови сплати",M4UStr,Normal,5,TransStr,false,PDSClass);
+   EditFieldTL(h,v+=vs,250,"Офіційний номер",M4UStr,Normal,41,f6,false,0);
+   EditFieldTL(h,v3=(v+=vs),50,"Мін. сума",M4Val,Normal,0,vals0,false,0);
+   EditFieldTL(h,v3=(v+=vs),50,"Тип документу",M4UStr,Normal,25,f9,false,DocumentTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 21 May 2018 13:57:55
+	 EditFieldTL(h,v3=(v+=vs),50,"Наявн. докум.",M4Str,Normal,25,f10,false,DocumentsFlagSCLass);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 1 October 2018 18:28:31
+ 	 EditFieldTL(h,v3=(v+=vs),100,"Товар",M4Str,Normal,60,f11,false,INSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 September 2019 13:57:09
+	 EditFieldTL(h,v3=(v+=vs),100,"Проект",M4Str,Normal,60,f12,false,PRSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 September 2019 13:57:10
+   
+   ButtonFrame(h=320,v=vm+10,123,5,"Статус");
+   CheckBox(h,v,0,"незатверджені",flags[1]);
+   CheckBox(h,v+=16,0,"затверджені",flags[2]);
+   RadioButton(h,v+=16,0,0,"врах. суперечливі",flags[7]);
+   RadioButton(h,v+=16,1,0,"викл. суперечливі",flags[7]);
+   RadioButton(h,v+=16,2,0,"лише суперечливі",flags[7]);    
+
+   ButtonFrame(h=148,vm=(v=(v3+=41)),123,3,"Функція");
+   RadioButton(h,v,0,0,"зведений",ArtMode);
+   RadioButton(h,v+=16,1,0,"докладний",ArtMode);
+   RadioButton(h,v+=16,4,0,"зведений з валютою",ArtMode);
+
+   ButtonFrame(h2=320,v=vm,123,5,"Сортувати за");
+   RadioButton(h2,v,0,0,"датою операції",flags[10]);
+   RadioButton(h2,v+=16,1,0,"№ акту/накл.",flags[10]);
+   RadioButton(h2,v+=16,2,0,"складом",flags[10]);
+   RadioButton(h2,v+=16,3,0,"звед. з офіц. №",flags[10]);
+   RadioButton(h2,v+=16,4,0,"датою акту/накл.",flags[10]);
+   Tile(2,310,false,"2",Stext);
+   v = 6;
+   EditFieldTL(h=150,v,100,"Група товарів",M4UStr,Normal,21,Stext,false,ITSClass);
+   StaticText(h+110,v+12, "Лише докладний",false);
+   EditFieldTL(h=150,v+=vs,100,"Рахунок реалізації",M4UStr,Normal,21,f7,false,AccSClass);
+   StaticText(h+110,v+12, "Лише докладний",false);
+   EditFieldTL(h=150,v+=vs,100,"Рахунок дебіторів",M4UStr,Normal,21,f8,false,AccSClass);
+//    EditFieldTL(h,v+=vs,50,"Order Class",M4UStr,Normal,5,Stext,false,OrderClassSClass); // no more strings to use....
+   ButtonFrame(h=50,vm = (v+=40),123,4,"Види актів/накл.");
+   CheckBox(h,v,0,"звичайні",flags[3]);
+   CheckBox(h,v+=16,0,"готівкові платежі",flags[4]);
+   CheckBox(h,v+=16,0,"кредитові",flags[5]);
+   CheckBox(h,v+=16,0,"пені",flags[6]);
+   CheckBox(h,v+=26,0,"Лише акти/накл., щр вплив. на продажі",flags[19]);
+   StaticText(h+17,v+=30,"(не врахов. види актів/накл.)",false);
+   CheckBox(h=220,v=vm,0,"Віображати Коментар",flags[11]);
+   CheckBox(h,v+=16,0,"Суми в осн. валюті 1 і 2",flags[12]);
+   CheckBox(h,v+=16,0,"Тільки фіскальні",flags[13]);
+   CheckBox(h,v+=16,0,"Відображати анульовані",flags[14]);
+   CheckBox(h,v+=16,0,"Відображати ПДВ",flags[15]);
+   CheckBox(h,v+=16,0,"Лише нероздруковані акти/накл.",flags[17]);
+   CheckBox(h,v+=16,0,"Вкюч. орг. клієнта",flags[18]);
+   CheckBox(h+=hs,v=vm,0,"Відображати офіційні серійні №",flags[16]);
+   EndWindow;
+
+  return;
+end;
+

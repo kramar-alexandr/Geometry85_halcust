@@ -1,0 +1,359 @@
+event Startup
+begin
+  SetLangMode(LangUkrainian,"UKR",0);
+
+  
+	/*StrSetAdd(3);
+	StrSetText(  ChangeStatusQT,"Зміна статусу - комерційна пропозиція");
+	EndStrSet;*/
+  //SString  
+	SString(31000," Ви маєте право визначати лише свій підпис"); //6005
+	SString(31001,"Проекти передплати та акту не співпадають"); //6005  
+	SString(31002,"Передплати постачальникам"); 
+  SString(31003,"Комерційна пропозиція не підтверджена");// 6006 SAV 2010_09_03
+	SString(31004,"Комерційна пропозиція не авторизована");// 6006 SAV 2010_09_03
+	SString(31005,"В рамках проекту не створено комерційну пропозицію");// 6006 SAV 2010_09_03
+	SString(31006,"Вкажіть керівника проекту");// 6006 SAV 2010_09_03
+	SString(31007,"Більше ніж 140 символів в коментарі");
+	SString(31008,"Присутній символ #");
+	SString(31009,"Встановлена галочка Замовлено");
+	SString(31010,"Картка вже експортувалась в Кліент-банк");
+	SString(31011,"Вказаний розрахунковий рахунок не співпадає з карткою контакту. Рядок ");
+	SString(31012,"Цей номер зайнят"); 
+	SString(31013,"Зам.пост."); 
+	SString(31014,"Ком.проп.");
+	SString(31015,"Пост.:"); 
+	SString(31016,"Проект має бути в статусі Активно"); 
+	SString(31017,"Проект має бути у Рівні 1");
+	
+	Setting("PErsVc",PErsLClass,modTC);
+	Setting("RHist",RHistLClass,modSY);
+	Setting("Access Groups History",AccessRecHistoryLClass,modSY);
+	Report("Табелі часу",TSReportRClass,TSReportRn,0,modTS);
+	Report("Історія зміни груп доступа",AccessHistRClass,AccessHistRn,0,modSY);// Edit ************************** Thursday, 31 August 2017 10:19:01
+	Report("Відомість по проектам",krProjectInfoRClass,krProjectInfoRn,0,modTS);// Edit ************************** Monday, 3 December 2012 10:52:37
+	Report("Реєстр отриманих податкових накладних (новий)",VATVIRegUkrRClass,VATVIRegUkrNewRn,0,modPL);// Edit ************************** Wednesday, 31 July 2013 16:34:15
+	Report("Реєстр податкових накладних виданих (новий)",VATIVRegUkrRClass,VATIVRegUkrNewRn,0,modSL);// Edit ************************** Monday, 23 September 2013 15:31:38
+
+	Maintenance("UpdateTS",UpdateTSVClass,UpdateTSMn,modTS);
+	Maintenance("Find Ring",RingInProjVClass,RingInProjMn,modTS); 
+	Maintenance("Update proj",UpdateProjVClass,UpdateProjMn,modTS); 
+  Maintenance("Відкрити PU",UnResORVClass,UnResORMn,modIN);
+	Maintenance("Відкрити SD",UnResPOVClass,UnResPOMn,modIN);
+	Maintenance("Відкрити SH",UnResPOVClass,UnResSHMn,modIN);
+	
+	Maintenance("UnOk SD 160008",UpdateTSVClass,UnOkSD160008Mn,modIN);
+	
+	Maintenance("DelPRVc",PRVcClearVClass,dellPRVcMn,modTC);// Edit ************************** Friday, 30 November 2012 11:31:52
+	Maintenance("Обнулити статус підтвердження Зам.Пост.",ClearAccPOVClass,ClearAccPOMn,modTC);// Edit ************************** Tuesday, 15 January 2013 10:45:27
+	Maintenance("Обнулити статус підтвердження Ком.Проп.",ClearAccQTVClass,ClearAccQTMn,modTC);// Edit ************************** Tuesday, 15 January 2013 10:45:30
+	
+	Maintenance("Нормалізувати підписи QT",NormalizeQTAuthorityVClass,NormalizeQTAuthorityVClassMn,modTC);// Edit ************************** Monday, 11 February 2013 13:31:33
+  Maintenance("Update TimeSheet from TimeTracker",UpdateTSVClass,TimeTrackerTSRequestMn,modTS); //***** Edit by Victor 19.08
+
+	Maintenance("ReadItemHist",UpdateTSVClass,UpdateCUItemHistMn,modSL); //***** Edit by Victor 19.08
+
+
+	Setting("POItem",POItemLClass,modPO);
+	Maintenance("Update TS",UpdTSVClass,UpdTSMn,modTC);
+	Maintenance("Update QT",UpdQTVClass,UpdQTMn,modTC);
+	Maintenance("Update Act",UpdActVClass,UpdActMn,modTC);
+	Maintenance("поновити поле фаза проекту",UpdPRStagePRVClass,UpdPRStagePRMn,modTS);
+	Maintenance("поновити поле валюта проекту",UpdPRCurncyCodeVClass,UpdPRCurncyCodeMn,modTS);
+	
+	Maintenance("Замінити Тип проекту",UpdTypVClass,UpdTypMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:23
+	Maintenance("Замінити Классифікацію проекту",UpdClassVClass,UpdClassMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:24
+	
+	Setting("Історія змін регистрів",RecordHistoryLClass,modSY);
+	Setting("Серії номерів - Історія змін регистрів",RecHistSerSerTClass,modSY);
+	
+	Setting("Податкові накладні (кр)",FEVILCLass,modPL);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 16 01 2020 y. at 11:00:09 AM
+	
+	Report("Історія змін регістру Контакти",RecHistCustRClass,RecHistCustRn,0,modSY);
+	Report("Відредаговані табелі часу",ChangedTSRClass,ChangedTSRn,0,modTS);
+	Report("Журнал замовлень постачальникам (новий)",PurOrdJRClass,NewPurOrdJRn,0,modPO);
+	
+	Export("Кліент-банк",ClientBankEClass,ClientBankEn,modNL);
+	Setting("Настройки Кліент-банку",KBSettTClass,modPL);
+	Setting("Настройки счетов-фактур реализации",IVTTClass,modSL); //SAV 2011_12_20 from 6.3
+	Register("Контракти","Контракти",ContractsLClass,modSL);// SAV Gray-5 2011_01_03
+	Register("Правила затвердження","Правила затвердження",AcceptanceRulesVc,modCRM);
+	Document("Контракт",ContractsFormRClass,ContractsForm,ContractsFormFClass,modSO);// SAV Gray-5 2011_01_03
+	Setting("Податкові накладні виписані",VATIVLClass,modSL);
+	Setting("Серії номерів - Податкові накладні виписані",VATIVSerTClass,modSL);
+	Setting("Серії номерів - Податкові накладні отримані",VATVISerTClass,modPL);
+	Setting("Тип господарської операції",OperTypeLClass,modPL);
+	Setting("Тип документу",DocumentTypeLClass,modPL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 20 March 2018 14:30:29
+	Setting("Експорт виписаних ПН",ExportVATIVXMLTClass,modNL);
+	Export("Реєстр отриманих та виданих податкових накладних",VATIVVIRegUkrEClass,VATIVVIRegUkrEn,modNL);
+	Setting("Поля, що задає користувач - Товари",INUserLabelTClass,modSL);
+	Report("TSRowRn",PurOrdJRClass,TSRowRn,0,modSL);
+	
+	Import("Востановить линки контрактов",GetLinksIn,GetLinksIn,modSL);
+	
+	Import("Імпорт проектів",ImportProjectsIClass,ImportProjectsIn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 January 2019 15:05:53
+	Import("Закриття проектів",CloseProjectsIClass,CloseProjectsIn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 20 August 2019 09:48:00
+	
+	Setting("Коди податкових кредитів",VICredRowsLClass,modPL);
+	Setting("Коди податкових забов'язань",IVDebRowsLClass,modSL);
+	
+	Module("СМС повідомлення","",730,modSMS);//Edit-------------------Vitalii 11:39 25.03.2016
+  Setting("Налаштування СМС",SMSConfigTClass,modSMS);
+	
+  SetBegin(461);//SAV 2011_12_20 from 6.3
+  SetText(kVIRateFromPurchaseOrder,"From Purchase Order");
+  SetText(kVIRateOnPurchaseInvoiceDate,"On Purchase Invoice Date");
+  SetText(kVIRateFromPrepayment,"From Prepayment");
+  EndSet;
+  // Edit Start ---------------------------------------------- Edit Start
+	//Monday, 8 October 2012 12:10:59
+	
+  StrSetBegin(3); /* Try to keep them in alphabetical order */
+  StrSetText(ExpInvalid,"Анулювання авансового звіту");
+  StrSetText(InvalidateInvoice,"Анулювання накладної (сенсорний екран)");
+  //StrSetText(AuthIntOrd,"Authorise Internal Orders, changed functionality to Acceptance");
+  StrSetText(QTToIV,"Акт/накладна з комерційної пропозиції");
+  StrSetText(COToInv,"Акт/накладна з контракту");
+  StrSetText(COCUServiceToIV,"Акт/накладна з контракту HansaWorld");
+  StrSetText(SVOToInv,"Акт/накладна з обслуговування і ремонту");
+  StrSetText(ORToInv,"Акт/накладна з рахунка клієнту");
+  StrSetText(JobToInv,"Акт/накладна з резервування");
+  StrSetText(VEIVToVI,"Акт/накладна постачальника з ел. накл. постачальника");
+  StrSetText(POToVI,"Акт/накладна постачальника з замовлення постачальнику");
+  StrSetText(UnOkPOToVI,"Акт/накладна постачальника з незатвердженого замовлення постачальнику");// Edit ************************** Friday, 5 October 2012 12:49:48
+  StrSetText(PUToVI,"Акт/накладна постачальника з надходження");
+  StrSetText(POCOToVI,"Акт/накладна постачальника з паспорта операції");
+  StrSetText(CLOutInvalid,"Анулювання видаткового ордеру");
+  StrSetText(PPInvalid,"Анулювання виплати підзвітній особі");
+  StrSetText(ActInvalid,"Анулювання діяльності");
+  StrSetText(IVInvalid,"Анулювання актів/накл. кл.");
+  StrSetText(VIInvalid,"Анулювання актів/накл. постачальників");
+  StrSetText(InvInvalid,"Анулювання актів/накл. кл. та актів/накл. пост.");
+  StrSetText(PUInvalid,"Анулювання надходження на склад");
+  StrSetText(OPInvalid,"Анулювання платежів");
+  StrSetText(CLInInvalid,"Анулювання прибуткового ордеру");
+  StrSetText(RestAccInvalid,"Анулювання рахунків ресторану");
+  StrSetText(AT2WrofInvalid,"Анулювання списання НА");
+  StrSetText(ORToSH,"Відвантаження з замовлень клієнтів");
+  StrSetText(OpenTRFromSpec,"Відкриття запису з меню Операції");
+  StrSetText(OpenCashDrawer,"Відкриття грошової скриньки");
+  StrSetText(OpenVcFromTBIV,"Відкриття реєстра з запису операції по проекту");
+  StrSetText(ShowSerialNronPOSInvoices,"Відображати сер. № на актах/накл. ЕККА");
+  StrSetText(ORToDownPay,"Дозволяти передплати з рахунків клієнтам");
+  StrSetText(AllowIVTSLoyaltyPointsBonus,"Дозволяти бонусні накопичувальні бали в накладній (сенсорний екран)");
+  StrSetText(AllowPOSIVNegQty,"Дозволяти від'ємні суми в накладних ЕККА");
+  StrSetText(AllowNegCLOut,"Дозволяти від'ємні суми в видачах готівки");
+  StrSetText(AllowNegCLIn,"Дозволяти від'ємні суми в надходженнях готівки");
+  StrSetText(AllowNegOP,"Дозволяти від'ємні суми в платежі постачальнику");
+  StrSetText(AllowNegIP,"Дозволяти від'ємні суми в платежі клієнта");
+  StrSetText(AllowUsingAddonBarTab,"Allow using 'Add' Button on Bar Tab");
+  StrSetText(AllowUsingBookingsonBarTab,"Allow using 'Bookings' Button on Bar Tab");
+  StrSetText(AllowUsingPaymentonBarTab,"Allow using 'Payment' Button on Bar Tab");
+  StrSetText(AllowUsingRoomonBarTab,"Allow using 'Room' Button on Bar Tab");
+  StrSetText(AllowUsingSplitonBarTab,"Allow using 'Split' Button on Bar Tab");
+  StrSetText(AllowUsingSubonBarTab,"Allow using 'Subtract' Button on Bar Tab");
+  StrSetText(AllowNoClockInOut,"Allow Working without Clock In/Out Activities");
+  StrSetText(AllowLoginOutsideWorkHours,"Allow Login outside Work Hours");
+  StrSetText(AllowRestAccRowsDelete,"Дозволяти видалення товарів на замов-ні");
+  StrSetText(AllowNPTSIVLogout,"Дозволяти вихід з системи із накладної (сенсорн. екран)");
+  StrSetText(AllowManyActiveProd,"Дозволяти декілька поточних виробництв");
+  StrSetText(AllowUsersAdding,"Дозволяти додавання користувачів");
+  StrSetText(AllowWriteoffIP,"Дозволяти додавання списання до платежу");
+  StrSetText(AllowAddingINtoRet,"Дозволяти додавання товарів до повернення товарів");
+  StrSetText(AllowAddingINtoRetPOSIV,"Дозволяти додавання товарів до повернення товарів в накладних ЕККА");
+  StrSetText(AllowWSUpdateStockChange,"Дозволити зміну таблиці робіт обновлення скада");
+  StrSetText(AllowGuestChange,"Дозволяти зміну гостей");
+  StrSetText(AllowDealerChange,"Дозволяти зміну дилерів");
+  StrSetText(ChangingCostOnInvoiceRow,"Дозволяти зміну вартості в рядках акта/накладної");
+  StrSetText(AllowDelRecordLinks,"Дозволяти знищувати посилання");// Edit ************************** Monday, 8 July 2013 16:12:57
+  StrSetText(AllowIVInvDateChange,"Дозволяти зміну дати в акті/накл.");
+  StrSetText(AllowRestAccTransDateChange,"Дозволяти зміну дати в замовленні ресторану");
+  StrSetText(AllowCashierCountChange,"Дозволяти зміну дати субрахунку готівки");
+  StrSetText(AllowLockingChange,"Дозволяти зміну закритих записів");
+  StrSetText(AllowRoomChanging,"Дозволяти зміну кімнати");
+  StrSetText(AllowResClassRTMonChanging,"Дозволяти зміну класифікації кімнати в огляді кімнат");
+  StrSetText(AllowCustChange,"Дозволяти зміну клієнтів");
+  StrSetText(AllowChangeCreditLimit,"Дозволяти зміну ліміту кредиту");
+  StrSetText(AllowResLocRTMonChanging,"Дозволяти зміну місця розташув. кімнати в огляді кімат");
+  StrSetText(AllowINCostModelChange,"Дозволяти зміну моделі вартості товару");
+  StrSetText(AllowPOSOfflineChanging,"Дозволяти зміну накладних ЕККА офлайн ");
+  StrSetText(AllowIVSerNrChange,"Дозволяти зміну номера акта/накл.");
+  StrSetText(AllowEditBancAcc,"Дозволяти зміну На рухунок банку (плат. пост.)");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 3 September 2019 15:32:06
+  StrSetText(AllowSuppInvNoChangeOKVI,"Дозволяти зміну номера акта/накл. постач. на затвердж. актах-накл.");
+  StrSetText(AllowCUSerNrChange,"Дозволяти зміну номера контакта");
+  StrSetText(AllowRestAccSerNrChange,"Дозволяти зміну номера замовлення");
+  StrSetText(AllowORSerNrChange,"Дозволяти зміну номера рахунка клієнту");
+  StrSetText(AllowPOSerNrChange,"Дозволяти зміну номера замовлення постач-ку");
+  StrSetText(ChangingUpdateStockFlag,"Дозволяти зміну опції Поновити склад в Накладній");
+  StrSetText(AllowQTSerNrChange,"Дозволяти зміну номера пропозиції");
+  StrSetText(AllowPasswdChanging,"Дозволяти зміну пароля");
+  StrSetText(UpdateCashEvent,"Дозволяти зміну події каси");
+  StrSetText(AllowSuppChange,"Дозволяти зміну постачальників");
+  StrSetText(AllowSalesmanChangeOnPOS,"Дозволяти зміну продавця на акті/накл. ЕККА");
+  StrSetText(AllowSalesmanChange,"Дозволяти зміну продавця на затверджених актах/накл. клієнта");
+  StrSetText(EditingWSCostAcc,"Дозволяти зміну рахунку вартості на таблиці робіт");
+  StrSetText(AllowReservationChanging,"Дозволяти зміну резервування");
+  StrSetText(AllowINWeighedAvChange,"Дозволяти зміну средньозваженої ціни в картці товару");
+  StrSetText(PositionStatusChanging,"Дозволяти зміну статусу місця");
+  StrSetText(AllowIVTSRowsDelete,"Дозволяти видалення товарів з накладної (сенсорн. екран)");
+  StrSetText(UpdatePOSEvent,"Дозволяти поновлення сесії ЕККА");
+  StrSetText(AllowAmendLine,"Дозволяти редагування рядка в накладній (сенсорн. екран)");
+  StrSetText(AllowSplitItem,"Дозволяти розділення товару в накладній (сенсорн. екран)");
+  StrSetText(AllowNPTSIVCancel,"Дозволяти скасування накладної (сенсорн. екран)");
+  StrSetText(AllowNPTSIVRowsVoid,"Дозволяти скасування рядків накладної (сенсорн. екран)");
+  StrSetText(AllowRestAccRowsVoid,"Дозволяти скасування рядків замов-ня");
+  StrSetText(AllowCreateGuest,"Дозволяти створення гостей");
+  StrSetText(AllowCreateDealer,"Дозволяти створення дилерів");
+  StrSetText(AllowCreateCust,"Дозволяти створення клієнтів");
+  StrSetText(AllowCreateSupp,"Дозволяти створення постачальників");
+  StrSetText(AllowDispute,"Дозволяти узгодження актів/накл.");
+  StrSetText(PrintToFiscPrnt,"Друк на фіскальний принтер");
+  StrSetText(NotOKORToSH,"Заборонити відвантаження з незатвердженого замовлення");
+  StrSetText(DisallowPrintCopy,"Заборонити друк копій");
+  StrSetText(DisallowIntORClose,"Заборонити закриття внутрішнього замовлення");
+  StrSetText(DisallowORClose,"Заборонити закриття рахунків клієнтам");
+  StrSetText(DisallowSalesmanChange,"Заборонити зміну продавця на незатверджених актах/накл.");
+  StrSetText(DisallowPojectChangefornonPRMan,"Disallow Changing Project if not Project Manager");
+  StrSetText(DisallowPRBudgetChangefornonPRMan,"Disallow changing Project Budget if not Project Manager");
+  StrSetText(DisallowPRScheduleChangefornonPRMan,"Disallow Changing Project Schedule if not Project Manager");
+  StrSetText(AllowMovingFoliotoRsrv,"Allow moving Folio Items to another Reservation");
+  StrSetText(DisallowSalesPlain,"Заборонити продаж вільних товарів");
+  StrSetText(DisallowSaleBelowGP,"Заборонити продаж з прибутком нижче мінімального");
+  StrSetText(DisallowDomSales,"Заборонити продаж місцевим клієнтам");
+  StrSetText(DisallowExpSales,"Заборонити продаж як експорт");
+  StrSetText(DisallowSalesService,"Заборонити продаж робіт");
+  StrSetText(DisallowSalesStructured,"Заборонити продаж структур");
+  StrSetText(DisallowSalesStocked,"Заборонити продаж товарів, що надходять на склад");
+  StrSetText(DisallowCostVariance,"Заборонити розходження вартості придбання при отриманні товару");
+  StrSetText(DisallowPostPRActualsfornonPRMan,"Disallow posting Project actuals if not Project Member");
+  StrSetText(NotOKPOToPU,"Заборонити створення надходженя з незатвердженого замовлення постачальнику");
+  StrSetText(DisallowPrepToNotOKPO,"Заборонити створення передплати з незатвердженого замовлення постачальнику");
+  StrSetText(DisallowPrepToNotOKOR,"Заборонити створення передплати з незатвердженого рахунка клієнту");
+  StrSetText(DisallowWSFromSVO,"Заборонити таблиці робіт з замовлень на обслуговування");
+  StrSetText(DisallowSerNrItemsOnSR,"Заборонити товари з сер. номерами у переоцінці складу");
+  StrSetText(DisallownonSerNrItemsOnSR,"Заборонити товари без сер. номерів у переоцінці складу");
+  StrSetText(DisallowPriceLowerCost,"Заборонити ціни нижче ніж собівартість");
+  StrSetText(OPOrder,"Замовлення платежу  ");
+  StrSetText(TBBUToPO,"Замовлення постачальнику з бюджету проекту");
+  StrSetText(IntORToPO,"Замовлення постачальнику з внутрішнього замовлення");
+  StrSetText(ORToPO,"Замовлення постачальнику з рахунка клієнту");
+  StrSetText(POCOToPO,"Замовлення постачальнику з Паспорта операції");
+  StrSetText(POQTToPO,"Замовлення постачальнику з пропозиції на придбання");
+  StrSetText(StockPolicyOK,"Затвердження Stock Policy");
+  StrSetText(ExpenseOK,"Затвердження авансового звіту");
+  StrSetText(BudOK,"Затвердження бюджетів");
+  StrSetText(OKCashOut,"Затвердження видач з каси");
+  StrSetText(SHOK,"Затвердження відвантажень");
+  StrSetText(HRMCOChangeOK,"Затвердження додатків до трудових угод");
+  StrSetText(POOK,"Затвердження замовлень постачальникам");
+  StrSetText(InvOK,"Затвердження актів/накл. клієнту");
+  StrSetText(CashInvOK,"Затвердження готівкових платежів");
+  StrSetText(VIOK,"Затвердження актів/накл. постачальників");
+  StrSetText(CredInvOK,"Затвердження кредитових актів/накл.");
+  StrSetText(CredVIOK,"Затвердження кредитових актів/накл. постачальників");
+  StrSetText(PUOK,"Затвердження надходжень");
+  StrSetText(OKCashIn,"Затвердження надходжень до каси");
+  StrSetText(StockMovOK,"Затвердження переміщень по складу");
+  StrSetText(SROK,"Затвердження переоцінок товару");
+  StrSetText(ProdPlanOK,"Затвердження плану виробництва");
+  StrSetText(POPlanOK,"Затвердження плану замовлень постачальникам");
+  StrSetText(SalesForecastOK,"Затвердження плану майбутніх продаж");
+  StrSetText(IPOK,"Затвердження платежів клієнтів");
+  StrSetText(OPOK,"Затвердження платежів постачальникам");
+  StrSetText(RevBudOK,"Затвердження виправлених бюджетів");
+  StrSetText(OROK,"Затвердження замовлень клієнтів");
+  StrSetText(DropSHOK,"Затвердження оповіщ. про відв.");
+  StrSetText(SDOK,"Затвердження списання зі складу");
+  StrSetText(AT2WrofOK,"Затвердження списання ОЗ");
+  StrSetText(WorkSheetOK,"Затвердження таблиць робіт");
+  StrSetText(TimeSheetOK,"Затвердження таблиць часу");
+  StrSetText(HRMCOOK,"Затвердження трудових угод");
+  StrSetText(RetOK,"OKing Returned Goods");
+  StrSetText(RetPUOK,"OKing Returned Goods to Supplier");
+  StrSetText(LogoutUserAfterPrintingBarTab,"Logout User after printing Bar Tab");
+  StrSetText(ActOK,"Затвердження діяльностей");
+  //StrSetText(LateCostOK,"Затвердження уточнення вартості");  //not existing
+  StrSetText(ChangePrices,"Зміна прейскурантів");
+  StrSetText(IssueOwnChk,"Зміна статус власного чека");
+  StrSetText(ChangeStatusQT,"Зміна статусу - комерційна пропозиція");// Edit ************************** Thursday, 21 February 2013 11:09:39
+  StrSetText(ChangeReserved,"Зміна статусу резервування в замовленнях та переміщеннях ");
+  StrSetText(IssueChk,"Зміна статусу чека");
+  StrSetText(ChangeUnitPrices,"Зміна ціни товару");
+  StrSetText(ChangeIVItemSpec,"Змінити найменув. товару на акті/накл.");
+  StrSetText(DeleteAnyRecord,"Знищення записів");
+  StrSetText(DeleteSharedRecord,"Знищення записів в Shared Registers");
+  StrSetText(UnOKBud,"Знімати OK з бюджетів");
+  StrSetText(UnOKPO,"Знімати OK з зам. постач.");
+  StrSetText(UnOKRevBud,"Знімати OK з виправлених бюджетів");
+  StrSetText(UnOKCashCount,"Знімати OK з рах. готівки");
+  StrSetText(UnOKOR,"Знімати OK з замовлень клієнтів");
+  //StrSetText(UnOKAgree,"Знімати OK з угоди про оренду");
+  StrSetText(UnOKAll,"Знімати OK зі всіх записів");
+  StrSetText(EnabINF,"Інформація про ключ");
+  StrSetText(InvToCO,"Контракт з актом/накладною");
+  StrSetText(RoyaltyRepToCO,"Contract from Royalty Sales records");
+  StrSetText(XXGRToXXGR,"Копіювання визначень балансу і прибутків/збитків");
+  StrSetText(RestaurantCustomerOnly,"Лише клієнти ресторану");
+  StrSetText(POToPU,"Надходження з замовлення постачальнику");
+  StrSetText(IVToEDIInv,"Накладна EDI з акту/накл.");
+  StrSetText(HideUnivTestAnswerText,"Не показувати відповіді тестів універ.");
+  StrSetText(HideUnivTestAnswerCorrect,"Не показув. вірні відповіді тестів універ.");
+  StrSetText(LimitToResLoc,"Обмежити користувача за розашування кімнати");
+  StrSetText(SMToTrans,"Операції з симуляцій");
+  StrSetText(ATPUToATRes,"Оприбутковані ОЗ в мат. відповідальність");
+  StrSetText(POToDropSH,"Оповіщ. про відв. із зам. постач. ");
+  StrSetText(ViewCostPrice,"Переглядати собівартість");
+  StrSetText(ViewAllTemeSheets,"Переглядати чужі табелі часу");// Edit ************************** Friday, July 11, 2014 at 10:35:46
+  StrSetText(IPToPrepIV,"Передплату клієнта в акт/накладну");
+  StrSetText(ORToStockMov,"Переміщення на складах з замовлень");
+  StrSetText(PRToStockMov,"Переміщення по складам з виробництва");
+  StrSetText(IntORToStockMov,"Переміщення товарів з внутрішнього замовлення");
+  StrSetText(AuthExp,"Підписати авансовий звіт");
+  StrSetText(AuthQualCon,"Підписати перевірку якості");
+  StrSetText(POToRetPU,"Повернення товарів з замовлення постачальнику");
+  StrSetText(PUToRetPU,"Повернення товарів з надходжень");
+  StrSetText(ORToRet,"Повернення товарів з замовлень клієнтів");
+  StrSetText(UpdCUSY,"Поновити використання системи клієнтом");
+  StrSetText(AddItemsRsrtEvent,"Resort Event Add Item");
+  StrSetText(BUQTToIV,"Пропозиція бюджету в акт/накл.");
+  StrSetText(BUQTToTBBU,"Пропозиція по проекту в бюджет");
+  StrSetText(EDIORToOR,"Рахунок клієнту з EDI рахунків");
+  StrSetText(QTToOrd,"Рахунок клієнту з пропозиції");
+  StrSetText(EditOtherAct,"Редагування чужої діяльності");// Edit ************************** Wednesday, 17 October 2012 12:25:03
+  StrSetText(AdminClient,"Режим адміністратора");
+  StrSetText(JobShowGuestAccount,"Резервування - Відобразити рахунок гостя");
+  StrSetText(JobShowAccount,"Резервування - Відобразити стан рахунку");
+  StrSetText(JobGenPrepayment,"Резервування - Генерувати передплату");
+  StrSetText(JobAddItem,"Резервування - Додати послугу");
+  StrSetText(JobCheckOut,"Резервування - Звільнення");
+  StrSetText(JobCheckIn,"Резервування - Реєстрація");
+  StrSetText(JobChargeStay,"Резервування - Сплатити перебування");
+  StrSetText(JobELockingSystem,"Система електронних замків");
+  StrSetText(IntORToSD,"Списання зі складу зг. внутрішнього замовлення");
+  StrSetText(EMailFromOKPO,"Створення E-mail з затверджених замовлень постачальникам");
+  StrSetText(EMailFromAcceptedPO,"Створення E-mail з прийнятих замовлень постачальникам");
+  StrSetText(RetToIV,"Створення кредитового акту/накл. з повернення товарів");
+  StrSetText(RetPUToVI,"Створення кредитового акту/накл. з повернення товарів постачальнику  ");
+  StrSetText(SentStockMovOK,"Створення переміщень");
+  StrSetText(RoyaltyRepApproveWithDiscount,"Approve Royalty Sales records with approved discount");
+  StrSetText(HRMJPOK,"OKing Job Positions");
+  StrSetText(HRMSEOK,"OKing Skills Evaluation");
+  StrSetText(LeaveApplicationOK,"OKing Leave Applications");
+  StrSetText(LeaveTransferOK,"OKing Leave Transfers");
+  StrSetText(HRMJPOK,"OKing Performance Appraisals");
+  StrSetText(SVOToOffHire,"Items In from Service Order");
+  StrSetText(SVOToDispatch,"Items Out from Service Order");
+  StrSetText(SVOToPO,"Purchase Order from Service Order");
+  StrSetText(WSToPO,"Purchase Order from Work Sheet");
+  StrSetText(SVOToSVGM,"Service Stock Transaction from Service Order");
+  StrSetText(RoyaltyRepApprove,"Approve Royalty Sales records");
+  StrSetText(RoyaltyRepApproveAnyPercentage,"Approve Royalty Sales records with custom royalty %");
+  StrSetText(RoyaltyRepToIV,"Invoice from Royalty Sales records");
+  //StrSetText(AuthIntOrd,"Authorise Internal Orders");, changed funcionality to Accpetance
+  //ERIK, HansaMail special
+  EndStrSet;
+  
+	// Edit End ---------------------------------------------- Edit End
+	
+return;
+end;

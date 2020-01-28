@@ -1,0 +1,1234 @@
+external inner function roundmode DefaultRoundMode();
+external inner function Boolean ProjectInvSugg4(record RcVc,record PRVc,Boolean,var val,var val);
+external inner function Boolean ProjectInvSugg3(record RcVc,record PRVc,Boolean,var val,var val);
+external inner procedure ActCUPSList(var record RcVc,string,Integer,Integer,string,string,Integer);
+external inner procedure HTProjects(string,string,var string);
+external inner procedure HTCusts(string, string, var string);
+external inner procedure HTDetailLevel(Integer, var string);
+external inner procedure HTPRClass(string, var string);
+
+external inner procedure ProjectHeader(record RcVc,record PRVc,Integer);
+external inner procedure PRSumDownPay(record PRVc,var val,var val,Date,var string,var Boolean);
+
+external inner function Boolean ProjectInvSugg2(record RcVc,record PRVc,Boolean,var val,var val);
+external inner updating function Boolean ProjectInvSugg(record RcVc,record PRVc,Boolean,var val,var val,var val,var val,var val,var val,var val);
+  
+procedure PrintSupplierRetentions(string project)
+begin 
+  record VEPRRetentionVc VEPRRetentionr;
+  Boolean TrHs, test, firsth;
+  record CUVc CUr;
+  val tot,totinv;
+  
+  TrHs = true;
+  VEPRRetentionr.PRCode = project;
+  while LoopKey("PRCode",VEPRRetentionr,1,TrHs) begin
+    if (VEPRRetentionr.PRCode<>project) then begin 
+      TrHs = false;
+    end;
+    if (TrHs==true) then begin 
+      if (firsth==false) then begin 
+        firsth = true;
+        Gray_Divider(0,1);
+        StartFormat(15);
+        OutString(0,0,USetStr(4877),false);
+        OutString(120,0,USetStr(16405),false);
+        OutString(200,0,USetStr(16406),false);
+        OutString(350,0,USetStr(16407),true);
+        OutString(450,0,USetStr(16408),true);
+      end;
+      StartFormat(15);
+      OutString(120,0,VEPRRetentionr.VECode,false);
+      CUr.Code = VEPRRetentionr.VECode;
+      if ReadFirstMain(CUr,1,true) then begin 
+        OutString(200,0,CUr.Name,false);
+      end;
+      OutVal(350,0,VEPRRetentionr.RetSum,M4Val,true);
+      OutVal(450,0,VEPRRetentionr.RetInvd,M4Val,true);
+      tot = tot + VEPRRetentionr.RetSum;
+      totinv = totinv + VEPRRetentionr.RetInvd;
+      EndFormat;
+    end;
+  end;
+  if (firsth==true) then begin
+    Gray_Divider(0,1);
+    OutString(120,0,UsetStr(4837),false);
+    OutVal(350,0,tot,M4Val,true);
+    OutVal(450,0,totinv,M4Val,true);
+    EndFormat;
+  end;
+
+  return;
+end;  
+
+  
+  
+procedure SumProjectInvable(record PRVc PRp,var val bp)
+begin
+  record PBVc PBr;
+  record TBVc TBr;
+  Boolean found;
+ 
+  bp = blankval;
+  TBr.Project = PRp.Code;
+  found = true;
+  while (LoopMain(TBr,1,found)) begin
+    if (found) then begin
+      if (PRp.Code<>TBr.Project) then begin 
+      	found = false;
+      end;
+    end;  	
+    if (found) then begin
+      bp = bp + TBr.Sum;
+    end;
+  end;
+  PBr.Project = PRp.Code;
+  found = true;
+  while (LoopMain(PBr,1,found)) begin
+    if (PRp.Code<>PBr.Project) then begin 
+    	found = false;
+    end;	
+    if (found) then begin
+      bp = bp + PBr.Sum;
+    end;
+  end;
+  return;
+end;  
+
+global
+procedure ProjectBudget(record PRVc PRp,record RcVc RepSpec)
+begin
+  record TBVc TBp;
+  record PBVc PBp;
+  Boolean found;
+  Boolean prohead;
+  Boolean bltest;
+  
+  Integer rwcnt,i;
+  row TBVc tbrp;
+  row PBVc pbrp;
+  Boolean itemhead;
+  val total;
+  val sumbud,sumspent,suminvd;
+  val totsumbud,totsumspent,totsuminvd;
+  
+  val bud;
+  val spent;
+  val invd;     
+  
+  val xval,totval;
+  string 1 blstring;
+  
+  totsumbud = blankval;
+  totsumspent = blankval;
+  totsuminvd = blankval;
+  prohead = false;
+  total = blankval;
+  
+  if (RepSpec.flags[1] ==1) then begin  /* only with faktbart > 0 */
+    SumProjectInvable(PRp,total);
+    if (total==0) then begin 
+    	goto L99; 
+    end;
+  end;
+  TBp.Project = PRp.Code;
+  found = true;
+  while (LoopMain(TBp,1,found)) begin
+    if (found) then begin
+      if (TBp.Project<>PRp.Code) then begin
+      	 found = false;
+      end;
+    end;  	 
+    if (found) then begin
+      if (prohead==false) then begin
+          StartFormat(15);
+          OutString(0,0,USetStr(4841),false);
+          EndFormat;
+          Gray_Divider(0,1);
+          ProjectHeader(RepSpec,PRp,0);
+          prohead = true;
+      end;
+      itemhead = false;
+      rwcnt = MatRowCnt(TBp);
+      StartFormat(15);
+      OutString(11,0,TBp.Item,false);
+      OutString(80,0,TBp.Desc,false);
+      OutString(300,0,USetStr(4838) & TBp.Estimate,false);
+      OutVal(480,0,TBp.Value,M4Val,true);
+      EndFormat;
+      StartFormat(15);
+      OutString(90,0,USetStr(4830),false);
+      OutString(150,0,USetStr(4833),true);
+      OutString(210,0,USetStr(4826),true);
+      OutString(250,0,USetStr(4845),true);
+      OutString(310,0,USetStr(4828),true);
+      OutString(420,0,USetStr(4846),true);
+      EndFormat;
+      sumbud   = blankval;
+      sumspent = blankval;
+      suminvd  = blankval;
+      total = total+ TBp.Value;
+      for (i=0;i<rwcnt;i=i+1) begin
+         MatRowGet(TBp,i,tbrp);
+        //nk  flags[6] is misssed in the selection window
+        if (RepSpec.flags[6]==0) then begin
+          bud   = tbrp.BudQty;
+          spent = tbrp.SpentQty;
+          invd  = tbrp.InvoicedQty;
+        end else begin
+          bud   = Round(tbrp.BudQty * tbrp.Price,DefaultRoundMode);
+          spent = Round(tbrp.SpentQty * tbrp.Price,DefaultRoundMode);
+          invd  = Round(tbrp.InvoicedQty * tbrp.Price,DefaultRoundMode);
+        end;
+        sumbud   = sumbud + bud;
+        sumspent = sumspent + spent;
+        invd     = suminvd + invd;
+        StartFormat(15);
+        OutString(90,0,tbrp.Person,false);
+        OutVal(150,0,bud,M4UVal,true);
+        OutVal(210,0,spent,M4UVal,true);
+        OutVal(250,0,invd,M4UVal,true);
+        OutVal(310,0,tbrp.MarkupQty,M4UVal,true);
+        OutVal(420,0,tbrp.Price,M4Val,true);
+        EndFormat;
+      end; 
+      if (RepSpec.flags[6]==1) then begin
+        Black_Divider(110,250);
+        StartFormat(15);
+        OutVal(150,0,sumbud,M4UVal,true);
+        OutVal(210,0,sumspent,M4UVal,true);
+        OutVal(250,0,suminvd,M4UVal,true);
+        EndFormat;
+      end;
+      totsumbud = totsumbud + sumbud;
+      totsumspent = totsumspent + sumspent;
+      totsuminvd = totsuminvd  + suminvd;
+      StartFormat(10);
+      EndFormat;
+    end;
+  end;
+
+  /* same for PB */
+  PBp.Project = PRp.Code;
+  found = true;
+  while (LoopMain(PBp,1,found)) begin
+    if (PBp.Project<>PRp.Code) then begin
+    	found = false;
+    end;	
+    if (found) then begin
+      if (prohead==false) then begin
+        ProjectHeader(RepSpec,PRp,0);
+        prohead = true;
+      end;
+      itemhead = false;
+      rwcnt = MatRowCnt(PBp);
+      StartFormat(15);
+      OutString(11,0,PBp.Item,false);
+      Outstring(80,0,PBp.Desc,false);
+      OutString(300,0,USetStr(4838) & PBp.Estimate,false);
+      OutVal(480,0,PBp.Value,M4Val,true);
+      EndFormat;
+      sumbud   = blankval;
+      sumspent = blankval;
+      suminvd  = blankval;
+      total = total+ TBp.Value;
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(PBp,i,pbrp);
+        if (RepSpec.flags[6]==0) then begin
+          bud = pbrp.BudQty;
+          spent = pbrp.SpentQty;
+          invd = Round(pbrp.Invoiced/pbrp.Price,DefaultRoundMode);
+        end else begin
+          bud = Round(pbrp.Price * pbrp.BudQty,DefaultRoundMode);
+          spent = Round(pbrp.Price * pbrp.SpentQty,DefaultRoundMode);
+          invd = pbrp.Invoiced;
+        end;      
+        sumbud = sumbud + bud;
+        sumspent = sumspent + spent;
+        suminvd = suminvd + invd;
+        StartFormat(15);
+        OutString(90,0,pbrp.Descr,false);
+        OutVal(150,0,bud,M4UVal,true);
+        OutVal(210,0,spent,M4UVal,true);
+        if (RepSpec.flags[6]==1) then begin
+          OutVal(250,0,invd,M4UVal,true);
+        end;
+        OutVal(310,0,pbrp.Markup,M4Val,true);
+        OutVal(420,0,pbrp.Price,M4UVal,true);
+        EndFormat;
+      end;
+      totsumbud = totsumbud + sumbud;
+      totsumspent = totsumspent + sumspent;
+      totsuminvd = totsuminvd + suminvd;
+      if (RepSpec.flags[6]==1) then begin
+        Black_Divider(110,250);
+        StartFormat(15);
+        OutVal(150,0,sumbud,M4UVal,true);
+        OutVal(210,0,sumspent,M4UVal,true);
+        if (RepSpec.flags[6]==1) then begin
+          OutVal(250,0,suminvd,M4UVal,true);
+        end;
+        EndFormat;
+      end;
+      StartFormat(10);
+      EndFormat;
+    end;
+  end;
+  if (prohead==true) then begin
+    if (RepSpec.flags[6]==1) then begin
+      Black_Divider(110,480);
+    end else begin
+      Black_Divider(300,480);
+    end;  
+    StartFormat(15);
+    OutString(0,0,USetStr(4837),false);
+    if (RepSpec.flags[6]==1) then begin
+        OutVal(150,0,totsumbud,M4UVal,true);
+        OutVal(210,0,totsumspent,M4UVal,true);
+        OutVal(250,0,totsuminvd,M4UVal,true);
+    end;
+    OutVal(480,0,total,M4Val,true);
+    EndFormat;
+    Black_Divider(0,1);
+    StartFormat(15);
+    /* total fљrskottsfakturerbart */
+    PRSumDownPay(PRp,xval,totval,CurrentDate,blstring,bltest);
+    xval = xval - PRp.DownPaySent;
+    OutString(200,0,USetStr(4848),false);
+    OutVal(480,0,xval,M4Val,true);
+    EndFormat;
+    StartFormat(15);
+   
+    /* total fљrskotssfakturerat */
+    //AddM4Val(&PRp->DownPaySent,&PRp->DownPayRedcd,&val);
+    PRp.DownPaySent = PRp.DownPayRedcd + xval;
+    OutString(200,0,USetStr(4847),false);
+    OutVal(480,0,xval,M4Val,true);
+    EndFormat;
+   
+    Black_Divider(0,1);
+    StartFormat(20);
+    EndFormat;
+  end;
+L99:;
+return;
+end;
+
+procedure PrintIVrPayments(longint SerNr, date InvDate)
+begin
+  record IPVc IPr;
+  row IPVc iPRw;
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open,open2;  
+  boolean testf;
+  integer i,k;
+ SetLangMode(LangUkrainian,"UKR",0);
+  found = true;
+  prf = false;
+  IPr.TransDate = InvDate;
+  while (LoopKey("TransDate",IPr,1,found)) begin
+  testf = true;
+	if (IPr.TransDate<InvDate) then begin testf=false; end;
+   if (IPr.OKFlag==0) then begin testf=false; end;
+	if (testf) then begin
+		for (i=0;i<matrowcnt(IPr);i=i+1) begin
+			matrowget(IPr,i,IPrw);
+			if (IPrw.InvoiceNr == SerNr) then begin
+				if (prf==false) then begin
+					StartFormat(15);
+		        	OutString(80,0,USetStr(15999) & " по акту",false); // платеж
+					OutString(170,0,USetStr(6763),false); // дата
+					OutString(270,0,USetStr(7258),true); // суми з ПДВ
+					EndFormat;
+					prf = true;
+		      end;
+				StartFormat(15);
+				OutString(80,"dblIPVc",IPr.SerNr,false); // платеж
+				OutString(170,0,IPr.TransDate,false); // дата
+				OutString(270,0,IPrw.RecVal,true); // суми з ПДВ
+				totinv = totinv + IPrw.RecVal;
+				EndFormat;
+			end;
+		end;
+	end;
+  end;
+  if totinv>0 then begin
+		Gray_Divider(0,1);
+	   StartFormat(15);
+	   OutString(80,0,USetStr(6803),false);
+	   OutVal(270,0,totinv,M4Val,true);
+	   EndFormat;
+  end;
+  return;
+end;
+
+procedure PrintProjectInvoices(string prcode)
+begin
+  record IVVc IVr;
+  record ARVc ARr;
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open;  
+  found = true;
+  prf = false;
+  StartFormat(15);
+  EndFormat;
+
+  IVr.PRCode= prcode;
+  IVr.SerNr = -1;
+  while (LoopKey("PRCode",IVr,2,found)) begin
+    if (IVr.PRCode<>prcode) then begin 
+    	found = false;
+    end;	
+    if (found) then begin
+      if (prf==false) then begin
+        StartFormat(15);
+        OutString(0,0,USetStr(3249),false);
+        OutString(150,0,USetStr(6763),true);
+        OutString(280,0,USetStr(7297),true);
+        OutString(390,0,USetStr(7293),true);
+        OutString(1,0,USetStr(6776),true);
+        EndFormat;
+        prf = true;
+      end;
+      StartFormat(15);
+      OutLongIntOvst(20,"DblCustPS2",IVr.SerNr,false,IVr.Invalid);
+      if (IVr.InvType!=3) then begin 
+        OutDateOvst(150,0,IVr.TransDate,true,IVr.Invalid);
+        OutValOvst(280,0,IVr.Sum1,M4Val,true,IVr.Invalid);
+        OutValOvst(390,0,IVr.Sum4,M4Val,true,IVr.Invalid);
+        if (IVr.Invalid==0) then begin
+          totinv = totinv + IVr.Sum1;
+          totinv2 = totinv2 + IVr.Sum4;
+        end;
+      end;
+      if (IVr.InvType==3) then begin
+        OutStringOvst(70,0,USetStr(7345),false,IVr.Invalid);
+        OutDateOvst(150,0,IVr.TransDate,true,IVr.Invalid);
+        OutValOvst(280,0,-IVr.Sum1,M4Val,true,IVr.Invalid);
+        OutValOvst(390,0,-IVr.Sum4,M4Val,true,IVr.Invalid);
+        if (IVr.Invalid==0) then begin
+          totinv = totinv - IVr.Sum1;
+          totinv2 = totinv2 - IVr.Sum4;
+        end;
+      end;
+      ARr.InvoiceNr = IVr.SerNr;
+      if (ReadFirstMain(ARr,1,true)) then begin
+        OutVal(1,0,ARr.RVal,M4Val,true);
+      end;
+      open = open + ARr.RVal;
+      EndFormat;
+      PrintIVrPayments(IVr.SerNr,IVr.InvDate);// Edit ************************** Thursday, 18 August 2016 17:19:34
+    end;
+  end;
+	if (totinv>0) or (totinv2>0) or (open>0) then begin //62
+	Gray_Divider(0,1);
+	StartFormat(15);
+	OutString(0,0,USetStr(6803),false);
+	OutVal(280,0,totinv,M4Val,true);
+	OutVal(390,0,totinv2,M4Val,true);
+	OutVal(1,0,open,M4Val,true);
+	EndFormat;
+  end;//62
+  return;
+end;
+//============== печать счетов клиенту в рамках проекта
+// новый код
+procedure FindPredIpOR(longInt OrrSerNr,date ORrOrdDate,var val open)
+begin
+  record IPVc IPr;
+  row IPVC IPrw;
+  integer i;
+  boolean testf;
+	Ipr.TransDate = ORrOrdDate;
+	while (loopkey("TransDate",IPr,1,true)) begin
+		if (IPr.OKFlag==1) then begin
+			for (i=0;i<matrowcnt(IPr);i=i+1) begin
+				matrowget (IPr,i,IPrw);
+				if (IPrw.OrderNr == OrrSerNr) and (IPrw.CUPNr<>-1) then begin
+					open = open + IPrw.RecVal;
+				end;
+			end;
+		end;
+	end;
+	
+  return;
+end; 
+
+procedure PrintProjectOrders(string prcode)
+begin
+  record ORVc ORr;
+  record IPVc IPr;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 9 November 2018 16:47:48
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open,open2;  
+  boolean testf,TrHs,printff;
+  record ARPayVc ARPayr;
+  
+  found = true;
+  prf = false;
+  StartFormat(15);
+  EndFormat;
+
+  ORr.PRCode= prcode;
+  ORr.SerNr = -1;
+  while (LoopKey("PRCode",ORr,2,found)) begin
+	testf = true;
+   if (ORr.PRCode<>prcode) then begin found = false; testf = false;end;	
+	if (ORr.OKFlag<>1) then begin testf = false; end;
+	 
+	if (testf) then begin
+      if (prf==false) then begin
+        StartFormat(15);
+		  OutString(0,0,USetStr(11411),false);
+		  EndFormat;
+        StartFormat(15);
+        OutString(0,0,USetStr(5501),false);
+        OutString(150,0,USetStr(6763),true);
+        OutString(280,0,USetStr(7257),true);
+        OutString(390,0,USetStr(7258),true);
+        OutString(1,0,USetStr(6776),true);
+        EndFormat;
+        prf = true;
+      end;
+      StartFormat(15);
+      OutString(20,"dblORVc",ORr.SerNr,false);
+      OutString(150,0,ORr.OrdDate,true);
+      OutString(280,0,ORr.Sum1,true);
+      OutString(390,0,ORr.Sum4,true);
+      totinv = totinv + ORr.Sum1;
+      totinv2 = totinv2 + ORr.Sum4;
+	   open = 0;
+		FindPredIpOR(ORr.SerNr,ORr.OrdDate,open);
+		OutVal(1,0,(ORr.Sum4-open),M4Val,true);
+      open2 = open2 + (ORr.Sum4-open);
+      EndFormat;
+   end; 
+   // Edit Start ---------------------------------------------- Edit Start
+	//Monday, 12 November 2018 17:07:23
+	
+   /*ARPayr.OrderNr = ORr.SerNr;
+   TrHs = true;
+   printff = true;
+   while(loopkey("OrderNr",ARPayr,1,TrHs))begin
+   	if(ARPayr.OrderNr!=ORr.SerNr)then begin TrHs = false; end;
+   	
+   	if(TrHs)then begin
+   		if(printff)then begin
+				StartFormat(15);
+					OutString(0,0,USetStr(1876),false); // Џередплати постачальникам
+				EndFormat;
+				StartFormat(15);
+					OutString(0,0,USetStr(15999),false); // платеж
+					OutString(100,0,USetStr(6763),false); // дата
+					OutString(270,0,USetStr(1816),true); // замовлення
+					OutString(410,0,USetStr(7258),true); // суми з ПДВ
+				EndFormat;
+				printff = false;
+			end;				
+			StartFormat(15);
+				OutString(0,"DblIPVc",ARPayr.IPNr,false); // платеж
+				OutString(100,0,ARPayr.PayDate,false); // дата
+				OutString(270,0,ARPayr.CUPNr,true); // замовлення
+				OutString(410,0,ARPayr.RVal,true); // суми з ПДВ
+			EndFormat;
+   	end;
+   end;
+   resetloop(ARPayr);*/
+   
+	// Edit End ---------------------------------------------- Edit End
+	
+  end;
+  if (totinv>0) or (totinv2>0) or (open2>0) then begin
+	Gray_Divider(0,1);
+	StartFormat(15);
+	OutString(0,0,USetStr(6803),false);
+	OutVal(280,0,totinv,M4Val,true);
+	OutVal(390,0,totinv2,M4Val,true);
+	OutVal(1,0,open2,M4Val,true);
+	EndFormat;
+	
+	
+	
+	
+  end;
+  return;
+end; 
+//============== печать сч-ф поставщиков
+procedure PrintVIrPayments(longint SerNr, date InvDate)
+begin
+   record OPVc OPr;
+  row OPVc OPRw;
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open,open2;  
+  boolean testf;
+  integer i,k;
+ SetLangMode(LangUkrainian,"UKR",0);
+  found = true;
+  prf = false;
+  OPr.TransDate = InvDate;
+  while (LoopKey("TransDate",OPr,1,found)) begin
+  testf = true;
+	if (OPr.TransDate<InvDate) then begin testf=false; end;
+   if (OPr.DoneFlag==0) then begin testf=false; end;
+	if (testf) then begin
+		for (i=0;i<matrowcnt(OPr);i=i+1) begin
+			matrowget(OPr,i,OPrw);
+			if (OPrw.VISerNr == SerNr) then begin
+				if (prf==false) then begin
+					StartFormat(15);
+		        	OutString(80,0,USetStr(15999) & " по акту",false); // платеж
+					OutString(170,0,USetStr(6763),false); // дата
+					OutString(270,0,USetStr(7258),true); // суми з ПДВ
+					EndFormat;
+					prf = true;
+		      end;
+				StartFormat(15);
+				OutString(80,"dblOPVc",OPr.SerNr,false); // платеж
+				OutString(170,0,OPr.PayDate,false); // дата
+				OutString(270,0,OPrw.RecVal,true); // суми з ПДВ
+				totinv = totinv + OPrw.RecVal;
+				EndFormat;
+			end;
+		end;
+	end;
+  end;
+  if totinv>0 then begin
+		Gray_Divider(0,1);
+	   StartFormat(15);
+	   OutString(80,0,USetStr(6803),false);
+	   OutVal(270,0,totinv,M4Val,true);
+	   EndFormat;
+  end;
+  return;
+end;
+
+procedure PrintProjectVIs(string prcode)
+begin
+  record VIVc VIr;
+  row VIVc VIrw;
+  
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open,open2;  
+  boolean testf;
+  integer i;
+  
+  found = true;
+  prf = false;
+  StartFormat(15);
+  EndFormat;
+
+  VIr.OKFlag = 1;
+  while (LoopKey("OKFlag",VIr,1,found)) begin
+   if (VIr.OKFlag<>1) then begin found=false; end;
+	if (found) then begin
+		testf = false;
+		for (i=0;i<matrowcnt(VIr);i=i+1) begin
+			matrowget(VIr,i,VIrw);
+			if (nonblank(VIrw.PRCode)) then begin
+				if (VIrw.PRCode==prcode) then begin testf= true; end;
+				i = matrowcnt(VIr);
+			end;
+		end;
+		if (testf) then begin
+	      if (prf==false) then begin
+	        StartFormat(15);
+			  OutString(0,0,USetStr(1752),false);
+			  EndFormat;
+	        StartFormat(15);
+	        OutString(0,0,USetStr(12091),false);
+	        OutString(150,0,USetStr(6763),true);
+	        OutString(160,0,USetStr(8424),false);
+	        OutString(350,0,USetStr(7257),true);
+	        OutString(410,0,USetStr(7258),true);
+	        //OutString(1,0,USetStr(9248),true); 1752
+	        EndFormat;
+	        prf = true;
+	      end;
+	      StartFormat(15);
+	      OutString(20,"dblVIVc",VIr.SerNr,false);
+	      OutString(150,0,VIr.InvDate,true);
+	      OutString(160,0,VIr.VEName,false);
+	      OutString(350,0,VIr.PayVal-VIr.CalcVATVal-VIr.TAX1Sum,true);
+	      OutString(410,0,VIr.PayVal,true);
+			//OutString(1,0,VIr.DueDate,true);
+	      totinv = totinv + VIr.PayVal-VIr.CalcVATVal-VIr.TAX1Sum;
+	      totinv2 = totinv2 + VIr.PayVal;
+	      EndFormat;
+			PrintVIrPayments(VIr.SerNr,VIr.InvDate);
+		end;
+   end; 
+  end;
+  Gray_Divider(0,1);
+  StartFormat(15);
+  OutString(0,0,USetStr(6803),false);
+  OutVal(350,0,totinv,M4Val,true);
+  OutVal(410,0,totinv2,M4Val,true);
+  OutVal(1,0,open2,M4Val,true);
+  EndFormat;
+  return;
+end; 
+
+//============== печать платежей по заказам поставщикам
+
+procedure PrintProjectPOs(string prcode)
+begin
+  record POVc POr;
+  row POVc POrw;
+  record OPVc OPr;
+  row OPVc OPRw;
+  
+  
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open,open2;  
+  boolean testf;
+  integer i,k;
+  
+  found = true;
+  prf = false;
+  StartFormat(15);
+  EndFormat;
+
+  OPr.DoneFlag = 1;
+  while (LoopKey("DoneFlag",OPr,1,found)) begin
+   if (OPr.DoneFlag==0) then begin found=false; end;
+	if (found) then begin
+		for (i=0;i<matrowcnt(OPr);i=i+1) begin
+			testf = false;
+			matrowget(OPr,i,OPrw);
+			if ((OPrw.PrepayNr<>-1)) and (OPrw.OrderNr<>-1) then begin
+				POr.SerNr = OPrw.OrderNr;
+				if (readfirstmain(POr,1,true)) then begin end;
+				for (k=0;k<matrowcnt(POr);k=k+1) begin
+					matrowget(POr,k,POrw);
+					if (nonblank(POrw.PRCode)) then begin
+						if (POrw.PRCode==prcode) then begin testf= true; end;
+						k = matrowcnt(POr);
+					end;
+				end;
+			end;
+			if (testf) then begin
+				if (prf==false) then begin
+				   StartFormat(15);
+					OutString(0,0,USetStr(31002),false); // Џередплати постачальникам
+					EndFormat;
+					StartFormat(15);
+					OutString(0,0,USetStr(15999),false); // платеж
+					OutString(100,0,USetStr(6763),false); // дата
+					OutString(270,0,USetStr(1816),true); // замовлення
+					OutString(410,0,USetStr(7258),true); // суми з ПДВ
+					EndFormat;
+					prf = true;
+				end;
+				StartFormat(15);
+				OutString(0,"dblOPVc",OPr.SerNr,false); // платеж
+				OutString(100,0,OPr.PayDate,false); // дата
+				OutString(270,"dblPOVc",POr.SerNr,true); // замовлення
+				OutString(410,0,OPrw.RecVal,true); // суми з ПДВ
+				totinv = totinv + OPrw.RecVal;
+				//totinv2 = totinv2 + VIr.PayVal;
+				EndFormat;
+			end;
+		end;
+   end; 
+  end;
+  if totinv>0 then begin
+	Gray_Divider(0,1);
+	StartFormat(15);
+	OutString(0,0,USetStr(6803),false);
+	OutVal(410,0,totinv,M4Val,true);
+	EndFormat;
+  end;
+  return;
+end; 
+
+
+
+//============== печать платежей по заказам поставщикам
+
+procedure PrintProjectIPs(string prcode)
+begin
+  record IPVc OPr;
+  row IPVc OPRw;
+  record ORVc ORr;
+  row ORVc ORrw;
+  
+  
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open,open2;  
+  boolean testf;
+  integer i,k;
+  
+  found = true;
+  prf = false;
+  StartFormat(15);
+  EndFormat;
+
+  OPr.OKFlag = 1;
+  while (LoopKey("OKFlagTransDate",OPr,1,found)) begin
+   if (OPr.OKFlag==0) then begin found=false; end;
+	if (found) then begin
+		for (i=0;i<matrowcnt(OPr);i=i+1) begin
+			testf = false;
+			matrowget(OPr,i,OPrw);
+			if ((OPrw.CUPNr<>-1)) and (OPrw.OrderNr<>-1) then begin
+				ORr.SerNr = OPrw.OrderNr;
+				if (readfirstmain(ORr,1,true)) then begin end;
+				if (ORr.PRCode==prcode) then begin testf= true; end;
+			end;
+			if (testf) then begin
+				if (prf==false) then begin
+				   StartFormat(15);
+					OutString(0,0,USetStr(1876),false); // Џередплати постачальникам
+					EndFormat;
+					StartFormat(15);
+					OutString(0,0,USetStr(15999),false); // платеж
+					OutString(100,0,USetStr(6763),false); // дата
+					OutString(270,0,USetStr(1816),true); // замовлення
+					OutString(410,0,USetStr(7258),true); // суми з ПДВ
+					EndFormat;
+					prf = true;
+				end;
+				StartFormat(15);
+				OutString(0,"dblIPVc",OPr.SerNr,false); // платеж
+				OutString(100,0,OPr.TransDate,false); // дата
+				OutString(270,"dblORVc",ORr.SerNr,true); // замовлення
+				OutString(410,0,OPrw.RecVal,true); // суми з ПДВ
+				totinv = totinv + OPrw.RecVal;
+				//totinv2 = totinv2 + VIr.PayVal;
+				EndFormat;
+			end;
+		end;
+   end; 
+  end;
+  if totinv>0 then begin
+	Gray_Divider(0,1);
+	StartFormat(15);
+	OutString(0,0,USetStr(6803),false);
+	OutVal(410,0,totinv,M4Val,true);
+	EndFormat;
+  end;
+  return;
+end; 
+//============== печать заказов поставщикам
+
+procedure PrintProjectPOsList(string prcode)
+begin
+  record POVc POr;
+  row POVc POrw;
+  
+  
+  Boolean found;
+  Boolean prf;
+  val totinv, totinv2,open,open2;  
+  boolean testf;
+  integer i,k;
+  
+  found = true;
+  prf = false;
+  StartFormat(15);
+  EndFormat;
+
+	POr.PRCode = prcode;
+	while (LoopKey("PRCode",POr,1,found)) begin
+		testf = true;
+		if (POr.PRCode<>prcode) then begin testf=false;found=false; end;
+		if testf then begin
+			if prf==false begin
+				StartFormat(15);
+				OutString(0,0,USetStr(7707),false);  
+				EndFormat;
+				black_divider(0,1);
+				StartFormat(15);
+				OutString(0,0,USetStr(6722),false); 
+				OutString(50,0,USetStr(6721),false); 
+				OutString(150,0,USetStr(7802),false);
+				OutString(300,0,USetStr(18826),false);
+				OutString(400,0,USetStr(18828),false);
+				OutString(450,0,USetStr(13838),false);
+				EndFormat;
+				gray_divider(0,1);
+				prf = true;
+			end;
+			StartFormat(15);
+				OutString(0,"dblPOVc",POr.SerNr,false);
+				OutString(50,0,POr.TransDate,false);
+				OutString(150,0,POr.Addr0,false);
+				OutString(300,0,POr.Sum1,false);
+				OutString(400,0,POr.Sum4,false);
+				OutString(450,0,POr.CurncyCode,false);
+			EndFormat;
+			totinv = totinv +POr.Sum1;
+			totinv2 = totinv2 +POr.Sum4;
+			gray_divider(0,1);
+		end; 
+	end;
+	if totinv>0 or totinv2>0 then begin
+		Black_Divider(0,1);
+		StartFormat(15);
+		OutString(0,0,USetStr(6803),false);
+		OutString(300,0,totinv,false);
+		OutString(400,0,totinv2,false);
+		EndFormat;
+	end;
+	return;
+end; 
+
+procedure PrintPRQT(string prcode)
+begin
+  record QTVc QTp;
+  Boolean foundf,firstf;
+  val t;
+  
+  t = blankval;
+  firstf = true;
+  foundf = true;
+  QTp.PRCode = prcode;
+  while (LoopKey("PRCode",QTp,1,foundf)) begin
+    if (firstf) then begin
+      Gray_Divider(0,1);
+      StartFormat(15);
+      OutString(0,0,USetStr(8316),false);
+      OutString(100,0,USetStr(11047),false);
+      OutString(170,0,USetStr(7112),false);
+      OutString(250,0,USetStr(11008),false);
+      OutString(350,0,"",false);
+      OutString(480,0,USetStr(11079),true);
+      EndFormat;
+      Gray_Divider(0,1);
+      firstf = false;
+    end;
+    if (QTp.PRCode <> prcode) then begin
+    	foundf = false;
+    end;
+    if foundf then begin
+      t = blankval;	
+		StartFormat(15);
+		OutString(20,"DblQTVc",QTp.SerNr,false);
+		OutDate(100,0,QTp.QTDate,false);
+		OutString(170,0,QTp.QuoteClass,false);
+		t = t + QTp.SumTime;
+		t = t + QTp.SumOther;
+		t = t + QTp.SumStocked;
+		t = t + QTp.SumMaterial;
+		switch (QTp.Rejected) begin
+		  case 0:
+			OutString(250,0,USetStr(8324),false);
+		  case 1:
+			OutString(250,0,USetStr(11014),false);
+		  case 2:
+			OutString(250,0,USetStr(11013),false);
+		end;
+		OutDate(350,0,QTp.RejectDate,false);
+		OutVal(480,0,t,M4Val,true);
+		EndFormat; 
+	 end;	   
+  end;
+  if (firstf==false) then begin
+//    Gray_Divider(0,1);
+    StartFormat(15);
+    EndFormat;
+  end;
+  return;
+end;
+
+procedure PrintPRActivities(record RcVc RepSpec)
+begin
+  record PRVc PRr;
+  record CustPSVc CuPSr;
+  Integer nrofact;
+  record ActVc Actr;
+
+  PRr.Code = RepSpec.f1;
+  if (ReadFirstMain(PRr,1,true)) then begin
+	CuPSr.Signature = CurrentUser;
+    if (ReadFirstMain(CuPSr,1,true)) then begin
+      if (CuPSr.NrOfAct==0) then begin
+        nrofact = -1;
+      end else begin
+        nrofact = CuPSr.NrOfAct;
+      end;
+      if (CuPSr.Activities!=0) then begin
+        ActCUPSList(RepSpec,PRr.CustCode,nrofact,CuPSr.NotOKAct,CuPSr.ExcludeActTypes,PRr.Code,0);
+      end;
+    end;    
+  end;
+return;
+end;
+
+global 
+updating procedure ProInvRn(record RcVc RepSpec)
+begin
+  record PRVc PRp;
+  record PRVc PR2p;
+  Boolean testf,found;
+  string 20 frpr,topr;
+  string 255 frcu,tocu;
+  string 255 tstr;
+  string 255 ckey;
+  Integer keys;
+  val totsum,totbudg;
+  val tottb,totbudg2,totpb,totinvd,dpinvbl,dpinvd,totact;
+  Integer rw;
+  Boolean firstf;
+  Boolean printedf;
+  
+  rw = 1;
+  firstf = true;
+  printedf = false;
+
+  frpr = FirstInRange(RepSpec.f1,20);
+  topr = LastInRange(RepSpec.f1,20);
+  
+  frcu = FirstInRange(RepSpec.f3,20);
+  tocu = LastInRange(RepSpec.f3,20);
+   
+  if (RepSpec.flags[29]!=0) then begin
+    StartReportJob(USetStr(4896));
+  end else begin
+    StartReportJob(USetStr(4821));
+  end;
+  HTProjects(frpr,topr,tstr);
+  Header(rw,tstr,1);
+  rw = rw +1;
+  if (nonblank(RepSpec.f2)) then begin
+    tstr = USetStr(4849) & " " & RepSpec.f2;
+    Header(rw,tstr,1);
+  	rw = rw +1;
+  end;
+  HTCusts(frcu,tocu,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;
+
+  keys = RepSpec.flags[10];
+  if (keys==2) then begin 
+  	keys = 0;
+  end;
+  HTDetailLevel(keys,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;  
+  HTPRClass(RepSpec.FirstAcc,tstr);
+  Header(rw,tstr,1);
+  rw = rw + 1;  
+  EndHeader;
+  
+  StartFormat(15);
+  OutString(0,0,"   ",false);
+  EndFormat;
+  
+  switch (RepSpec.flags[8]) begin
+    case 0:
+      PRp.Code = frpr;
+      ckey = "Code";
+      keys = 1;
+    case 1:
+      PRp.Leader = RepSpec.f2;
+      PRp.Code = frpr;
+      ckey = "PRLeader";
+      keys = 2;
+    case 2:
+      PRp.CustCode = frcu;
+      ckey = "CustCode";
+      keys = 1;
+    case 3:
+      PRp.PRClass = RepSpec.FirstAcc;
+      ckey = "PRClass";
+      keys = 1;
+  end;
+  found = true;
+  while (LoopKey(ckey, PRp,keys,found)) begin
+    if (found) then begin
+      switch (RepSpec.flags[8]) begin
+        case 0:
+          if ((nonblank(topr)) and (PRp.Code>topr)) then begin
+            found = false;
+          end;
+        case 2:
+          if ((nonblank(tocu)) and (PRp.CustCode>tocu)) then begin
+            found = false;
+         end;
+      end;
+    end;
+    if (found) then begin
+      testf = true;
+      switch (RepSpec.flags[8]) begin
+        case 1:
+          if nonblank(RepSpec.f1) then begin
+          	if (PRp.Code<frpr) or (PRp.Code>topr) then begin
+          		testf = false;
+          	end;
+          end;	
+        case 2:
+          if nonblank(RepSpec.f1) then begin
+          	if (PRp.Code<frpr) or (PRp.Code>topr) then begin
+          		testf = false;
+          	end;
+          end;	
+        case 3:
+          if nonblank(RepSpec.f1) then begin
+          	if (PRp.Code<frpr) or (PRp.Code>topr) then begin
+          		testf = false;
+          	end;
+          end;	
+      end;
+      if (nonblank(frcu)) then begin
+        if (PRp.CustCode<frcu) then begin
+            found = false;
+        end;
+      end;      
+      if (nonblank(tocu)) then begin
+        if (PRp.CustCode>tocu) then begin
+          if (RepSpec.flags[8]==2) then begin
+            found = false;
+          end else begin
+            testf = false;
+          end;  
+        end;
+      end;  
+      if (RepSpec.flags[1]!=0) then begin
+        if (PRp.StopInvoicing==1) then begin testf = false; end;
+      end;
+      if (RepSpec.flags[14]==0) then begin
+        if (PRp.Terminated==1) then begin testf = false;  end;
+      end;  
+      if (nonblank(RepSpec.FirstAcc) and (RepSpec.FirstAcc<>PRp.PRClass)) then begin testf = false; end;
+      if (nonblank(RepSpec.f2)) then begin
+        if (RepSpec.f2 <> PRp.Leader) then begin
+          if (RepSpec.flags[8]==1) then begin
+            found = false;
+          end else begin
+            testf = false;
+          end;  
+        end;
+      end;      
+      if (found==false) then begin testf = false; end;
+    
+      if (testf) then begin
+        RecordCopy(PR2p,PRp);
+        if ((firstf==false) and (printedf)) then begin
+          StartFormat(15);
+          EndFormat;
+          Black_Divider(0,1);
+          StartFormat(15);
+          EndFormat;
+        end;
+        firstf = false;
+        printedf = false;
+        if (RepSpec.flags[2]==0) then begin
+          ProjectBudget(PRp,RepSpec); 
+        end;
+        if (RepSpec.flags[3]==1) then begin   
+          testf = true;
+          if (nonblankdate(PRp.NoInvBefore)) then begin
+            if (nonblankdate(RepSpec.d1)) then begin
+              //if (DateComp(&PRp.NoInvBefore,&RepSpec.d1)>0) then begin testf = false; end;
+              if (PRp.NoInvBefore>RepSpec.d1) then begin testf = false; end;
+            end else begin
+              //if (DateComp(&PRp.NoInvBefore,&CurrentDate)>0) then begin testf = false; end;
+              if (PRp.NoInvBefore>CurrentDate) then begin testf = false; end;
+            end;
+          end;
+          if (testf) then begin
+              switch (RepSpec.flags[10]) begin
+                case 0: printedf = ProjectInvSugg2(RepSpec,PRp,true,totsum,totbudg); //overview
+                case 1: printedf = ProjectInvSugg3(RepSpec,PRp,true,totsum,totbudg); //detailed - same as overview
+                case 2: printedf = ProjectInvSugg4(RepSpec,PRp,true,totsum,totbudg); //employee
+              end;
+          end;
+        end;
+        if (RepSpec.flags[4]==1) then begin
+          testf = true;
+          if (nonblankdate(PRp.NoInvBefore)) then begin
+            if (PRp.NoInvBefore>CurrentDate) then begin
+              testf = false;
+            end;
+          end;
+          if (testf) then begin
+            RecordCopy(PR2p,PRp);
+            printedf = ProjectInvSugg(RepSpec,PRp,false,tottb,totbudg2,totpb,totinvd,dpinvbl,dpinvd,totact);
+          end;
+        end;
+      end;
+    end;
+  end;
+  if (RepSpec.flags[4]==1) then begin
+//    tottb = totpb + totsum; this must be wrong, it is supposed to be time only
+  end;
+  if (totsum<>0) then begin
+    StartFormat(15);
+    EndFormat;
+    if ((RepSpec.flags[3]==1) and (RepSpec.flags[4]==0)) then begin
+      StartFormat(15);
+      OutString(120,0,USetStr(6798),false);
+      if (totsum<0) then begin totsum = 0; end;
+      OutVal(350,0,totsum,M4Val,true);
+      OutVal(450,0,totbudg,M4Val,true);
+      EndFormat;
+    end; 
+    if (RepSpec.flags[4]==1) then begin
+//      tottb = totpb + totsum; this must be wrong, it is supposed to be time only
+      totsum = totsum + totact;
+      StartFormat(15);
+      OutString(20,0,USetStr(6797),false);
+      EndFormat;
+      Black_Divider(20,450);
+      StartFormat(15);
+      OutString(20,0,USetStr(5520),false);
+      OutVal(200,0,tottb,M4Val,true);
+      OutString(250,0,USetStr(4825),false);
+      OutVal(450,0,totbudg2,M4Val,true);
+      EndFormat;
+      StartFormat(15);
+      OutString(20,0,USetStr(5521),false);
+      OutVal(200,0,totpb,M4Val,true);
+      OutString(250,0,USetStr(4827),false);
+      OutVal(450,0,totinvd,M4Val,true);
+      EndFormat;
+  
+      StartFormat(15);
+      OutString(20,0,USetStr(4837),false);
+      OutVal(200,0,totsum,M4Val,true);
+      OutString(250,0,USetStr(4847),false);
+      OutVal(450,0,dpinvd,M4Val,true);
+      EndFormat;
+    end;
+
+  end;
+  StartFormat(15);
+  OutString(250,0,USetStr(4873),false);
+  OutVal(450,0,PRp.MaxRetSum,M4Val,true);
+  EndFormat;
+  StartFormat(15);
+  OutString(250,0,USetStr(4875),false);
+  OutVal(450,0,PRp.RetSum,M4Val,true);
+  EndFormat;
+  OutString(250,0,USetStr(4874),false);
+  OutVal(450,0,PRp.RetInvd,M4Val,true);
+  EndFormat;
+  OutString(250,0,USetStr(4876),false);
+  OutVal(450,0,PRp.RetSum - PRp.RetInvd,M4Val,true);
+  EndFormat;
+  PrintSupplierRetentions(PRp.Code);
+ // from Special menu
+ if (RepSpec.flags[29]==1) then begin
+    Black_Divider(0,1);
+    PrintProjectInvoices(RepSpec.f1);
+	 StartFormat(15); // 62
+	 EndFormat; // 62
+    PrintPRQT(RepSpec.f1);
+    PrintPRActivities(RepSpec);
+	 PrintProjectOrders(RepSpec.f1); // 62
+	 PrintProjectVIs(RepSpec.f1); // 62
+	 PrintProjectPOs(RepSpec.f1); // 62
+	 PrintProjectPOsList(RepSpec.f1); // 62
+	 
+	 PrintProjectIPs(RepSpec.f1);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 12 November 2018 17:48:25
+  end; 
+  EndJob;
+  return;
+end; 

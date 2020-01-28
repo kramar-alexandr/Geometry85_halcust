@@ -1,0 +1,54 @@
+/* Haukrtb.hal*/
+
+#ifdef HAL
+
+event DefineWindows
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,v,l,vs,v2,vm,f,t,fs;
+
+  SetLangMode(LangUkrainian,"UKR",0);
+
+
+  WindowBegin("Визначте перелік проектів",ProListRClass,CGRcW,RcType);
+  SetWRect(20,80,400,300); // 62
+  v = 6; vs = 20; h = 120;
+  EditFieldTL(h,v, 150,"Проект",   M4UStr,Normal,60,f1,false,PRSClass);
+  EditFieldTL(h,v+=vs, 150,"Керівник",   M4UStr,Normal,20,f2,false,UserSClass);
+  EditFieldTL(h,v+=vs, 150,"Клієнт",   M4UStr,Normal,50,f3,false,CUSClass);
+  EditFieldTL(h,v+=20, 150,"Тип",   M4UStr,Normal,5,FirstAcc,false,PRClassSClass);
+  EditFieldTL(h,v+=20, 150,"Продавець",   M4UStr,Normal,10,LastAcc,false,UserSClass);
+  EditFieldTL(h,v+=20, 150,"Текст",M4Str,Normal,100,f4,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 11:23:08
+  EditFieldTL(h,v+=20, 150,"Старший",M4Str,Normal,100,f5,false,PR_SBSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 16 August 2018 14:16:15
+ 	EditFieldTL(h,v+=20, 70,"Період завершення",M4Date,Normal,20,sStartDate,false,0);
+ 	EditFieldTL(h+100,v, 70,"до",M4Date,Normal,20,sEndDate,false,0);
+ 	EditFieldTL(h,v+=20, 70,"Період попер.завер.",M4Date,Normal,20,d1,false,0);
+ 	EditFieldTL(h+100,v, 70,"до",M4Date,Normal,20,d2,false,0);
+
+ /* ButtonFrame(h=60,vm=(v+=41),133,3,"Функція");// 62
+  RadioButton(h,v,0,0,"докладний",ArtMode);
+  RadioButton(h,v+=16,1,0,"зведений",ArtMode);
+  RadioButton(h,v+=16,2,0,"зведений з найм.",ArtMode);*/// 62
+  v=200;
+  ButtonFrame(h=30,v,155,3,"Статус проектів");// 62
+  CheckBox(h,v,0,"Активні проекти",flags[19]);
+  CheckBox(h,v+=16,0,"Завершені проекти",flags[20]);
+  CheckBox(h,v+=16,0,"Попередньо завершений",flags[21]);// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 17:18:28
+	h=220;
+	v=200;
+  ButtonFrame(h,v,133,3,"Вид проекту");
+  CheckBox(h,v,0,"оплачувані",flags[10]);
+  CheckBox(h,v+=18,0,"внутрішні",flags[11]);
+  CheckBox(h,v+=18,0,"інші",flags[12]);
+  /*ButtonFrame(h=220,v=(vm-112),133,5,"Сортувати за");// 62
+  RadioButton(h,v,0,0,"проектом",flags[1]);
+  RadioButton(h,v+=16,1,0,"клієнтом",flags[1]);
+  RadioButton(h,v+=16,2,0,"наймен. проекта",flags[1]);
+  RadioButton(h,v+=16,3,0,"наймен. клієнта",flags[1]);
+  RadioButton(h,v+=16,4,0,"керівником",flags[1]);*/// 62
+  //CheckBox(h=220,v=125,0,"Враховувати субпроекти",IncDaughter);// 62// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 14 May 2018 15:06:32
+  EndWindow;
+
+  return;
+end;
+
+#endif

@@ -1,0 +1,1521 @@
+//Record Check
+//RA1 - QTVc - проверка на наличие полей :Умови сплати, Клієнт, Проект,Дійсно до, Бренд(Відпов. особа), Контактна особа, керівник проекту(продавець), вид пропозиції 
+//RA2 - POVc - проверка на наличие полей : проект,поставщик,заплановане відвантаження,умови сплати,посилання,вид замовлення,товар,кол-во,ціна,%,ПДВ
+//RA3 - CUVc - проверка, является ли клиент контактным лицом компании. Обновление саппорта для правильного отображения контактного лица
+//RA4 - VIVc - снимаем галочку "На пром. рахунок" при разокеивании.
+//RA5 - PRVc - проверка заполнения полей "Дата початку", "Дата завершення" + проверки старшего проекта + отработка по изменению доп полей ProjType & Identcodd 
+//RA6 - TSVc - проверка заполнения полей "Співробітник"
+//RA7 - OPVc - проверка заполнения строчных полей "Об'єкт"
+//RA8 - IPVc - проверка заполнения полей "Об'єкт" "Код ПДВ"
+//RA9 - TSVc - Очистка Authority при дублицировании. 
+//RA10 - QTVc - Очистка Authority при дублицировании. 
+// RA11 TBBUVc проверка на наличие подтверженных коммерчески пропозиций при сохраненни бюджета проекта  // 6006 SAV 2010_09_03
+external updating function Integer CreateOKFlagMail(longint,var record MailVc,string, string);
+external Procedure CUVcHistory(record CUVc,record CUVc);
+remote function integer SetAlertFlag(record POVc);
+external inner procedure POSumup(var record POVc);// Edit ************************** Friday, 30 November 2012 16:45:28
+external function Boolean PODchrsum(record POVc,Integer);
+external updating procedure FindPOAmount(var row POVc, string);
+external function boolean CheckPOItem(row POVc, string);
+external updating function boolean POItemCreate(record POVc ,row POVc , integer );
+external updating function boolean POItemDelete(longint );
+external function Boolean CheckSign(string);
+external inner function Boolean CurncyCodeRegistered(string);// Edit ************************** Friday, 13 September 2013 11:11:27
+external inner procedure ExtractObj(string,var Integer,var string);
+
+
+external inner procedure GetFullCurncyRate (var string,Date,var val,var val,var val,var val,var val);
+external inner procedure GetCurUser(var record UserVc);
+external updating procedure WalkInSubProjects(string,string,integer,string,var boolean);
+external function boolean OnlySpaceBars(string);
+external inner function boolean ChechDocType(string);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 11 June 2018 10:05:54
+external inner procedure M4PadString(string,Integer,string,Boolean,var string);
+
+// Edit Start ---------------------------------------------- Edit Start
+	//Friday, 30 November 2012 11:31:37
+	// Edit Start ---------------------------------------------- Edit Start
+	//Friday, 30 November 2012 11:31:37
+	
+global updating procedure dellPRVcMn()
+begin
+	record PRVc PRr;
+	
+	while(loopmain(PRr,1,true))begin
+		RecordDelete(PRr);
+		StepBack(PRr);
+	end;
+
+return;
+end;
+
+
+	// Edit End ---------------------------------------------- Edit End
+	
+	// Edit End ---------------------------------------------- Edit End
+	
+global
+function LongInt FEVIVcRecordDuplicate(var record FEVIVc FEVIr,record FEVIVc FEVI2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  val fr,to1,to2,br1,br2;
+  Integer i,rwcnt;
+  row FEVIVc FEVIrw;
+
+  FEVIr.SerNr = -1;
+/*  FEVIr.CredInv = -1;  //62s
+  FEVIr.OrderNr = -1;
+  FEVIr.VINr = -1;
+  FEVIr.PrepaymentNr = -1;    */  //62e
+  FEVIr.TransDate=Currentdate;//62
+  FEVIr.VEEventDate=Currentdate;//62
+  if (SingleUserMode) then begin
+    FEVIr.SerNr = NextSerNr("FEVIVc",FEVIr.TransDate,-1,false,FEVIr.LangCode);
+  end;
+  GetFullCurncyRate(FEVIr.CurncyCode,FEVIr.TransDate,fr,to1,to2,br1,br2);
+  FEVIr.FrRate = fr;
+  FEVIr.ToRateB1 = to1; 
+  FEVIr.ToRateB2 = to2;
+  FEVIr.BaseRate1 = br1;
+  FEVIr.BaseRate2 = br2;
+  //FEVIr.InvoiceNr = "";//62
+  FEVIr.OKFlag = 0;
+//  FEVIr.CredMark = "";//62
+  rwcnt = MatRowCnt(FEVIr);
+/*  for (i=rwcnt-1;i>= 0;i=i-1) begin //62s
+    MatRowGet(FEVIr,i,FEVIrw);
+    FEVIrw.PrepayAmount = blankval;
+    FEVIrw.VATVal = blankval;
+    FEVIrw.PrepayNr = -1;
+    FEVIrw.OrdRow = -1;
+    MatRowPut(FEVIr,i,FEVIrw);
+  end; */ //62e
+  FEVIVcRecordDuplicate = res;
+  RETURN;
+END;
+
+//RA1
+global updating // расширение функционала - есть иннер
+function LongInt QTVcRecordCheck(record QTVc QTp,record QTVc QT2p,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  record ProjectBlock PRRec;
+  record SRBlock SRRec;
+  record QTVc locQTr;
+  record CUVc CUr;
+  record INVc INr;
+  record PRVc PRr;
+  row QTVc QTrw;
+  Integer i,rwcnt,errcode,err;
+  LongInt oldnr;
+  Boolean gentrans,TrHr,testf;
+  string 255 tstr,errstr;
+  Integer insertmode,updatemode;
+  record QTSettBlock QTSetb;
+  record QTVc QTr;
+  record UserVc USr;
+  record MailVc Mailr;
+
+  BlockLoad(QTSetb);
+  SetLangMode(LangUkrainian,"UKR",0);
+	res=0;
+  USr.Code = QTp.SalesMan;
+  // Edit Start ---------------------------------------------- Edit Start
+	//Friday, 8 February 2013 10:39:50
+	      
+  if (blank(QTp.Authority) and nonblank(QT2p.Authority))then begin
+		RecordCheckError(31000,"",-1,"Authority");
+			res=-1;
+		goto QTVcRecordCheckFailed;  
+  end;
+  
+	// Edit End ---------------------------------------------- Edit End
+	
+  if (readfirstmain(USr,1,true))==false then begin
+		QTp.SalesMan="";
+		RecordCheckError(31006,"",-1,"SalesMan");
+			res=-1;
+		goto QTVcRecordCheckFailed;  
+  end;
+	if res==0 then begin
+		if blank(QTp.PayDeal) then begin
+			RecordCheckError(10895," Визначте умови сплати",-1,"PayDeal");
+			res=-1;
+		goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.CustCode) then begin
+      RecordCheckError(10895," Визначте код клієнта",-1,"CustCode");  
+      res=-1;
+		goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.PRCode) then begin
+      RecordCheckError(10895," Визначте код проекта",-1,"PRCode");    
+      res=-1;
+		goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.ValidUntilDate) then begin
+      RecordCheckError(10895," Визначте дату 'Дійсно до' ",-1,"ValidUntilDate");   
+      res=-1;
+      goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.OurContact) then begin
+      RecordCheckError(10895," Визначте Бренд",-1,"OurContact");   
+      res=-1;
+      goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.CustContact) then begin
+      RecordCheckError(10895," Визначте код контакту",-1,"CustContact");   
+      res=-1;
+		goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.SalesMan) then begin
+      RecordCheckError(10895," Визначте керівника проекту",-1,"SalesMan");   
+      res=-1;
+		goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.PlanShip) then begin
+      RecordCheckError(10895," Визначте дату запланованого відвантаження",-1,"PlanShip");   
+      res=-1;
+		goto QTVcRecordCheckFailed;  
+   end;
+   if blank(QTp.QuoteClass) then begin
+		RecordCheckError(10895," Визначте вид пропозиції",-1,"QuoteClass");   
+      res=-1;
+		goto QTVcRecordCheckFailed;  
+   end;
+   testf=true;
+   if CurrentUser=="JFA" or CurrentUser=="FD" then begin
+		if QTSetb.PRQTClass==1 then begin
+			testf=false;
+		end;
+   end;
+   if testf then begin
+		QTr.PRCode=QTp.PRCode;
+		TrHr=true;
+		while LoopKey("PRCode",QTr,1,TrHr) begin
+			if QTr.PRCode<>QTp.PRCode then begin
+				TrHr=false;
+			end else begin
+				if QTr.SerNr!=QTp.SerNr begin
+					if QTr.Rejected!=1 then begin
+						RecordCheckError(10895," Коммерційна пропозиція з таким проектом вже зареєстрована.",-1,"PRCode");   
+						res=-1;
+						goto QTVcRecordCheckFailed;  
+					end;
+				end;
+			end;
+		end;   
+   end;
+  end;
+  if res==0 then begin
+	res=inner.QTVcRecordCheck(QTp,QT2p,stat,long4);
+  end;
+  if res==0 and QTp.Rejected==2 and QT2p.Rejected==0 then begin
+	err = CreateOKFlagMail(QTp.SerNr,Mailr,"QTVc",QTp.SalesMan);
+	CreateRecordLink(Mailr,CurrentCompany,QTp,CurrentCompany);
+	CreateRecordLink(QTp,CurrentCompany,Mailr,CurrentCompany);
+  end;
+QTVcRecordCheckFailed:;
+  QTVcRecordCheck=res;
+return;
+end;
+
+
+//RA2
+
+
+global updating  // расширение функционала - есть иннер
+function LongInt POVcRecordCheck(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  string 255 errmsg;
+  row POVc POrw;
+  integer i;
+  string 60 proj;
+  record PRVc PRr;
+  boolean testf,check;
+  Integer cnt,flcnt,err;
+  record INVc INr;
+  record TBIVVc TBIVr;
+  integer wn;
+  string 20 tstr;
+  record MailVc Mailr;
+		
+		// Edit Start ---------------------------------------------- Edit Start
+	//Friday, 8 February 2013 10:40:13
+	
+		if (POr.AcceptanceStatus==3 and PO2r.AcceptanceStatus==4) then begin
+			RecordCheckError(0,"Запис закрито",-1,"SerNr");
+			res=-1;
+			goto POVcRecordCheckFailed;
+    end;
+		
+		if (nonblank(POr.CurncyCode)) then begin
+			if (CurncyCodeRegistered(POr.CurncyCode)==false) then begin
+				RecordCheckError(1582,"",-1,"CurncyCode");      
+				res = -1; 
+				goto POVcRecordCheckFailed;
+			end;
+		end;
+		
+		
+	// Edit End ---------------------------------------------- Edit End
+	
+    POr.OrderType = 0;// Edit ************************** Monday, 22 October 2012 10:04:46
+   // POItemDelete(POr.SerNr);
+    if blank(POr.VECode) then begin
+    RecordCheckError(10895," Визначте код постачальника",-1,"VECode");
+    res=-1;
+    goto POVcRecordCheckFailed;
+    end;
+   if blank(POr.PlanShip) then begin
+    RecordCheckError(10895," Визначте дату запланованого відвантаження",-1,"PlanShip");
+    res=-1;
+    goto POVcRecordCheckFailed;
+    end;
+    if blank(POr.PayDeal) then begin
+    RecordCheckError(10895," Визначте умови сплати",-1,"PayDeal");
+    res=-1;
+    goto POVcRecordCheckFailed;
+    end;
+    if blank(POr.Reference) then begin
+    RecordCheckError(10895," Визначте посилання",-1,"Reference");
+    res=-1;
+    goto POVcRecordCheckFailed;
+    end;
+    if blank(POr.POClass) then begin
+    RecordCheckError(10895," Визначте вид замовлення",-1,"POClass");
+    res=-1;
+    goto POVcRecordCheckFailed;
+    end;
+  i=0;
+  if MatRowCnt(POr)<=0 then begin
+   RecordCheckError(10895, "Замовлення не може бути пустим. Визначте товар",0,"ArtCode");
+     res=-1;
+   goto POVcRecordCheckFailed;
+  end; 
+  while i<MatRowCnt(POr) begin
+    MatRowGet(POr,i,POrw);
+    if nonblank(POrw.ArtCode) then begin
+      if blank(POrw.Price) then begin
+      RecordCheckError(10895,"Визначте ціну одиниці",i,"Price");
+      res=-1;
+      goto POVcRecordCheckFailed;
+      end;
+      if blank(POrw.Quant) then begin
+      RecordCheckError(10895,"Визначте кількість товару",i,"Quant");
+      res=-1;
+      goto POVcRecordCheckFailed;
+      end;
+      if blank(POrw.VATCode) then begin
+      RecordCheckError(10895,"Визначте код ПДВ",i,"VATCode");
+      res=-1;
+      goto POVcRecordCheckFailed;
+      end;
+      if blank(POrw.PRCode) then begin
+      RecordCheckError(10895,"Визначте код проекту",i,"PRCode");
+      res=-1;
+      goto POVcRecordCheckFailed;
+      end;
+      proj=POrw.PRCode;
+      PRr.Code=proj;
+      if ReadFirstMain(PRr,1,true) then begin
+      end;
+      if PRr.Type==0 then begin
+			if nonblank(POrw.ArtCode) and !CheckPOItem(POrw,proj) then begin
+				RecordCheckError(10895,"Не дозволено товар для данного проекту. Перевірте бюджет проекту",i,"ArtCode");
+				res=-1;
+				goto POVcRecordCheckFailed;
+			end else begin
+            FindPOAmount(POrw,proj);
+            MatRowPut(POr,i,POrw);
+            if (PODchrsum(POr,i)) then begin
+					POSumup(POr);
+				end;
+			end;
+
+      end;
+    end;
+    i=i+1;
+    end; //while
+	testf=true;
+	if PO2r.OKFlag==1 and POr.OKFlag==0 then begin
+		testf=false;
+	end;
+	if testf then begin 
+		if stat==1 then begin
+			testf=false;
+		end;
+	end;
+	/*if POr.Closed==PO2r.Closed then begin// Edit ************************** Thursday, 4 October 2012 16:18:06
+		if PO2r.OKPersons!="" then begin
+			tstr=PO2r.OKPersons & ","; 
+		end;
+		tstr=tstr & CurrentUser;
+		if POr.OKDate<>PO2r.OKDate then begin testf=false; end;
+		if testf  then begin
+			if POr.OKPersons!=tstr then begin
+				RecordCheckError(10895,"Визначте свій логін у полі підпис",i,"OKPersons");    
+				res=-1;
+				goto POVcRecordCheckFailed;
+			end;
+		end; 
+	end;*/// Edit ************************** Thursday, 4 October 2012 16:18:03
+	if res>=0 then begin
+		if POr.OKFlag==1 then begin
+			i=0;
+			while i<MatRowCnt(POr) begin
+				MatRowGet(POr,i,POrw);
+				if nonblank(POrw.ArtCode) then begin
+					POItemCreate(POr,POrw,i);
+				end;
+				i=i+1;
+			end;
+		end;  
+	end;
+	POr.AlertFlag = SetAlertFlag(POr);
+  if(POr.AcceptanceStatus==kAcceptanceStateApproved and POr.OKFlag==0 and PO2r.OKFlag==1)then begin
+    POr.AcceptanceStatus = 1;
+  end;
+	res=inner.POVcRecordCheck(POr,PO2r,stat,long4);
+  	if POr.OKFlag==1 and (PO2r.OKFlag==0) and res>=0 then begin //Gray-X SAV 2011_12_16 - дата простановки OKFlag
+		if blankdate(POr.OKDate) then begin POr.OKDate=currentdate; end;
+		err = CreateOKFlagMail(POr.SerNr,Mailr,"POVc",POr.SalesMan);
+		CreateRecordLink(Mailr,CurrentCompany,POr,CurrentCompany);
+		CreateRecordLink(POr,CurrentCompany,Mailr,CurrentCompany);
+	end;
+	POr.OrderType=0;// Edit ************************** Monday, 22 October 2012 10:05:23
+	POVcRecordCheckFailed:;
+	POVcRecordCheck=res;
+return;
+end;
+
+//RA3
+global
+updating // расширение функционала - есть иннер
+function LongInt CUVcRecordCheck(var record CUVc CUr,record CUVc CU2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  string 255 tstr;
+  record CUVc lCUr;
+  record CCatVc CCatr;
+  record VGVc VGr;
+  record ContactRelVc ContactRelr;
+  Integer insertmode,updatemode;
+  record AccBlock ARRec;
+  record PDVc PDr;
+  record CustomerSettingBlock CSb;
+  Boolean TrHs;
+  Integer errcode;
+  record AccVc Accr;
+
+   if CUr.blockedFlag<>1 then begin
+		if blank(CUr.Code) then begin
+			res=-1;RecordCheckError(1058,"",-1,"Code");goto LCUVcRecordCheck;
+		end;
+		if CUr.CUType==1 then begin
+			if blank(CUr.CustCat) then begin
+				res=-1;RecordCheckError(1058,"",-1,"CustCat");goto LCUVcRecordCheck;
+			end;
+			if blank(CUr.PayDeal) then begin
+				res=-1;RecordCheckError(1058,"",-1,"PayDeal");goto LCUVcRecordCheck;
+			end;
+			if blank(CUr.VATCode) then begin
+				res=-1;RecordCheckError(1058,"",-1,"VATCode");goto LCUVcRecordCheck;
+			end;
+			if blank(CUr.Objects) then begin
+				res=-1;RecordCheckError(1058,"",-1,"Objects");goto LCUVcRecordCheck;
+			end;
+		end;
+		if CUr.VEType==1 then begin
+			if blank(CUr.VECat) then begin
+				res=-1;RecordCheckError(1058,"",-1,"VECat");goto LCUVcRecordCheck;
+			end;
+			if blank(CUr.VEPayDeal) then begin
+				res=-1;RecordCheckError(1058,"",-1,"VEPayDeal");goto LCUVcRecordCheck;
+			end;
+			if blank(CUr.VEVATCode) then begin
+				res=-1;RecordCheckError(1058,"",-1,"VEVATCode");goto LCUVcRecordCheck;
+			end;	
+			if blank(CUr.AccCost) then begin
+				res=-1;RecordCheckError(1058,"",-1,"AccCost");goto LCUVcRecordCheck;
+			end;	
+			if blank(CUr.VEObjects) then begin
+				res=-1;RecordCheckError(1058,"",-1,"VEObjects");goto LCUVcRecordCheck;
+			end;		
+		end;
+		if blank(CUr.Name) then begin
+			res=-1;RecordCheckError(1058,"",-1,"Name");goto LCUVcRecordCheck;
+		end;
+			if blank(CUr.InvAddr0) then begin
+			res=-1;RecordCheckError(1058,"",-1,"InvAddr0");goto LCUVcRecordCheck;
+		end;
+			if blank(CUr.Phone) then begin
+			res=-1;RecordCheckError(1058,"",-1,"Phone");goto LCUVcRecordCheck;
+		end;
+			if blank(CUr.Classification) then begin
+			res=-1;RecordCheckError(1058,"",-1,"Classification");goto LCUVcRecordCheck;
+		end;
+			if blank(CUr.DelAddr0) then begin
+			res=-1;RecordCheckError(1058,"",-1,"DelAddr0");goto LCUVcRecordCheck;
+		end;
+		if blank(CUr.SalesMan) then begin
+			res=-1;RecordCheckError(1058,"",-1,"SalesMan");goto LCUVcRecordCheck;
+		end;
+			if blank(CUr.RegNr1) then begin
+			res=-1;RecordCheckError(1058,"",-1,"RegNr1");goto LCUVcRecordCheck;
+		end;
+			if blank(CUr.RegNr2) then begin
+			res=-1;RecordCheckError(1058,"",-1,"RegNr2");goto LCUVcRecordCheck;
+		end;
+
+		if blank(CUr.BankAccount) then begin
+			res=-1;RecordCheckError(1058,"",-1,"BankAccount");goto LCUVcRecordCheck;
+		end;
+			if blank(CUr.AccOperator) then begin
+			res=-1;RecordCheckError(1058,"",-1,"AccOperator");goto LCUVcRecordCheck;
+		end;
+		if blank(CUr.VATNr) then begin
+			res=-1;RecordCheckError(1058,"",-1,"VATNr");goto LCUVcRecordCheck;
+		end;
+	end;
+	// Edit Start ---------------------------------------------- Edit Start
+	//Friday, 13 September 2013 11:10:37
+	
+	if (nonblank(CUr.VECurncyCode)) then begin
+    if (CurncyCodeRegistered(CUr.VECurncyCode)==false) then begin
+      RecordCheckError(1582,"",-1,"VECurncyCode");      
+      res = -1; 
+      goto LCUVcRecordCheck;
+    end;
+  end;
+	
+	// Edit End ---------------------------------------------- Edit End
+	
+	res = inner.CUVcRecordCheck(CUr,CU2r,stat,long4);     
+	if res>=0 then begin
+		if nonblank(CUr.ContactCode) then begin
+			lCUr.Code=CUr.ContactCode;
+			if ReadFirstMain(lCUr,1,true) then begin
+				ContactRelr.CustCode = CUr.ContactCode;
+				ContactRelr.CustName = lCUr.Name;
+				ContactRelr.ContactCode = CUr.Code;
+				ContactRelr.ContactName = CUr.Name;
+				ContactRelr.ContactMobile = CUr.Mobile;
+				ContactRelr.ContactPhone = CUr.Phone;
+				ContactRelr.ContacteMail = CUr.eMail;
+				ContactRelr.ContactTitle = CUr.Title;
+				if (RecordStore(ContactRelr,false)) then begin end;
+				res = 0;
+				UpdateBrowses("CUVc");
+				UpdateBrowses("ContactRelVc");
+			end;
+		end;
+	end;
+	if nonblank(CU2r.Code) then begin
+		CUVcHistory(CUr,CU2r);
+	end;
+	LCUVcRecordCheck:;
+  CUVcRecordCheck=res;
+  return;
+  end;
+  
+  
+global
+function LongInt CUVcRecordInIndex(record CUVc CUr,string indexname)
+BEGIN
+  LongInt res;
+  
+  res = 1;
+  if (CUr.blockedFlag!=0) then begin 
+    if (indexname=="ContactActCode") then begin res = 0; end;
+    if (indexname=="ContactActName") then begin res = 0; end;
+  end;
+  if ((CUr.blockedFlag!=0) or (CUr.CUType==0)) then begin 
+    if (indexname=="ActCode")  then begin res = 0; end;
+    if (indexname=="ActName")  then begin res = 0; end;
+    if (indexname=="ActGroup")  then begin res = 0; end; 
+    if (indexname=="ActSearchKey")  then begin res = 0; end;
+    if (indexname=="ActDepartment")  then begin res = 0; end;
+    if (indexname=="ActVATNr")  then begin res = 0; end;
+    if (indexname=="ActPhone")  then begin res = 0; end;
+    if (indexname=="ActRegNr1")  then begin res = 0; end;
+  end;
+  if ((CUr.blockedFlag!=0) or (CUr.VEType==0)) then begin 
+    if (indexname=="VEActCode")  then begin res = 0; end;
+    if (indexname=="VEActName")  then begin res = 0; end;
+    if (indexname=="VEActGroup")  then begin res = 0; end;
+    if (indexname=="VEActSearchKey")  then begin res = 0; end;
+    if (indexname=="VEActDepartment")  then begin res = 0; end;
+    if (indexname=="VEActVATNr")  then begin res = 0; end;
+    if (indexname=="VEActPhone")  then begin res = 0; end;
+    if (indexname=="VEActRegNr1")  then begin res = 0; end;
+    if (indexname=="ActBankAccount")  then begin res = 0; end;
+  end;
+  if ((CUr.blockedFlag!=0) or (CUr.GuestType==0)) then begin 
+    if (indexname=="GuestActCode")  then begin res = 0; end;
+    if (indexname=="GuestActName")  then begin res = 0; end;
+    if (indexname=="GuestActPassport")  then begin res = 0; end;
+  end;
+  if ((CUr.blockedFlag!=0) or (CUr.DealerType==0)) then begin 
+    if (indexname=="DealerActCode")  then begin res = 0; end;
+    if (indexname=="DealerActName")  then begin res = 0; end;
+    if (indexname=="DealerActSearchKey")  then begin res = 0; end;
+    if (indexname=="DealerActDepartment")  then begin res = 0; end;
+    if (indexname=="DealerActVATNr")  then begin res = 0; end;
+    if (indexname=="DealerActPhone")  then begin res = 0; end;
+    if (indexname=="DealerActRegNr1")  then begin res = 0; end;
+  end;
+  if ((CUr.blockedFlag!=0) or (CUr.EmployeeType==0)) then begin 
+    if (indexname=="EmployeeActCode")  then begin res = 0; end;
+    if (indexname=="EmployeeActName")  then begin res = 0; end;
+    if (indexname=="EmployeeActSearchKey")  then begin res = 0; end;
+    if (indexname=="EmployeeActDepartment")  then begin res = 0; end;
+    if (indexname=="EmployeeActPhone")  then begin res = 0; end;
+  end;
+  
+  
+  if (CUr.blockedFlag!=0) or (CUr.VECat<>"EMPL") or blank(CUr.eMail) then begin 
+	
+	if (indexname=="EmplCode")  then begin res = 0; end;
+	if (indexname=="EmplSearchKey")  then begin res = 0; end;
+	if (indexname=="EmplName")  then begin res = 0; end;
+	
+  end;
+  	
+  CUVcRecordInIndex = res;
+  RETURN;
+END;
+  
+//RA4
+global // расширение функционала - есть иннер
+updating function LongInt VIVcRecordCheck(record VIVc VIp,record VIVc VI2p,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  boolean TrHr,transf;
+  record VIVc VIr;
+  row VIVc VIrw;
+  Integer i,mtrw,pos,insertmode,updatemode;
+  string 10 curus,tstr;
+  string 60 cursign;
+  string 1 ch;
+  record AccVc Accr;
+  string 200 newobjstr;
+  record ObjVc Objr;
+  
+  res = 0;
+	insertmode = 1;//Rs_insert
+  updatemode = 2;//Rs_update
+	if nonblank(VIp.InvoiceNr) then begin
+		if OnlySpaceBars(VIp.InvoiceNr) then begin
+			res=-1;
+			RecordCheckError(10895," Не допустимі тільки пропуски в № накл. пост. ",-1,"InvoiceNr");        
+			goto LVIVcRecordCheck;
+		end;
+	end;
+   if nonblank(VIp.InvoiceNr) then begin
+      TrHr=true;
+      VIr.InvoiceNr=VIp.InvoiceNr;
+		while LoopKey("InvoiceNr",VIr,1,TrHr) begin
+        if VIr.InvoiceNr!=VIp.InvoiceNr then begin
+				TrHr=false;
+			end else begin
+				
+				if VIr.SerNr!=VIp.SerNr and VIr.VECode==VIp.VECode then begin
+					res=-1;
+					RecordCheckError(10895," Акт./накл. постачальника вже зареєстрована в системі ",-1,"InvoiceNr");        
+					goto LVIVcRecordCheck;
+				end;
+			end;
+		end;
+	end else begin
+		res=-1; //zz
+		RecordCheckError(1058,"",-1,"InvoiceNr");        
+		goto LVIVcRecordCheck;	
+	end;
+	if VIp.OKFlag==0 and VI2p.OKFlag==1 then begin
+		 VIp.PrelBook=0;
+	end;
+  // Edit Start ---------------------------------------------- Edit Start
+	//Wednesday, 4 April 2018 15:23:24
+	
+  newobjstr = "";// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 April 2018 15:23:18
+  mtrw = matrowcnt(VIp);
+  For(i=0;i<mtrw;i=i+1) begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 April 2018 15:16:46
+	  matrowget(VIp,i,VIrw);
+	  	tstr = "";
+			newobjstr = "";
+	  	if(VIrw.stp==1)then begin
+	  		if(nonblank(VIrw.AccNumber))then begin
+	  			Accr.AccNumber = VIrw.AccNumber;
+					ReadFirstKey("AccNumber",Accr,1,true);
+					if(Accr.AccType==0 or Accr.AccType==1 or Accr.AccType==2)then begin
+						pos = 0;
+						if(nonblank(VIrw.Objects))then begin
+							ExtractObj(VIrw.Objects,pos,tstr);
+							while(nonblank(tstr))begin
+								if(nonblank(tstr))then begin
+									Objr.Code = tstr;
+									if(readfirstmain(Objr,1,true))then begin
+										if(Objr.OTCode=="CUST" or Objr.OTCode=="SUPPL" or Objr.OTCode=="CLIEN")then begin
+											if(blank(newobjstr))then begin
+												newobjstr = tstr;
+											end else begin
+												newobjstr = newobjstr & "," & tstr;
+											end;
+										end;
+									end;
+								end;
+								ExtractObj(VIrw.Objects,pos,tstr);
+							end;
+						end;
+					end;
+	  		end;
+	  	end;
+	  	if(nonblank(newobjstr))then begin
+	  		VIrw.Objects = newobjstr;
+	  	end;
+	  matrowput(VIp,i,VIrw);
+	end;  
+	
+	transf = false;
+  if (VIp.OKFlag==1) then begin
+    if (stat==insertmode) then begin transf = true; end;
+    if (stat==updatemode) then begin
+      if (VI2p.OKFlag==0) then begin transf = true; end;
+    end;
+  end;
+	
+	if(transf)then begin
+		if(blank(VIp.DocumentType))then begin
+			res=-1;
+			RecordCheckError(1058,"",-1,"DocumentType");        
+			goto LVIVcRecordCheck;
+		end;
+	end;
+	if(nonblank(VIp.DocumentType))then begin
+		if(ChechDocType(VIp.DocumentType)==false)then begin
+			res=-1;
+			RecordCheckError(1290,"",-1,"DocumentType");        
+			goto LVIVcRecordCheck;
+		end;
+	end;
+  
+	// Edit End ---------------------------------------------- Edit End
+	
+	if res!=-1 then begin
+		res=inner.VIVcRecordCheck(VIp,VI2p,stat,long4);
+	end;
+  LVIVcRecordCheck:;
+  VIVcRecordCheck = res;
+return;
+end;
+
+//RA5  
+
+global // расширение функционала - есть иннер
+updating function LongInt PRVcRecordCheck(var record PRVc PRr,record PRVc PR2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  Integer insertmode,updatemode;
+  record ProjectBlock PRRec;
+  string 255 tstr;
+  record PRVc lPRr;
+  record PRVc PRr1;
+  record PRVc PRr2;
+  string 20 codd,Identcodd;
+  row PRVc PRrw;
+  record CUVc CUr;
+  Integer rwcnt,i,errstr,previostype,cnt;
+  LongInt prnr;
+  Boolean gentrans,foundf,testf;
+  record UserVc Userr;
+  record SalesGroupVc SalesGroupr;
+  
+  SetLangMode(LangUkrainian,"UKR",0);
+  res=inner.PRVcRecordCheck(PRr,PR2r,stat,long4);
+  if res!=-1 then begin
+  if blank(PRr.StartDate)  then begin
+    res=-1;
+    RecordCheckError(10895,"Вкажіть дату початку ",-1,"StartDate");        
+    goto LPRVcRecordCheck;
+  end;
+  
+  if blank(PRr.EndDate)  then begin
+    res=-1;
+    RecordCheckError(10895,"Вкажіть дату закінчення ",-1,"EndDate");        
+    goto LPRVcRecordCheck;
+  end;
+  
+  if nonblank(PRr.MotherCode) then begin
+  PRr1.Code=PRr.MotherCode;
+    if ReadFirstMain(PRr1,1,true)==false then begin
+      RecordCheckError(10895," Код Старшого проекту " & PRr.MotherCode & " не знайдено в базі.",-1,"MotherCode");        
+    PRr.MotherCode=PR2r.MotherCode;
+    res=-1;
+    goto LPRVcRecordCheck;
+    end;  
+  end;
+  
+  if PRr.Code==PRr.MotherCode then begin
+  PRr.MotherCode=PR2r.MotherCode;
+  RecordCheckError(10895," Код проекту і Старший проект не можуть бути однаковими ",-1,"MotherCode");        
+  res=-1;
+  goto LPRVcRecordCheck;
+  end;
+  
+  if PRr.ProjType==0 then begin
+  PRr1.Code=PRr.MotherCode;
+    if ReadFirstMain(PRr1,1,true) then begin
+      if PRr1.Ident==PRr.Ident and nonblank(PRr1.Ident) then begin
+      PRr.MotherCode="";
+      RecordCheckError(10895," Проект " & PRr1.Code & " заборонено використовувати як старший для даного проекту",-1,"MotherCode");        
+      res=-1;
+      goto LPRVcRecordCheck;
+      end;
+    end;
+  end;
+  if PRr.ProjType==1 then begin
+  testf=true;
+  PRr1.Code=PRr.MotherCode;
+  if ReadFirstMain(PRr1,1,true) then begin
+    if PRr1.Ident==PRr.Ident then begin
+    WalkInSubProjects(PRr.Code,"Nothing",2,PRr.MotherCode,testf);
+      if testf==false then begin
+        RecordCheckError(10895," Проект " & PRr.MotherCode & " заборонено використовувати як старший для даного проекту",-1,"MotherCode");        
+        PRr.MotherCode=PR2r.MotherCode;
+        res=-1;
+      goto LPRVcRecordCheck;
+      end;
+  end;
+  end;
+  end;
+  //  <-------1  Update ProjType and Ident  from here
+  //  <--2 update previous tree   from here
+  if nonblank(PR2r.MotherCode) then begin
+    PRr1.Code=PR2r.MotherCode;
+    if ReadFirstMain(PRr1,1,true) then begin
+    previostype=PRr1.ProjType;
+    cnt=0;
+    PRr2.MotherCode=PRr1.Code;
+    foundf=true;
+      while (LoopKey("MotherCode",PRr2,1,foundf)) begin
+        if (PRr2.MotherCode<>PRr1.Code) or cnt==2 then begin 
+        foundf = false; 
+        end else begin
+          cnt=cnt+1;
+          end;
+      end;
+      if cnt<2 then begin
+        if previostype==1 then begin
+        PRr1.ProjType=2;
+        end;
+        if previostype==0 then begin
+        PRr1.ProjType=3;
+        PRr1.Ident="";
+        end;
+      end;
+        if (RecordStore(PRr1,true)) then begin end;
+    end;  
+  end;
+  //  <--2 update previous tree    till here
+  
+  //  <--3 find ProjType at the moment  from here
+  if blank(PRr.MotherCode) then begin
+  PRr1.MotherCode=PRr.Code;
+    if ReadFirstKey("MotherCode",PRr1,1,true) then begin
+    PRr.ProjType=0;
+    PRr.Ident=PRr.Code;
+    end else begin
+      PRr.ProjType=3;
+      PRr.Ident="";
+    end;
+  end else begin
+  PRr1.MotherCode=PRr.Code;
+    if ReadFirstKey("MotherCode",PRr1,1,true) then begin
+    PRr.ProjType=1;
+    end else begin
+      PRr.ProjType=2;
+    end;
+  end;
+  //  <--3 find ProjType at the moment  till here
+  
+  //  <--4 find Mother Ident and Update new tree  from here
+	if PRr.ProjType==1 or PRr.ProjType==2 then begin
+		codd=PRr.MotherCode;
+		lable3:;
+		PRr1.Code=codd;
+		if ReadFirstMain(PRr1,1,true) then begin
+			if nonblank(PRr1.MotherCode) then begin 
+				codd=PRr1.MotherCode;
+				PRr1.ProjType=1;
+				if (RecordStore(PRr1,true)) then begin end;
+				goto lable3;
+			end else begin
+				Identcodd=PRr1.Code;
+				PRr1.Ident=PRr1.Code;
+				PRr1.ProjType=0;
+				if (RecordStore(PRr1,true)) then begin end;
+			end;
+		end;
+  end;  
+  
+  if PRr.ProjType==0 then begin
+	Identcodd=PRr.Code;
+  end;  
+  if PRr.ProjType!=3 then begin
+  //if 
+	testf=true;
+	WalkInSubProjects(PRr.Code,Identcodd,1,PRr.Code,testf);
+	//end;
+	testf=true;
+	WalkInSubProjects(PRr.Code,Identcodd,1,"Nothing",testf);
+  end;
+  //  <--4 find Mother Ident and Update new tree  till here
+  
+  //  <-------1  Update ProjType and Ident  till here    
+
+  end;
+LPRVcRecordCheck:;
+  PRVcRecordCheck = res;
+  RETURN;
+END;
+
+//RA6
+global
+updating // расширение функционала - есть иннер
+function LongInt TSVcRecordCheck(var record TSVc TSr,record TSVc TS2r,LongInt stat,LongInt long4)
+BEGIN
+  Integer i,mtrw;
+  LongInt res;
+  row TSVc TSrw;
+  
+ res = 0;
+  SetLangMode(LangUkrainian,"UKR",0);
+
+	if blank(TSr.UserCode) then begin
+		res=-1;
+		RecordCheckError(10895,"Не може бути пустим ",-1,"UserCode");        
+		goto LTSVcRecordCheck;
+	end; 
+	i=0;
+	mtrw = matrowcnt(TSr);
+  for(i=0;i<mtrw;i=i+1)begin
+		MatRowGet(TSr,i,TSrw);
+		if (TSrw.stp==1) then begin
+			TSrw.EMCode=TSr.UserCode;
+			if (GetMonth(TSrw.date)<>GetMonth(TSr.RegDate)) then begin
+				res=-1;
+				RecordCheckError(10895,"Вкажіть поточний місяць ",i,"date");      
+				goto LTSVcRecordCheck;
+			end;
+			if (GetYear(TSrw.date)<>GetYear(TSr.RegDate)) then begin
+				res=-1;
+				RecordCheckError(10895,"Вкажіть поточний рік ",i,"date");      
+				goto LTSVcRecordCheck;
+			end;
+			MatRowPut(TSr,i,TSrw);
+		end;
+  end;
+
+	res=inner.TSVcRecordCheck(TSr,TS2r,stat,long4);
+	LTSVcRecordCheck:;
+	
+	TSVcRecordCheck = res;
+
+	return;
+END;
+
+
+global // расширение функционала - есть иннер
+function LongInt TSVcRecordDefaults(var record TSVc TSr,record TSVc TS2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  
+	res=inner.TSVcRecordDefaults(TSr,TS2r,stat,long4);
+   TSr.Stage=1; // 62 
+   TSr.UserCode = currentuser;
+   TSVcRecordDefaults = res; 
+  
+  RETURN;
+END;
+
+global // расширение функционала - есть иннер
+function LongInt QTVcRecordDefaults(var record QTVc QTr,record QTVc QT2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+
+  res = inner.QTVcRecordDefaults(QTr,QT2r,long3,long4);
+  QTr.Stage=0; // 62 
+  QTVcRecordDefaults = res;  
+  RETURN;
+END;
+
+// Edit Start ---------------------------------------------- Edit Start
+	//Monday, 8 October 2012 12:10:22
+	
+global // расширение функционала - есть иннер
+updating function LongInt ActVcRecordImportAfter(var record ActVc Actr,record ActVc Act2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  Time blankt;
+
+  res =  inner.ActVcRecordImportAfter(Actr,Act2r,stat,long4);
+  
+  Actr.Stage = 1;
+  Actr.TRSerNr = blankval;
+  recordStore(Actr,true);
+  
+  ActVcRecordImportAfter = res; 
+  RETURN;
+END;
+
+global // Edit ************************** Thursday, 25 October 2012 11:12:32
+function LongInt RecordHistoryVcRecordImport(var record RecordHistoryVc RHistr,record RecordHistoryVc RHist2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  
+  res = 0;
+  if(RHistr.SerNr<=0)then begin
+    RHistr.SerNr = NextSerNr("RecordHistoryVc",currentdate,-1,false,"");
+  end;
+  RecordHistoryVcRecordImport = res; 
+  RETURN;
+END;// Edit ************************** Thursday, 25 October 2012 11:12:33
+
+global // расширение функционала - есть иннер
+updating function LongInt CUVcRecordImportAfter(var record CUVc CUr,record CUVc CU2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  Time blankt;
+
+  res =  inner.CUVcRecordImportAfter(CUr,CU2r,stat,long4);
+  
+  if(CUr.CustCat=="EXEC")then begin
+    CUr.SalesGroup = "EXEC";
+    recordStore(CUr,true);
+  end;
+  
+  CUVcRecordImportAfter = res; 
+  RETURN;
+END;
+	
+
+
+global // расширение функционала - есть иннер
+function LongInt ActVcRecordDefaults(var record ActVc Actr,record ActVc Act2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  Time blankt;
+
+  res =  inner.ActVcRecordDefaults(Actr,Act2r,stat,long4);
+  Actr.Stage = 1;
+
+  ActVcRecordDefaults = res; 
+  RETURN;
+END;
+
+global  //RA7 // расширение функционала - есть иннер
+updating function LongInt OPVcRecordCheck(record OPVc OPp,record OPVc OP2p,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  row OPVc OPrw;
+  Integer i;
+  
+  SetLangMode(LangUkrainian,"UKR",0);
+  
+  res=0;
+    for (i=0; i<MatRowCnt(OPp); i=i+1) begin
+    MatRowGet(OPp,i,OPrw);
+      if nonblank(OPrw.VECode) then begin
+        if OPrw.VECode!=OPrw.Objects and CurrentUser!="FD" then begin
+          res=-1;
+          RecordCheckError(10895,"Об'єкт має співпадати з кодом постачальника. Рядок " & i+1,i,"Objects");
+          goto LOPVcRecordCheck;
+        end;
+      end else begin
+        res=-1;
+        RecordCheckError(10895,"Поле постачальник не може бути пустим. Рядок " & i+1,i,"VECode");      
+        goto LOPVcRecordCheck;
+      end;
+      if blank(OPrw.VATCode) and CurrentUser!="FD" then begin
+        res=-1;
+        RecordCheckError(10895,"Код ПДВ не може бути пустим. Рядок " & i+1,i,"VATCode");      
+        goto LOPVcRecordCheck;
+      end;
+    end;
+  LOPVcRecordCheck:;
+
+  if res!=-1 then begin
+
+  res=inner.OPVcRecordCheck(OPp,OP2p,stat,long4);
+  end;
+  
+  OPVcRecordCheck = res;
+  RETURN;
+END;
+
+global  //RA8 // расширение функционала - есть иннер
+updating function LongInt IPVcRecordCheck(var record IPVc IPp,record IPVc IP2p,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;  
+  row IPVc IPrw;
+  Integer i;
+  
+  SetLangMode(LangUkrainian,"UKR",0);
+  res=0;
+  
+    for (i=0; i<MatRowCnt(IPp); i=i+1) begin
+    MatRowGet(IPp,i,IPrw);
+      if nonblank(IPrw.CustCode) then begin
+        if IPrw.CustCode!=IPrw.Objects and CurrentUser!="FD" then begin
+          res=-1;
+          RecordCheckError(10895,"Об'єкт має співпадати з кодом клієнта. Рядок " & i+1,i,"Objects");
+          goto LIPVcRecordCheck;
+        end;
+      end else begin
+        res=-1;
+        RecordCheckError(10895,"Поле клієнт не може бути пустим. Рядок " & i+1,i,"CustCode");      
+        goto LIPVcRecordCheck;
+      end;
+      if blank(IPrw.VATCode) and CurrentUser!="FD" then begin
+        res=-1;
+        RecordCheckError(10895,"Код ПДВ не може бути пустим. Рядок " & i+1,i,"VATCode");      
+        goto LIPVcRecordCheck;
+      end;
+    end;
+LIPVcRecordCheck:;
+  if res!=-1 then begin
+  res=inner.IPVcRecordCheck(IPp,IP2p,stat,long4);
+  end;
+
+  IPVcRecordCheck = res;
+  RETURN;
+END;
+
+global // расширение функционала - есть иннер
+updating function LongInt FEIVVcRecordCheck(record FEIVVc FEIVp,record FEIVVc FEIV2p,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  row FEIVVc FEIVrw;
+  Integer i;
+  
+	res = 0;
+   for (i=0; i<MatRowCnt(FEIVp); i=i+1) begin
+      MatRowGet(FEIVp,i,FEIVrw);
+      if FEIVrw.stp==1 then begin
+        if len(FEIVrw.Spec)>30 then begin
+        res=-1;
+        RecordCheckError(10895,"Найменування має бути менше 30 символів. Рядок " & i+1,i,"Spec");
+        goto LFEIVVcRecordCheck;
+        end;
+      end;
+   end;
+
+	if res!=-1 then begin
+		res=inner.FEIVVcRecordCheck(FEIVp,FEIV2p,stat,long4);
+	end;
+	LFEIVVcRecordCheck:;
+	FEIVVcRecordCheck = res;
+RETURN;
+END;  
+
+//RA9
+global // расширение функционала - есть иннер
+function LongInt TSVcRecordDuplicate(var record TSVc TSr,record TSVc TS2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  Integer i,rwcnt;
+  
+  res=inner.TSVcRecordDuplicate(TSr,TS2r,stat,long4);
+  TSr.Authority="";
+  TSr.SalesMan="";
+  TSr.UserCode = currentuser;
+  TSVcRecordDuplicate = res; 
+  RETURN;
+END;
+
+//RA10
+global // расширение функционала - есть иннер
+function LongInt QTVcRecordDuplicate(var record QTVc QTr,record QTVc QT2r,LongInt long3,LongInt long4)
+BEGIN
+  LongInt res;
+  
+  res=inner.QTVcRecordDuplicate(QTr,QT2r,long3,long4);
+  QTr.Authority="";
+  QTVcRecordDuplicate = res; 
+  RETURN;
+END;
+
+//======= вписывание кода проекта при сохранении акта-накладной
+global // расширение функционала - есть иннер
+updating function LongInt IVVcRecordUpdateAfter(var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
+BEGIN
+  LongInt res;
+  val LocOKNr;
+  record AccBlock ARAccRec;
+  Integer i,rwcnt;
+  row IVVc IVrw;
+  	record ARVc ARr,OldArr;
+  res = inner.IVVcRecordUpdateAfter(IVr,IV2r,long3,long4);
+  if (IVr.OKFlag!=0)  and (res==-1) then begin
+	Arr.InvoiceNr = IVr.SerNr;
+	if (readfirstmain(ARr,1,true)) then begin
+		if (Arr.PRCode <> IVr.PRCode) then begin
+			RecordCopy(OldArr,Arr);
+			Arr.PRCode = IVr.PRCode;
+			if (RecordUpdate(oldARr,ARr,false)==0) then begin end;
+		end;
+	end;
+  end;
+  IVVcRecordUpdateAfter = res; 
+  RETURN;
+END;
+
+//======= вписывание кода проекта при сохранении акта-накладной
+global // расширение функционала - есть иннер
+updating function LongInt IVVcRecordSaveAfter(var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
+BEGIN
+  LongInt res;
+  val LocOKNr;
+  record AccBlock ARAccRec;
+  Integer i,rwcnt;
+  row IVVc IVrw;
+  	record ARVc ARr,OldArr;
+  res = inner.IVVcRecordSaveAfter(IVr,IV2r,long3,long4);
+  if (IVr.OKFlag!=0)  and (res==-1) then begin
+	Arr.InvoiceNr = IVr.SerNr;
+	if (readfirstmain(ARr,1,true)) then begin
+		if (Arr.PRCode <> IVr.PRCode) then begin
+			RecordCopy(OldArr,Arr);
+			Arr.PRCode = IVr.PRCode;
+			if (RecordUpdate(oldARr,ARr,false)==0) then begin end;
+		end;
+	end;
+  end;
+  IVVcRecordSaveAfter = res; 
+  RETURN;
+END;
+
+
+//RA11  проверка на наличие подтверженных коммерчески пропозиций при сохраненни бюджета проекта
+global // расширение функционала - есть иннер
+function LongInt TBBUVcRecordCheck(var record TBBUVc TBBUr,record TBBUVc TBBU2r,LongInt stat,LongInt long4) // 6006 SAV 2010_09_03
+BEGIN
+  LongInt res;
+  record PRVc PRr;
+  record QTVc QTr;
+	boolean trhs,testf;
+
+	res = -1;
+	QTr.PRCode = TBBUr.PRCode;
+	trhs = true;
+	while (loopkey("PRCode",QTr,1,trhs)) begin
+		if (QTr.PRCode == TBBUr.PRCode) then begin
+			testf = true;
+			if (QTr.Rejected == 2) then begin
+				res = 0;
+				trhs = false;
+			end;
+		end else begin
+			trhs = false;
+		end;
+	end;
+  
+	 if testf==false then begin
+		RecordCheckError(31005,"",-1,"PRCode"); 
+		goto L99;
+	 end;
+	if (res==-1) then begin
+		 RecordCheckError(31003,"",-1,"PRCode"); 
+		 goto L99;
+	end;
+	if (res==0) then begin
+		res = inner.TBBUVcRecordCheck(TBBUr,TBBU2r,stat,long4);
+	end;
+	L99:;
+	TBBUVcRecordCheck = res;
+RETURN;
+END;
+
+global
+function LongInt INVcRecordInIndex(record INVc INr,string indexname)
+BEGIN
+  LongInt res;
+  
+  res = 1;
+  if (INr.Terminated!=0) or (INr.NotForSales!=0) then begin 
+    if (indexname=="ActCode") then begin res = 0; end;
+    if (indexname=="ActCodeTS") then begin res = 0; end;  // was added
+    if (indexname=="ActName") then begin res = 0; end;
+    if (indexname=="ActGroup") then begin res = 0; end;
+	 if (indexname=="ActAlternativeCode") then begin res = 0; end;
+    if (indexname=="DICode") then begin res = 0; end;
+    if (indexname=="DIName") then begin res = 0; end;
+    if (indexname=="DIGroup") then begin res = 0; end;
+	 if (indexname=="TSActCode") then begin res = 0; end;
+    if (indexname=="TSActName") then begin res = 0; end;
+    if (indexname=="TSAlternativeCode") then begin res = 0; end;
+  end;
+
+  if (INr.Group<>"TS") then begin 
+    if (indexname=="TSActCode") then begin res = 0; end;
+    if (indexname=="TSActName") then begin res = 0; end;
+    if (indexname=="TSAlternativeCode") then begin res = 0; end;
+  end;
+  INVcRecordInIndex = res;
+  RETURN;
+END;
+
+global
+updating function LongInt PRVcRecordRemoveTest(var record PRVc PRr,record PRVc PR2r,LongInt long3,LongInt long4)
+BEGIN
+  LongInt res;
+  record TBIVVc TBIVr;
+  record PRVc PR1r;
+  record PRVc chPRr;
+  Boolean foundf,TrHr;
+    record PRVc daughterPRr;
+  
+  res = 1;
+  if PRr.ProjType==3 or PRr.ProjType==2 then begin
+  TBIVr.PRCode = PRr.Code; // base
+    if (ReadFirstMain(TBIVr,1,true)) then begin // base
+      if (long3>0) then begin// base
+        MessageBox(1560,"");// base
+      end;// base
+      res = 0; // base
+    end else begin
+      if PRr.ProjType==2 then begin
+        chPRr.MotherCode=PRr.MotherCode;
+        foundf=false;
+        TrHr=true;
+        while LoopKey("MotherCode",chPRr,1,TrHr) begin
+          if chPRr.MotherCode!=PRr.MotherCode then begin
+          TrHr=false;
+          end;
+          if TrHr then begin
+            if chPRr.Code!=PRr.Code then begin
+            foundf=true;
+            TrHr=false;
+            end;
+          end;
+        end;
+        if foundf==false then begin
+        PR1r.Code=PRr.MotherCode;
+          if ReadFirstMain(PR1r,1,true) then begin
+            if PR1r.ProjType==1 then begin
+            PR1r.ProjType=2;
+              if (RecordStore(PR1r,true)) then begin end;
+            end;
+            if PR1r.ProjType==0 then begin
+            PR1r.ProjType=3;
+            PR1r.Ident="";
+              if (RecordStore(PR1r,true)) then begin end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end else begin
+    MessageBox(1560,"");
+    res = 0;
+  end;
+  daughterPRr.MotherCode = PRr.Code;
+  if (ReadFirstKey("MotherCode",daughterPRr,1,true)) then begin
+    if (long3>0) then begin
+      MessageBox(1560," " & USetStr(22086));
+    end;
+    res = 0;
+  end;
+  PRVcRecordRemoveTest = res;
+  RETURN;
+END;
+
+
+global
+function LongInt TSVcRecordInIndex(record TSVc TSr,string indexname)
+BEGIN
+  LongInt res;
+  
+  res = 1;
+  if (TSr.OKFlag!=0) then begin 
+    if (indexname=="ActSerNr")  then begin res = 0; end;
+    if (indexname=="ActOKFlag")  then begin res = 0; end;
+    if (indexname=="ActRegDate")  then begin res = 0; end;
+    if (indexname=="ActComment")  then begin res = 0; end;
+  end;
+  TSVcRecordInIndex = res;
+  RETURN;
+END;
+
+
+global
+function LongInt ContractsVcRecordInIndex(record ContractsVc CTr,string indexname) // SAV Gray-5 2011_01_03
+begin
+  LongInt res;
+  
+  res = 1;
+  if (CTr.Closed==1) then begin 
+    if (indexname=="ActCode")  then begin res = 0; end;
+    if (indexname=="ActTransDate")  then begin res = 0; end;
+    if (indexname=="ActCustCode")  then begin res = 0; end;
+    if (indexname=="ActOKFlag")  then begin res = 0; end;
+    if (indexname=="ActSearchKey")  then begin res = 0; end;
+  end;
+  
+  ContractsVcRecordInIndex = res;
+  return;
+end;
+
+global
+function LongInt ContractsVcRecordCheck(var record ContractsVc CTp,record ContractsVc CT2p,LongInt stat,LongInt long4)// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 15:22:14
+begin
+  LongInt res;
+  
+  res = 0;
+  
+  if(CTp.SerNr<0)then begin
+  	CTp.SerNr = NextSerNr("ContractsVc",CurrentDate,-1,false,"");
+  end;
+  
+  ContractsVcRecordCheck = res;
+  return;
+end;
+
+global
+function LongInt ContractsVcRecordDuplicate(var record ContractsVc CTp,record ContractsVc CT2p,LongInt stat,LongInt long4)// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 15:22:14
+begin
+  LongInt res;
+  
+  
+  CTp.SerNr = -1;
+  
+  ContractsVcRecordDuplicate = res;
+  return;
+end;
+
+
+global
+updating function LongInt VATIVVcRecordCheck(var record VATIVVc VATIVp,record VATIVVc VATIV2p,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  record VATIVVc OldVIr,OldVir2;
+  boolean trhs;
+  integer lastnum;
+  
+  res =0;
+	OldVir2.TransDate = "01/" & getmonth(VATIVp.TransDate) & "/" & GetYear(VATIVp.TransDate);
+	trhs = true;
+	while (loopkey("TransDate",OldVir2,1,trhs)) begin
+		if (getmonth(OldVir2.TransDate)<>getmonth(VATIVp.TransDate)) then begin trhs = false; end;
+		if (OldVir2.SerNr<>VATIVp.SerNr) and trhs then begin
+			if (VATIVp.VEPN==OldVir2.VEPN) and (VATIVp.VEPN<>-1) then begin
+				res = -1;
+				RecordCheckError(31012,"",-1,"VEPN");  
+				goto ourVATIVVcRecordCheck;
+			end;
+		end;
+	end;		
+	if blank(VATIVp.Contract) then begin VATIVp.Contract="-"; end;
+	//if blankdate(VATIVp.ContractDate) then begin VATIVp.ContractDate = VATIVp.TransDate;end;
+	//if blank(VATIVp.ContractType) then begin VATIVp.ContractType="Договір купівлі-продажу";end;
+	if blank(VATIVp.ContractPayDeal) then begin VATIVp.ContractPayDeal="Оплата з поточного рахунку";end;
+	res = inner.VATIVVcRecordCheck(VATIVp,VATIV2p,stat,long4);
+  // после рекордчека - т.е. только в том случае если прошли все проверки
+  if(VATIVp.VEPN<1)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 17 May 2018 13:58:41
+		if res==0 and VATIVp.OKFlag==1 and VATIV2p.OKFlag<>1 and VATIVp.VEPN==-1 then begin
+			OldVIr.TransDate = "01/" & getmonth(VATIVp.TransDate) & "/" & GetYear(VATIVp.TransDate);
+			trhs = true;
+			while (loopkey("TransDate",OldVIr,1,trhs)) begin
+				if (getmonth(OldVIr.TransDate)<>getmonth(VATIVp.TransDate)) then begin trhs = false; end;
+				if (OldVIr.SerNr<>VATIVp.SerNr) then begin
+					if lastnum < OldVIr.VEPN then begin lastnum = OldVIr.VEPN; end;
+				end;
+			end;
+			VATIVp.VEPN =lastnum+1;
+		end;
+  end;
+  ourVATIVVcRecordCheck:;
+  VATIVVcRecordCheck = res;
+  RETURN;
+END;
+
+global
+function LongInt  VATIVVcRecordDuplicate(var record  VATIVVc  VATIVr,record  VATIVVc  VATIV2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  
+   VATIVr.VEPN = -1;
+  res = inner. VATIVVcRecordDuplicate( VATIVr, VATIV2r,long3,long4);
+  
+   VATIVVcRecordDuplicate = res;  
+  RETURN;
+END;
+
+
+global updating procedure GetLinksIn()
+begin
+	record ContractsVc CTr;
+	record Attach2Vc Atr;
+	string 255 cust,code,attnr;
+	record RLinkVc RLr;
+	boolean TrHs;
+	
+	while (TestEOF()==false) begin
+		
+		cust = ImportField;
+		code = ImportField;
+		attnr = ImportField;
+		
+		CTr.CustCode = cust;
+		CTr.Code = code;
+		if(readfirstkey("CodeCustCode",CTr,2,true))then begin
+			Atr.SerNr = Stringtolongint(attnr); 
+			if(readfirstmain(Atr,1,true))then begin
+				RLr.ToRecidStr = BuildRecordIdStr(Atr,currentcompany);
+				TrHs = true;
+				if(readfirstkey("ToRecKey",RLr,1,TrHs))then begin
+					//if(RLr.ToRecidStr!=BuildRecordIdStr(Atr,currentcompany))then begin TrHs = false; end;
+					
+					if(TrHs)then begin
+						logtext(0,cust & "   " & RLr.Comment);
+						RLr.FromRecidStr = BuildRecordIdStr(CTr,currentcompany);
+						recordstore(RLr,true);
+					end;
+					//logtext(0,RLr.Comment);
+				end;
+				resetloop(RLr);
+				//createrecordlink(CTr,currentcompany,Atr,currentcompany);
+				//createrecordlink(Atr,currentcompany,CTr,currentcompany);
+			end;
+		end;
+		
+		NextImportLine(true);
+	end;
+
+return;
+end;
+
+
+
+global procedure CountSBProd(array string list,var integer acnt)
+begin
+	record PRVc PRr;
+	boolean TrHs;
+	string 255 curnrstr;
+	
+	PRr.PRClass = "SB";
+	TrHs = true;
+	while(loopkey("PRClass",PRr,1,TrHs))begin
+		if(PRr.PRClass=="SB")then begin
+			curnrstr = "";
+			M4PadString(PRr.Code,40," ",false,curnrstr);
+			list[acnt] = curnrstr & "  " & PRr.PRClass & "  " & PRr.Name;
+			acnt = acnt + 1;
+		end else begin
+			TrHs = false;
+		end;
+	end;
+
+return;
+end;

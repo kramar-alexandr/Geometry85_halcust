@@ -1,0 +1,76 @@
+external procedure SaveHistory(string, string, string, string, string);
+
+global updating
+Procedure CUVcHistory(record CUVc CUr,record CUVc CU2r)
+begin
+
+if Cur.Code<>CU2r.Code then begin  SaveHistory("CUVc",Cur.Code,"Code",CU2r.Code,CUr.Code); end;
+if Cur.CustCat<>CU2r.CustCat then begin  SaveHistory("CUVc",Cur.Code,"CustCat",CU2r.CustCat,CUr.CustCat); end;
+if Cur.PayDeal<>CU2r.PayDeal then begin  SaveHistory("CUVc",Cur.Code,"PayDeal",CU2r.PayDeal,CUr.PayDeal); end;
+if Cur.VATCode<>CU2r.VATCode then begin  SaveHistory("CUVc",Cur.Code,"VATCode",CU2r.VATCode,CUr.VATCode); end;
+if Cur.Objects<>CU2r.Objects then begin  SaveHistory("CUVc",Cur.Code,"Objects",CU2r.Objects,CUr.Objects); end;
+if Cur.VECat<>CU2r.VECat then begin  SaveHistory("CUVc",Cur.Code,"VECat",CU2r.VECat,CUr.VECat); end;
+if Cur.VEPayDeal<>CU2r.VEPayDeal then begin  SaveHistory("CUVc",Cur.Code,"VEPayDeal",CU2r.VEPayDeal,CUr.VEPayDeal); end;
+if Cur.VEVATCode<>CU2r.VEVATCode then begin  SaveHistory("CUVc",Cur.Code,"VEVATCode",CU2r.VEVATCode,CUr.VEVATCode); end;
+if Cur.AccCost<>CU2r.AccCost then begin  SaveHistory("CUVc",Cur.Code,"AccCost",CU2r.AccCost,CUr.AccCost); end;
+if Cur.VEObjects<>CU2r.VEObjects then begin  SaveHistory("CUVc",Cur.Code,"VEObjects",CU2r.VEObjects,CUr.VEObjects); end;
+if Cur.Name<>CU2r.Name then begin  SaveHistory("CUVc",Cur.Code,"Name",CU2r.Name,CUr.Name); end;
+if Cur.InvAddr0<>CU2r.InvAddr0 then begin  SaveHistory("CUVc",Cur.Code,"InvAddr0",CU2r.InvAddr0,CUr.InvAddr0); end;
+if Cur.Phone<>CU2r.Phone then begin  SaveHistory("CUVc",Cur.Code,"Phone",CU2r.Phone,CUr.Phone); end;
+if Cur.Classification<>CU2r.Classification then begin  SaveHistory("CUVc",Cur.Code,"Classification",CU2r.Classification,CUr.Classification); end;
+if Cur.DelAddr0<>CU2r.DelAddr0 then begin  SaveHistory("CUVc",Cur.Code,"DelAddr0",CU2r.DelAddr0,CUr.DelAddr0); end;
+if Cur.SalesMan<>CU2r.SalesMan then begin  SaveHistory("CUVc",Cur.Code,"SalesMan",CU2r.SalesMan,CUr.SalesMan); end;
+if Cur.RegNr1<>CU2r.RegNr1 then begin  SaveHistory("CUVc",Cur.Code,"RegNr1",CU2r.RegNr1,CUr.RegNr1); end;
+if Cur.RegNr2<>CU2r.RegNr2 then begin  SaveHistory("CUVc",Cur.Code,"RegNr2",CU2r.RegNr2,CUr.RegNr2); end;
+if Cur.BankAccount<>CU2r.BankAccount then begin  SaveHistory("CUVc",Cur.Code,"BankAccount",CU2r.BankAccount,CUr.BankAccount); end;
+if Cur.AccOperator<>CU2r.AccOperator then begin  SaveHistory("CUVc",Cur.Code,"AccOperator",CU2r.AccOperator,CUr.AccOperator); end;
+if Cur.VATNr<>CU2r.VATNr then begin  SaveHistory("CUVc",Cur.Code,"VATNr",CU2r.VATNr,CUr.VATNr); end;
+
+return;
+end;
+
+
+
+/*global updating procedure UpdateCUItemHistMn()
+begin
+record CUVc CUr,CU2r; 
+record RHistVc RHist2r;
+string 200 tstr;
+boolean testf,TrHs;	
+Boolean Accs;
+area a_blob;
+integer rwcnt,i;
+record PageSetupVc PGr;
+	
+	RHist2r.SerNr = 999999999;
+	readlastmain(RHist2r,1,false);
+	GetRecordBlob(RHist2r,"Math",a_blob);
+	//addrecordtoarea(PGr,"PageSetupVc",a_blob);
+	writeareatofile(a_blob,"1.txt",1);
+	
+	while(loopmain(CUr,1,true))begin
+		tstr = BuildRecordIdStr(CUr,currentcompany);
+		Accs = true;
+		RHist2r.RecidStr = tstr;
+		while(loopkey("RecidStr",RHist2r,1,Accs))begin
+			if(RHist2r.RecidStr!=tstr)then begin Accs=false; end;
+			
+			if(RHist2r.TransDate>stringtodate("1/1/2015"))then begin
+				
+				if(BlobSize(RHist2r)>0)then begin
+					setareazerosize(a_blob);
+				//Addrecordtoarea(RHist2r,"RHistVc",a_blob);
+					GetRecordBlob(RHist2r,"Math",a_blob);
+					writeareatofile(a_blob,"1.txt",1);
+									
+					
+					//GetRecordBlob(RHist2r,"Math",a_blob); 
+					//Getrecordfromarea(CU2r,"CUVc",0,a_blob);
+				end;
+			end;
+		end;
+		resetloop(RHist2r);
+	end;
+
+return;
+end;*/

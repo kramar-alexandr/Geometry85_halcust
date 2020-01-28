@@ -1,0 +1,289 @@
+external inner procedure ExtractObjWithSeparator(string,string,Boolean,var Integer,var string);
+external inner procedure PRVc_PasteCustCode(var record PRVc,var string);
+external inner procedure PRVc_PastePRClass(string,var record PRVc);
+external inner procedure PRVc_PasteLeader(var record PRVc);
+external inner procedure PRVc_PastePrSalesMan(var record PRVc,string);
+external inner procedure PRVc_PasteContact(var record PRVc);
+external updating procedure UpdateProjMn(record RcVc);
+
+global updating procedure ImportProjectsIn()
+begin
+	record PRVc mthPRr,newPRr,oldPRr;
+	record CUVc CUr;
+	record ObjVc Objr;
+	string 100 prcode,cucode,mother;
+	string 100 comment,text,type;
+	string 100 faza,text1,user;
+	string 100 contact,data,curncy,salesgroup,class;
+	string 100 newprcode,tstr,mainprcode,year,prstr,number,warn;
+	integer pos,prlen,prcount,gotocnt;
+	boolean TrHs;
+	date bldate,truedate;
+	record RcVc RepSpec;
+	
+	SetImportCodePage("WINDOWS-1251");
+	
+	while (TestEOF()==false) begin
+		
+		prcode = ImportField;
+		logtext(0,"try importinf " & prcode);
+		cucode = ImportField;
+		mother = ImportField;
+		
+		comment = ImportField;
+		text = ImportField;
+		type = ImportField;
+		faza = ImportField;
+		text1 = ImportField;
+		user = ImportField;
+		contact = ImportField;
+		data = ImportField;
+		curncy = ImportField;
+		salesgroup = ImportField;
+		class = ImportField;
+		
+		truedate = bldate;
+		
+		if(blank(prcode))then begin
+			goto lSkipRow;
+		end else begin
+			
+		end;
+		
+		if(blank(cucode))then begin
+			logtext(0,"Row skiped blank customer");
+			goto lSkipRow;
+		end else begin
+			CUr.Code = cucode;
+			if(readfirstmain(CUr,1,true)==false)then begin
+				logtext(0,"Row skiped not customer");
+				goto lSkipRow;
+			end;
+		end;
+		
+		if(blank(mother))then begin
+			logtext(0,"Row skiped blank mother");
+			goto lSkipRow;
+		end else begin
+			mthPRr.Code = mother;
+			if(readfirstmain(mthPRr,1,true)==false)then begin
+				logtext(0,"Row skiped not mother");
+				goto lSkipRow;
+			end;
+		end;
+		
+		if(blank(comment))then begin
+			logtext(0,"Row skiped blank comment");
+			goto lSkipRow;
+		end;
+		if(blank(text))then begin
+			logtext(0,"Row skiped blank text");
+			goto lSkipRow;
+		end;
+		if(blank(type))then begin
+			logtext(0,"Row skiped blank type");
+			goto lSkipRow;
+		end;
+		if(blank(faza))then begin
+			logtext(0,"Row skiped blank faza");
+			goto lSkipRow;
+		end;
+		if(blank(text1))then begin
+			logtext(0,"Row skiped blank text1");
+			goto lSkipRow;
+		end;
+		if(blank(user))then begin
+			logtext(0,"Row skiped blank user");
+			goto lSkipRow;
+		end;
+		if(blank(contact))then begin
+			logtext(0,"Row skiped blank contact");
+			goto lSkipRow;
+		end;
+		if(blank(data))then begin
+			logtext(0,"Row skiped blank data");
+			goto lSkipRow;
+		end;
+		if(blank(curncy))then begin
+			logtext(0,"Row skiped blank curncy");
+			goto lSkipRow;
+		end;
+		if(blank(salesgroup))then begin
+			logtext(0,"Row skiped blank salesgroup");
+			goto lSkipRow;
+		end;
+		
+		truedate.year = stringtoint(right(data,4));
+		truedate.day = stringtoint(left(data,2));
+		truedate.month = stringtoint(mid(data,3,2));
+		
+		pos = 0;
+		ExtractObjWithSeparator("-",prcode,true,pos,mainprcode);
+		ExtractObjWithSeparator("-",prcode,true,pos,year);
+		if(blank(mainprcode) or blank(year))then begin
+			goto lSkipRow;
+		end;
+		
+		prcount = 0;
+		resetloop(oldPRr);
+		TrHs = true;
+		prstr = mainprcode & "-" & year;
+		prlen = len(prstr);
+		oldPRr.Code = prstr;
+		while(loopmain(oldPRr,1,TrHs))begin
+			if(left(oldPRr.Code,prlen)!=prstr)then begin TrHs = false; end;
+			
+			if(TrHs)then begin
+				pos = 0;
+				ExtractObjWithSeparator("-",oldPRr.Code,true,pos,mainprcode);
+				ExtractObjWithSeparator("-",oldPRr.Code,true,pos,year);
+				ExtractObjWithSeparator("-",oldPRr.Code,true,pos,number);
+				if(nonblank(number))then begin
+					if(stringtoint(number)>prcount)then begin
+						prcount = stringtoint(number);
+					end;
+				end;
+			end;
+		end;
+		
+lAddNewNumber:;		
+		prcount = prcount + 1;
+		
+		if(prcount<1000)then begin
+			newprcode = mainprcode & "-" & year & "-" & prcount;
+		end;
+		if(prcount<100)then begin
+			newprcode = mainprcode & "-" & year & "-0" & prcount;
+		end;
+		if(prcount<10)then begin
+			newprcode = mainprcode & "-" & year & "-00" & prcount;
+		end;
+		oldPRr.Code = newprcode;
+		if(readfirstmain(oldPRr,1,true))then begin
+			
+			if(gotocnt<300)then begin
+				gotocnt = gotocnt + 1;
+				goto lAddNewNumber;
+			end;
+			goto lSkipRow;
+		end;
+		
+		logtext(0,"Generate new project code " & newprcode);
+		recordnew(newPRr);
+		newPRr.Code = newprcode;
+		newPRr.CustCode = CUr.Code;
+		PRVc_PasteCustCode(newPRr,warn);
+		newPRr.MotherCode = mother;
+		newPRr.Name = comment;
+		newPRr.Text0 = text;
+		newPRr.PRClass = type;
+		PRVc_PastePRClass(type,newPRr);
+		newPRr.PRStage = faza;
+		if(faza=="1")then begin
+			newPRr.Type = 1;
+		end;
+		newPRr.Desc0 = text1;
+		newPRr.Leader = user;
+		PRVc_PasteLeader(newPRr);
+		newPRr.PrSalesMan = user;
+		PRVc_PastePrSalesMan(newPRr,user);
+		newPRr.Contact = contact;
+		PRVc_PasteContact(newPRr);
+		newPRr.StartDate = currentdate;
+		newPRr.EndDate = truedate;
+		newPRr.CurncyCode = curncy;
+		newPRr.SalesGroup = salesgroup;
+		newPRr.PRClassification = class;
+		if(recordinsert(newPRr,true))then begin
+			Objr.Code = newPRr.Code;
+			if(readfirstmain(Objr,1,true))then begin
+				newPRr.Objects = Objr.Code;
+			end else begin
+				recordnew(Objr);
+				Objr.Code = newPRr.Code;
+				Objr.Comment = newPRr.Name;
+				Objr.OTCode = "JOB";
+				Objr.AutoObjects = newPRr.MotherCode;
+				recordstore(Objr,true);
+				newPRr.Objects = Objr.Code;
+			end;
+			recordstore(newPRr,true);
+			recordcopy(oldPRr,newPRr);
+			recordupdate(oldPRr,newPRr,true);
+			RepSpec.f1 = newPRr.Code;
+			UpdateProjMn(RepSpec);
+			//recordstore(newPRr,true);
+			//recordupdate(newPRr,newPRr,true);
+		end;
+		logtext(0,newPRr.Code);
+				
+lSkipRow:;		
+		NextImportLine(true);
+	end;
+	
+return;
+end;
+
+global updating procedure CloseProjectsIn()
+begin
+	record PRVc mthPRr,newPRr,oldPRr;
+	record CUVc CUr;
+	record ObjVc Objr;
+	string 100 prcode,prevclosedate,closedate;
+	date bldate,prcldate,cldate;
+	boolean changed;
+	
+	SetImportCodePage("WINDOWS-1251");
+	
+	while (TestEOF()==false) begin
+		
+		prcode = ImportField;
+		prevclosedate = ImportField;
+		closedate = ImportField;
+		changed = false;
+		
+		if(nonblank(prcode))then begin
+			prcldate = bldate;
+			cldate = bldate;
+			if(nonblank(prevclosedate))then begin
+				prcldate.year = stringtoint(right(prevclosedate,4));
+				prcldate.day = stringtoint(left(prevclosedate,2));
+				prcldate.month = stringtoint(mid(prevclosedate,3,2));
+			end;
+			if(nonblank(closedate))then begin
+				cldate.year = stringtoint(right(closedate,4));
+				cldate.day = stringtoint(left(closedate,2));
+				cldate.month = stringtoint(mid(closedate,3,2));
+			end;
+		
+		
+			oldPRr.Code = prcode;
+			if(readfirstmain(oldPRr,1,true))then begin
+				recordcopy(newPRr,oldPRr);
+				if(nonblankdate(prcldate) and blankdate(oldPRr.PreFinishedDate))then begin
+					oldPRr.PreFinishedDate = prcldate;
+					if(oldPRr.Terminated==0 or oldPRr.Terminated==2)then begin
+						oldPRr.Terminated = 3;
+					end;
+					changed = true;
+				end;
+				if(nonblankdate(cldate) and blankdate(oldPRr.FinishedDate))then begin
+					oldPRr.FinishedDate = cldate;
+					if(oldPRr.Terminated!=1)then begin
+						oldPRr.Terminated = 1;
+					end;
+					changed = true;
+				end;
+				
+				if(changed)then begin
+					logtext(0,"CloseProjectsIn for project " & oldPRr.Code & " FinishedDate = " & oldPRr.FinishedDate & " PreFinishedDate = " & oldPRr.PreFinishedDate);
+					recordupdate(newPRr,oldPRr,true);
+				end;
+			end;
+		
+		end;
+		NextImportLine(true);
+	end;
+	
+return;
+end;

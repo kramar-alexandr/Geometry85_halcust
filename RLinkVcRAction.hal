@@ -1,0 +1,47 @@
+function boolean findtext(string str,string fromstr)
+begin
+integer i,lenth;
+boolean res;
+	
+	res = false;
+		
+	lenth = len(fromstr);
+	if(len(str)<=lenth)then begin
+		For(i=0;i<lenth-len(str);i=i+1) begin
+	  	if(mid(fromstr,i,len(str))==str)then begin
+	  		res = true;
+	  	end;
+		end; 
+	end else begin
+		res = false;
+	end;
+	
+	findtext = res;
+	
+return;
+end;
+
+
+global
+function LongInt RLinkVcRecordRemoveTest(var record RLinkVc RLinkr,record RLinkVc RLink2r,LongInt long3,LongInt globalf)
+BEGIN
+  LongInt res;
+	integer wn;
+	string 50 class;
+	area asa;
+  res = 1;
+  
+	
+	//messagebox(0,currentuser);
+	if(findtext("ConfVc",RLinkr.FromRecidStr))then begin
+		res = 1;
+	end else begin
+		if(usercanaction("AllowDelRecordLinks",true)==false)then begin
+			res = 0;
+		end;
+	end;
+	
+  RLinkVcRecordRemoveTest = res; 
+  RETURN;
+END;
+
