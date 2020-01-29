@@ -390,10 +390,10 @@ SpecialMenu("Відкрити таблицю подадків",' ',25,"OpenVatMatrixPODsm");
   UseView(TSVc);
   FormName(PrintTSL);
   RecordList(4,17,-21,-39);
-  RlColKey(4,2,"Номер",SerNr,false,SerNr);
-  RlColKey(71,66,"OK",OKFlag,false,OKFlag);
-  RlColKey(121,121,"Дата реєстру",RegDate,false,RegDate);
-  RlColKey(191,191,"Коментар",Comment,false,Comment);
+  RlColKey(4,2,"Номер",SerNr,false,NewSerNr);
+  RlColKey(71,66,"OK",OKFlag,false,NewOKFlag);
+  RlColKey(121,121,"Дата реєстру",RegDate,false,NewRegDate);
+  RlColKey(191,191,"Коментар",Comment,false,NewComment);
   SearchField("Пошук");
   SpecialMenu("OK",'G',1,"TSLOKsm");
   BrowseSubsetButton(-40,-15); //?? one choice to much
