@@ -149,6 +149,8 @@ begin
 		RecordField(TAXAdv,M4Val,0,0);// was added
 	EndRecordAdd;  
 	
+
+	
 	
 	RecordAddBegin(TSVc,"Cust_TSVc");
 		ChangeMatrixField(PRName,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 18 April 2018 19:43:38
@@ -182,6 +184,41 @@ begin
 		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:54:08
 		KeySegment(Comment);
 		KeySegment(SerNr);
+		
+		KeyBegin(UserCode);
+		KeySegment(UserCode);
+		KeySegment(SerNr);
+		KeyBegin(DateUser);
+		KeySegment(RegDate);
+		KeySegment(UserCode);
+		KeySegment(SerNr);
+		
+		SubsetKeyBegin2(NewSerNr);
+		StoreInBaseKey;
+		AppendFieldToKeyName(UserCode);
+		KeySegment(SerNr);
+		SubsetKeyBegin2(NewOKFlag);
+		StoreInBaseKey;
+		AppendFieldToKeyName(UserCode);
+		KeySegment(OKFlag);
+		KeySegment(SerNr);
+		SubsetKeyBegin2(NewRegDate);
+		StoreInBaseKey;
+		AppendFieldToKeyName(UserCode);
+		KeySegment(RegDate);
+		KeySegment(SerNr);
+		SubsetKeyBegin2(NewComment);
+		StoreInBaseKey;
+		AppendFieldToKeyName(UserCode);
+		KeySegment(Comment);
+		KeySegment(SerNr);
+		KeySegment(RegDate);
+		SubsetKeyBegin2(NewSign);
+		StoreInBaseKey;
+		AppendFieldToKeyName(UserCode);
+		KeySegment(Sign);
+		KeySegment(SerNr);
+		
 	EndRecordAdd;  
 	
 	
