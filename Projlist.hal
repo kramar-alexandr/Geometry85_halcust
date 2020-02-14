@@ -143,51 +143,49 @@ prcnt=prcnt+1;
     end else begin                                        // в Excel, File, Buffer
       OutString(0,"DblPRCode",PRr.Code,false); //1
       OutString(25,0,PRr.Name,false); //1
-      OutString(55,0,"-",false); //2
+      OutString(55,0,PRr.CustCode,false); //2//        Client     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
       OutString(65,0,"-",false); //2
       OutString(115,0,"-",false); //3
       OutString(135,0,"-",false); //3
       OutString(280,0,"-",false); //4
       OutString(290,0,"-",false); //4
-      OutString(150,0,PRr.PRClass,false); //5
-      OutString(180,0,type,false); //5
-      OutString(220,0,"",false); //5
-      OutString(240,0,PRr.Text0,false); //6// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 10:47:57
+      OutString(150,0,PRr.PRClass,false); //5//        Block     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
+      OutString(180,0,type,false); //5//        Name Block     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
+      //OutString(220,0,"",false); //5
+      OutString(240,0,PRr.Text0,false); //        Cosmos ID     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana//6// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 10:47:57
      // OutString(285,0,"",false); //6
-      OutString(300,0,PRr.Name,false); // cur
+      //OutString(300,0,PRr.Name,false); // cur
     end;
-    if nonblank(PRr.Leader) then begin
+    if nonblank(PRr.Leader) then begin //        Manager     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
       OutString(430,0,PRr.Leader,false);
     end else begin
-
-
       OutString(415,0,"-",false);
     end;
     if mode==1 then begin   // в Excel, File, Buffer
-      if nonblankdate(PRr.StartDate) then begin
-      OutDate(416,0,PRr.StartDate,false);
+      if nonblankdate(PRr.StartDate) then begin//        First Date     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
+      	OutDate(416,0,PRr.StartDate,false);
       end else begin
         OutString(416,0,"-",false);
       end;
-      if nonblankdate(PRr.EndDate) then begin
+      /*if nonblankdate(PRr.EndDate) then begin
       	OutDate(417,0,PRr.EndDate,false);
       end else begin
         OutString(417,0,"-",false);
-      end;
-      if nonblankdate(PRr.FinishedDate) then begin
+      end;*/
+      if nonblankdate(PRr.FinishedDate) then begin//        Closing Date     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
       	OutDate(427,0,PRr.FinishedDate,false);
       end else begin
         OutString(427,0,"-",false);
       end;
-      if nonblankdate(PRr.PreFinishedDate) then begin
+     /* if nonblankdate(PRr.PreFinishedDate) then begin
       	OutDate(427,0,PRr.PreFinishedDate,false);
       end else begin
         OutString(427,0,"-",false);
-      end;
+      end;*/
     end;
     SerchQTbyProject(PRr.Code,qtnr,foundf);
     if foundf then begin
-    OutString(1,"DblQTVc",qtnr,true);
+    OutString(1,"DblQTVc",qtnr,true);//        Cost Estimate     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
     end else begin
       OutString(1,0,"-",true);
     end;
@@ -202,17 +200,20 @@ prcnt=prcnt+1;
     seniorprn[cntlvl]=PRr.Name;
     FindSeniorProjects(PRr.MotherCode,seniorpr,seniorprn,cntlvl);
     StartFormat(15);
-      OutString(0,"DblPRCode",seniorpr[cntlvl],false); //1
+      OutString(0,"DblPRCode",seniorpr[cntlvl],false); //1// LEVEL1 Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:47:53
       if mode==1 then begin
-      OutString(0,0,seniorprn[cntlvl],false); //1
+      OutString(0,0,seniorprn[cntlvl],false); //1//        Name 1     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
       end;
+      OutString(40,0,PRr.CustCode,false);//1//        Client     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
+
       if seniorpr[cntlvl-1]!="-" then begin
         OutString(40,"DblPRCode",seniorpr[cntlvl-1],false); //2
       end else begin
         OutString(40,0,seniorpr[cntlvl-1],false); //2
       end;
+      
       if mode==1 then begin
-      OutString(40,0,seniorprn[cntlvl-1],false); //2
+      //OutString(40,0,seniorprn[cntlvl-1],false); //2
       end;
       if seniorpr[cntlvl-2]!="-" then begin
         OutString(80,"DblPRCode",seniorpr[cntlvl-2],false); //3
@@ -240,7 +241,7 @@ prcnt=prcnt+1;
       
       if mode==1 then begin
       //OutString(245,0,seniorprn[cntlvl-4],false); //5
-      OutString(190,0,"",false); //5
+      //OutString(190,0,"",false); //5
       end;
       /*if seniorpr[cntlvl-5]!="-" then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 11:34:27
         OutString(280,"DblPRCode",seniorpr[cntlvl-5],false); //6
@@ -251,8 +252,8 @@ prcnt=prcnt+1;
       OutString(285,0,seniorprn[cntlvl-5],false); //6
       end;*/
       OutString(240,0,PRr.Text0,false);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 3 September 2019 18:00:43
-      OutString(300,0,PRr.Name,false); // cur
-      if nonblank(PRr.Leader) then begin
+      //OutString(300,0,PRr.Name,false); // cur
+      if nonblank(PRr.Leader) then begin//       Manager         Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 15:23:00
         OutString(430,0,PRr.Leader,false);
       end else begin
         OutString(430,0,"-",false);
@@ -263,25 +264,25 @@ prcnt=prcnt+1;
         end else begin
           OutString(416,0,"-",false);
         end;
-        if nonblankdate(PRr.EndDate) then begin
+        /*if nonblankdate(PRr.EndDate) then begin
         	OutDate(417,0,PRr.EndDate,false);
         end else begin
           OutString(417,0,"-",false);
-        end;
+        end;*/
         if nonblankdate(PRr.FinishedDate) then begin
-        	OutDate(427,0,PRr.FinishedDate,false);
+        	OutDate(427,0,PRr.FinishedDate,false);//       Closing date         Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 15:23:00
         end else begin
           OutString(427,0,"-",false);
         end;
-        if nonblankdate(PRr.PreFinishedDate) then begin
+        /*if nonblankdate(PRr.PreFinishedDate) then begin
         	OutDate(427,0,PRr.PreFinishedDate,false);
         end else begin
           OutString(427,0,"-",false);
-        end;
+        end;*/
       end;
       SerchQTbyProject(PRr.Code,qtnr,foundf);
       if foundf then begin
-      OutString(1,"DblQTVc",qtnr,true);
+      OutString(1,"DblQTVc",qtnr,true);//       Cost estimate         Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 15:23:00
       end else begin
         OutString(1,0,"-",true);
       end;
@@ -464,21 +465,21 @@ begin
     if (RepSpec.Media==mtFile) or (RepSpec.Media==mtExcel) or (RepSpec.Media==mtClipboard) then begin
       OutString(0,0,"Рівень 1",false); //1
       OutString(10,0,"Найменування 1",false); //1
-      OutString(40,0,"Рівень 2",false); //2
-      OutString(50,0,"Найменування 2",false); //2
-      OutString(100,0,"Рівень 3",false); //3
-      OutString(120,0,"Найменування 3",false); //3
-      OutString(190,0,"Рівень 4",false); //4
-      OutString(200,0,"Найменування 4",false); //4
-      OutString(210,0,"№",false); //5
-      OutString(225,0,"Тип",false); //5
-      OutString(230,0,"",false); //5
-      OutString(265,0,"Текст",false); //6
-      OutString(300,0,"Найменування поточного проекту",false); // cur
-      OutString(415,0,USetStr(4863),false);
-      OutString(416,0,"Дата початку",false);
-      OutString(417,0,"Дата завершення",false);
-      OutString(427,0,"Дата попереднього завершення",false);
+      OutString(40,0,"Client",false); //2
+      OutString(50,0,"Brand",false); //2
+      OutString(100,0,"SubProject",false); //3
+      OutString(120,0,"NameSubProj",false); //3
+      OutString(190,0,"Project",false); //4
+      OutString(200,0,"Name of Project",false); //4
+      OutString(210,0,"Block",false); //5
+      OutString(225,0,"NameBlock",false); //5
+      OutString(230,0,"Cosmos ID",false); //5
+      OutString(265,0,"Manager",false); //6
+      OutString(300,0,"First date",false); // cur
+      OutString(415,0,"Closing date",false);
+      //OutString(416,0,"Дата початку",false);
+      //OutString(417,0,"Дата завершення",false);
+      //OutString(427,0,"Дата попереднього завершення",false);
       OutString(1,0,"Cost estimate",true);
       mode=1;
     end else begin
