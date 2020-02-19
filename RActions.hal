@@ -1409,7 +1409,7 @@ BEGIN
 	while (loopkey("TransDate",OldVir2,1,trhs)) begin
 		if (getmonth(OldVir2.TransDate)<>getmonth(VATIVp.TransDate)) then begin trhs = false; end;
 		if (OldVir2.SerNr<>VATIVp.SerNr) and trhs then begin
-			if (VATIVp.VEPN==OldVir2.VEPN) and (VATIVp.VEPN<>-1) then begin
+			if ((VATIVp.VEPN==OldVir2.VEPN) and (VATIVp.VEPN<>-1) and VATIVp.TransDate==OldVir2.TransDate) then begin
 				res = -1;
 				RecordCheckError(31012,"",-1,"VEPN");  
 				goto ourVATIVVcRecordCheck;
