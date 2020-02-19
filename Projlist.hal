@@ -138,7 +138,7 @@ prcnt=prcnt+1;
       OutString(150,0,PRr.PRClass,false);//4,5
       OutString(180,0,type,false); //5
       OutString(240,0,PRr.Text0,false); //6// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 11 May 2018 10:47:46
-      //OutString(300,0,PRr.Name,false); // cur
+      OutString(300,0,PRr.Name,false); // cur
 
     end else begin                                        // â Excel, File, Buffer
       OutString(0,"DblPRCode",PRr.Code,false); //1
@@ -172,8 +172,8 @@ prcnt=prcnt+1;
       end else begin
         OutString(417,0,"-",false);
       end;*/
-      if nonblankdate(PRr.FinishedDate) then begin//        Closing Date     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
-      	OutDate(427,0,PRr.FinishedDate,false);
+      if nonblankdate(PRr.EndDate) then begin//        Closing Date     Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 14:38:57//Mana
+      	OutDate(427,0,PRr.EndDate,false);
       end else begin
         OutString(427,0,"-",false);
       end;
@@ -252,7 +252,9 @@ prcnt=prcnt+1;
       OutString(285,0,seniorprn[cntlvl-5],false); //6
       end;*/
       OutString(240,0,PRr.Text0,false);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 3 September 2019 18:00:43
-      //OutString(300,0,PRr.Name,false); // cur
+      if mode==0 then begin
+      	OutString(300,0,PRr.Name,false); // cur
+      end;
       if nonblank(PRr.Leader) then begin//       Manager         Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 15:23:00
         OutString(430,0,PRr.Leader,false);
       end else begin
@@ -269,8 +271,8 @@ prcnt=prcnt+1;
         end else begin
           OutString(417,0,"-",false);
         end;*/
-        if nonblankdate(PRr.FinishedDate) then begin
-        	OutDate(427,0,PRr.FinishedDate,false);//       Closing date         Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 15:23:00
+        if nonblankdate(PRr.EndDate) then begin
+        	OutDate(427,0,PRr.EndDate,false);//       Closing date         Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 14 February 2020 15:23:00
         end else begin
           OutString(427,0,"-",false);
         end;
