@@ -2,6 +2,15 @@ external inner function string 60 UserDefined(string,string);
 external inner function Boolean CUVATNrColumn;
 external inner function real VATZoneButtonsLabelsUKR(real,real,real,real);
 external inner function Boolean IsEnterprise();
+
+external inner function Boolean HasStandardCRM();
+external inner function Boolean HasSettlementDiscount();
+external inner function Boolean HasPriceLists();
+external inner function Boolean StandardHansa();
+external inner function Boolean HasModNL();
+external inner function Boolean HasDownpayments();
+external inner function Boolean HasLanguages();
+
 remote function Integer MailAcceptanceStatus(LongInt);
 external inner function Boolean HasMailTags();
 
@@ -1753,5 +1762,87 @@ begin
   SpecialMenu("Створити контакт",' ',12,"CreateContactFromMailsm");  
   SpecialMenu("Відповісти",'r',1,"MailReplyWithQuotesm");  
   SpecialMenu("Переадресувати",'f',11,"ForwardMailDsm");  
+  EndWindow;
+end;
+
+window PDDClass:3
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vm,vs;
+  
+  WindowBegin("Умови сплати",PDDClass,CGview,-);
+  if (HasStandardCRM==false) then begin
+  AutoSizeWindow(false);
+  end;
+  SetWRect(64,80,559,460);
+  UseView(PDVc);
+  v = 6; vs = 20; h = 120; h2 = 300;
+  EditField(h,v, 30,"Код",St_i,Code,false,0);
+  CheckBox(h2,v,0,"Закрито",Closed);  
+  EditField(h,v+=vs,-40,"Текст",Normal,pdComment,false,0);  
+  if (HasStandardCRM==false) or (IsEnterprise) then begin
+    EditField(h,vm=(v+=vs),50,"Кілк. днів",Normal,pdays,true,0);
+		CheckBox(h2-100,vm,0,"Банківські дні",BDays);// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 26 March 2020 10:29:43
+
+    if (HasSettlementDiscount) then begin
+      EditField(h,v+=vs,50,"Знижка %",Normal,pdvrebt,true,0);
+      EditField(h,v+=vs,50,"Знижка, дні",Normal,pdrdays,true,0);  
+    end;
+    if (HasPriceLists) then begin
+      EditField(h,v+=vs,50,"Прейскурант",Normal,PriceList,true,PLDefSClass);
+    end;
+    if (IsEnterprise and StandardHansa==false) then begin
+      EditField(h,v+=vs,50,"Внески",Normal,Installment,true,InstallmentSClass);
+   end;
+    if (HasModNL) then begin
+  EditField(h,v+=vs,50,"Рахунок готівки",Normal,pdCashAcc,true,AccSClass);
+    end;
+    if (HasSettlementDiscount) then begin
+  EditField(h,v+=vs,50,"Рахунок реалізації",Normal,pdSalesAcc,true,AccSClass);
+      end;
+    if (HasLocalization("ITA")) then begin
+      EditField(h,v+=vs,50,"PA Code",Normal,PubAdmCode,true,PMSClass);
+    end;
+    if (HasSettlementDiscount) then begin
+      EditField(h2,v=vm+20,50,"Знижка на гот. % 2",Normal,pdvrebt2,true,0);
+      EditField(h2,v+=vs,50,"Знижка, дні 2",Normal,pdrdays2,true,0);
+    end;
+    if (IsEnterprise or HasSettlementDiscount) then begin
+  ButtonFrame(h=200,v=(vm+80),200,8,"Тип");
+    end else begin
+      ButtonFrame(h=200,v=(vm+20),200,8,"Type"); //!!PRODTRANSLATE
+    end;
+  RadioButton(h,v,kInvoiceTypeNormal,0,"звичайний",PDType);
+  RadioButton(h,v+=16,kInvoiceTypeCredit,0,"кредитовий акт/накладна",PDType);
+  RadioButton(h,v+=16,kInvoiceTypeCash,0,"готівка",PDType);
+    if (HasLocalization("PRT")) then begin 
+      RadioButton(h,v+=16,kInvoiceTypeCashInvoiceReceiptPRT,0,"Накл./Платіж",PDType);
+    end;
+  RadioButton(h,v+=16,4,0,"наступний місяць",PDType);
+    if (IsEnterprise or HasLocalization("ARG,PRT")) then begin
+  RadioButton(h,v+=16,kInvoiceTypeDebit,0,"акт/накладна пені",PDType);
+    end;
+    if (HasDownpayments or HasLocalization("AUS")) then begin
+  RadioButton(h,v+=16,kInvoiceTypeDownpayment,0,"Звітний період + днів",PDType);
+    end;
+    if (IsEnterprise) then begin
+    RadioButton(h,v+=16,kInvoiceTypeEmployee,0,"Співробітник",PDType);  
+    end;
+    if (HasLocalization("ARG")) then begin
+  RadioButton(h,v+=16,kInvoiceTypeNormalSpecialSales,0,"звичайний (спеціальні продажі)",PDType);
+  RadioButton(h,v+=16,kInvoiceTypeCreditSpecialSales,0,"кредит. акт/накл. (спеціальні продажі)",PDType);  
+    end;
+    if (HasLocalization("LTU")) then begin
+      RadioButton(h,v+=16,kInvoiceTypeCashInvoiceReceiptPRT,0,"Облік готівки",PDType);  
+   end;
+   EndFrame;
+end;
+//kInvoiceTypePrepayment
+  if (HasLanguages) then begin
+    MatrixBegin(4,v+=50,-32,-20,INTextRowType,99);
+    MatCol(1,24,"Мова",0,LangCode,false,LangSClass); 
+    MatCol(1,84,"Текст",0,Text,false,0);
+    EndMatrix;
+  end;
   EndWindow;
 end;

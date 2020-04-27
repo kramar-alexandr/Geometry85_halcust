@@ -309,6 +309,10 @@ begin
 		KeySegment(SerNr);  
 	EndRecordAdd; 
 	
+	RecordAddBegin(PDVc,"Cust_PDVc");
+	  RecordField(BDays,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 26 March 2020 10:24:24	
+	EndRecordAdd; 
+	
 	BlockBegin(VATCodeBlock,-,"vatcode");
 		NewAutosyncHBlock(kSyncDirectionToClient);
 		RecordField(Math,M4Matrix,0,0);
