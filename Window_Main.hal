@@ -3633,3 +3633,60 @@ SpecialMenu("Статус товару",'I',1,"ItemStatusQTDsm");
   SpecialMenu("Відкрити таблицю податків",' ',25,"OpenVatMatrixQTDsm"); 
   EndWindow;
 end;
+
+
+window SBRClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vm,vs;
+  WindowBegin("Визначте перевірочний баланс",SBRClass,CGRcW,RcType);
+  SetWRect(20,80,450,400);
+  vs = 20;
+  PeriodField(h=150,v=6,"Період");
+  EditFieldTL(h,v+=vs,150,"Рахунки",M4UStr,Normal,20 ,AccStr,false,AccSClass);
+  if (HasObjects) then begin
+  EditFieldTL(h,v+=vs,250,"Об'єкт",M4UStr,Normal,60 ,ObjStr,false,ObjSClass);
+  end;
+  EditFieldTL(h,v+=vs,50,"Код ПДВ",M4Code,Normal,10,f1,false,VATCodeSClass);
+  if (HasMultiCurrency) then begin
+  EditField(h,v+=vs,50,"Валюта",Normal,CurncyCode,false,CurncyCodeSClass);
+  end;
+  if (HasLanguages) then begin
+  EditField(h,v+=vs,50,"Мова",Normal,Language,false,LangSClass);    
+  end;
+  if (HasObjects) then begin
+  EditFieldTL(h,v+=vs,80,"Не включ. об'єкти",M4UStr,Normal,60,f3,false,ObjSClass);
+  end;
+  h = 50; v = v + 30; vm = v;
+  if (HasSimulations) then begin
+    CheckBox(h,v,0,"Вкл. симуляції",SimVerf);
+    v = v + 16;
+  end;
+  if (HasAdvancedAccounting) then begin
+    CheckBox(h,v,0,"Лише с балансом ",UsedOnly);
+  end else begin
+    CheckBox(h,v,0,"Лише використані рах-ки",UsedOnly); 
+    end;
+  v = v + 16;
+  CheckBox(h,v,0,"Список номерів операції",flags[4]);
+  v = v + 16;
+  CheckBox(h,v,0,"Суми в валюті",flags[5]);
+  v = v + 16;
+/*  
+not supported
+  if (HasMultiCurrency) then begin
+    CheckBox(h,v,0,"Суми в валюті",flags[5]);
+    v = v + 16;
+  end;
+*/  
+  if (HasAdvancedAccounting) then begin
+    CheckBox(h,v,0,"Включати обороти",flags[6]);
+  CheckBox(h,v+=16,0,"Лише рахунки",flags[9]);
+  end;
+  if (HasBase2) then begin
+  ButtonFrame(h=250,v=vm+10,123,2,"Значення в");
+  RadioButton(h,v,0,0,"осн. валюті 1",basecurncy);
+  RadioButton(h,v+=16,1,0,"осн. валюті 2",basecurncy);
+end;
+  EndWindow;
+end;
