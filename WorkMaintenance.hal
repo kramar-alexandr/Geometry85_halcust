@@ -676,27 +676,44 @@ begin
 	record ActVc Actr;
 	boolean TrHs;
 	string 50 sernr;
+	record RLinkVc RLr;
+	string 255 actusers,neededusers;
+	integer actnr;
 	
 	POr.SerNr = RepSpec.long1;
 	
+	logtext(0,"ClearAccPOMn   1111");
 	if(readfirstmain(POr,1,true))then begin
 		POr.AcceptanceStatus = 1;
 		recordStore(POr,true);
-		Actr.FromFileName = "POVc";
-		Actr.FromSerNr = POr.SerNr;
-		TrHs = true;
-		while(loopkey("FromFileName",Actr,2,TrHs))begin
-			if(evaltoval(Actr.FromSerNr)!=POr.SerNr or Actr.FromFileName!="POVc")then begin TrHs = false; end;
-			
-			if(TrHs and Actr.OKFlag==0)then begin
+		//Actr.FromFileName = "POVc";
+		//Actr.FromSerNr = POr.SerNr;
+		//TrHs = true;
+		
+		actnr = 1;
+		while (ReadRecordLink(POr,actnr,Actr,RLr)) begin
+			if (Actr.TodoFlag==kTodoFlagApproval and Actr.Invalid==0) then begin
 				Actr.OKFlag = 1;
 				Actr.ActType = "CANCL";
 				Actr.EndDate = currentdate;
 				Actr.EndTime = currenttime;
 				Actr.ActResult = "CANCL";
+				Actr.Invalid = 1;
 				RecordStore(Actr,true);
 			end;
+			actnr = actnr + 1;
 		end;
+		
+		/*while(loopkey("FromFileName",Actr,2,TrHs))begin
+			if(evaltoval(Actr.FromSerNr)!=POr.SerNr or Actr.FromFileName!="POVc")then begin TrHs = false; end;
+			
+			logtext(0,"ClearAccPOMn   2222");
+			if(TrHs and Actr.OKFlag==0)then begin
+			logtext(0,"ClearAccPOMn   3333");
+				
+				
+			end;
+		end;*/
 	end;
 	
 	
@@ -709,6 +726,9 @@ begin
 	record ActVc Actr;
 	boolean TrHs;
 	string 50 sernr;
+	record RLinkVc RLr;
+	string 255 actusers,neededusers;
+	integer actnr;
 	
 	QTr.SerNr = RepSpec.long1;
 	
@@ -716,7 +736,23 @@ begin
 		QTr.AcceptanceStatus = 1;
 		QTr.Authority = "";
 		recordStore(QTr,true);
-		Actr.FromFileName = "QTVc";
+		
+		actnr = 1;
+		while (ReadRecordLink(QTr,actnr,Actr,RLr)) begin
+			if (Actr.TodoFlag==kTodoFlagApproval and Actr.Invalid==0) then begin
+				Actr.OKFlag = 1;
+				Actr.ActType = "CANCL";
+				Actr.EndDate = currentdate;
+				Actr.EndTime = currenttime;
+				Actr.ActResult = "CANCL";
+				Actr.Invalid = 1;
+				RecordStore(Actr,true);
+			end;
+			actnr = actnr + 1;
+		end;
+		
+		
+		/*Actr.FromFileName = "QTVc";
 		Actr.FromSerNr = QTr.SerNr;
 		TrHs = true;
 		while(loopkey("FromFileName",Actr,2,TrHs))begin
@@ -730,7 +766,7 @@ begin
 				Actr.ActResult = "CANCL";
 				RecordStore(Actr,true);
 			end;
-		end;
+		end;*/
 	end;
 	
 return;
