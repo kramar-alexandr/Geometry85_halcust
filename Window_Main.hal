@@ -3690,3 +3690,192 @@ not supported
 end;
   EndWindow;
 end;
+
+window APAccTClass:1 //UGLY, magic please
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real f,h,h2,h3,v,vm,vs;
+  Integer tilenr;
+
+  WindowBegin("Настройка записів - розрахунки з постачальниками",APAccTClass,CGSbl,APAccType);
+  SetBlid(APAccBlock);
+  Sizeable(-1,-1,0,0);
+   if (HasMultiCurrency or HasPrepayments or (HasRussianPrepayment and HasLocalization("PRT")==false)) then begin
+    if (HasMultiCurrency) then begin
+      SetWRect(20,80,730,400);
+    end else begin
+      SetWRect(20,80,500,400);
+    end;
+    h = 160;
+  end else begin
+    if (HasObjects) then begin
+      SetWRect(20,80,500,400);
+    end else begin
+    SetWRect(20,80,310,400);
+    end;
+    h = 130;
+  end;
+  v = 6; vs = 20; f = 70; h2 = 280; h3 = 430;
+  Tile(0,30,false,"",APAcc);
+  tilenr = 1;
+  TileButton(tilenr,"Кредитори"); tilenr = tilenr + 1;
+  TileButton(tilenr,"ПДВ"); tilenr = tilenr + 1;
+  if (HasMultiCurrency) then begin 
+    TileButton(tilenr,"Курси"); tilenr = tilenr + 1;
+  end;
+  tilenr = 1;
+  Tile(tilenr,250,false,"1",APAcc); tilenr = tilenr + 1;
+  EditField(h,v,f,"Кредитори",Normal,APAcc,false,AccSClass);
+  if (HasAdvancedAccounting and HasLocalization("POL")==false) then begin
+    EditField(h,v+=vs,f,"Контрольний рахунок",Normal,PrelAPAcc,false,AccSClass);
+  end;
+  EditField(h,v+=vs,f,"Каса",Normal,CashAcc,false,AccSClass);
+  if (HasSettlementDiscount) then begin
+    EditField(h,v+=vs,f,"Знижка",Normal,PERebAcc,false,AccSClass);
+    EditField(h,v+=vs,f,VATZoneEditFieldLabel_UKR(1) & " Знижка",Normal,EUPERebAcc,false,AccSClass);
+    EditField(h,v+=vs,f,"Експорт" & " Знижка",Normal,ExpPERebAcc,false,AccSClass);
+  end;
+  if (HasRussianPrepayment or HasPrepayments) then begin
+  EditField(h,v+=vs,f,"Рахунок авансу",Normal,OnAccAcc,false,AccSClass);
+  end;
+  EditField(h,v+=vs,f,"Комісія банку",Normal,ExtraCostAcc,false,AccSClass);
+  if (HasWithholdingTax) then begin
+    EditField(h,v+=vs,f,"Рахунок утримання",Normal,WHTaxAcc,false,AccSClass);
+  end;
+  v = 6;
+  if (HasObjects) then begin
+    CheckBox(h2,v,0,"Об'єкти в рахунках кредиторів",APUseObj); v = v + 16; 
+  end;
+  if (IsEnterprise) then begin
+    CheckBox(h2,v,0,"Перевірка субрахунків",SLAccTest); v = v + 16; 
+    CheckBox(h2,v,0,"Інфо. пост. в операціях",APonTR); v = v + 16;
+    CheckBox(h2,v,0,"Об'єкти на рахунках передплати",OnAccUseObj); v = v + 16;
+    end;
+  if (HasObjects) then begin
+    CheckBox(h2,v,0,"Об'єкт постач на рахунках складу",VEObjonPurchAcc); v = v + 16;  
+  end;
+  if (IsEnterprise) then begin
+    CheckBox(h2,v,0,"Оновлювати осн. валюту при вист. рахунків",UpdBaseRate); v = v + 16;  
+    CheckBox(h2,v,0,"Оновлювати заруб. валюту при вист. рахунків",UpdForeginRate); v = v + 16;  
+  end;
+  if (HasPrepayments) then begin
+    CheckBox(h2,v,0,"Вимагати ункальну нумерацію передплат",ForceUniquePP); v = v + 16;  
+  end;
+  if (IsEnterprise) then begin
+    CheckBox(h2,v,0,"Окремий рядок для кожного платежу на банк. рахунку",OPTransBankRowPerVE); v = v + 16;  
+  end;
+  if (HasObjects) then begin
+    CheckBox(h2,v,0,"Об'єкти на рахунку банку",ObjectonBankAcc); v = v + 16;  
+  end;    
+  if (IsEnterprise) then begin
+    CheckBox(h2,v,0,"Пропустити об'єкти рахунків записів на рахунках витрат",SkipObjectsOnVIFromHeader); v = v + 16;  
+    CheckBox(h2,v,0,"Заборонити переплату по рахунку",NoOverPayVI); v = v + 16;  
+    CheckBox(h2,v,0,"Створити акт/накл. з кредитового авізо",ConnectCreditNotetoIV); v = v + 16;  
+    CheckBox(h2,v,0,"Заборонити однакову нумерацію акт./накл. та рахунків постачальників",NoInvoiceWithSameInvoiceNr); v = v + 16;  
+    if (HasLocalization("HUN")) then begin 
+      CheckBox(h2,v,0,"Дозволити дату платежу, що передує даті рахунку на закупівлю",OPbeforeVIDate); v = v + 16;  
+    end;
+    if (HasLocalization("ARG")) then begin
+      CheckBox(h2,v,0,"Контроль способів  платежів для утримання податків",PMControlWithTax); v = v + 16;
+      CheckBox(h2,v,0,"Розрахувати загальний податок на прибуток, що утримується по регіону",GrossIncomeWithTaxPerRegion); v = v + 16;  
+    end;
+  end;
+  Tile(tilenr,250,false,"2",PVATBAcc); tilenr = tilenr + 1;
+  v = 6;
+  if (HasSettlementDiscount) then begin
+    EditField(h,v,f,"ПДВ зі знижки",Normal,PVATBAcc,false,AccSClass); v = v + vs;
+  end;
+  if (IsEnterprise) then begin
+    EditField(h,v,f,"Рахунок ПДВ зі сплати",Normal,OnAccVAT,false,AccSClass); v = v + vs;
+  end;
+  if (HasRussianPrepayment or (HasPrepayments and HasLocalization("LVA"))) then begin
+    EditField(h,v,f,"ПДВ з передплати",Normal,VATAcc,false,AccSClass); v = v + vs;
+  end;
+  EditField(h,v,f,"#VAT# Out of Period",Normal,CorPurchVATAcc,false,AccSClass); v = v + vs; //!!TRANSLATE
+  EditField(h,v,f,"#VAT# Base",Normal,VATBase,false,AccSClass); v = v + vs; //!!TRANSLATE
+  EditField(h,v,f,"#VAT# Base Opposite",Normal,VATBaseOppositeAcc,false,AccSClass); v = v + vs; //!!TRANSLATE
+  if (HasVATZone) then begin
+    EditField(h,v,45,"ПДВ з платежів на баланс",Normal,VATCodeDom,false,VATCodeSClass);
+    EditField(h,v+=vs,45,VATZoneEditFieldLabel_UKR(1) & " Знижка",Normal,VATCodeEU,false,VATCodeSClass);
+    EditField(h,v+=vs,45,VATZoneEditFieldLabel_UKR(2) & " Знижка",Normal,VATCodeExp,false,VATCodeSClass);
+    v = v + vs;
+  end else begin
+    if (HasSettlementDiscount or HasRussianPrepayment) then begin
+      v = v + vs;
+    end;
+    if (HasLocalization("CAN,USA")==false) then begin
+      EditField(h,v,45,"Код ПДВ",Normal,VATCodeDom,false,VATCodeSClass); v = v + vs;
+     end;
+  end;
+  if (HasTREO) then begin
+    EditField(h,v,45,"Код ПДВ TREO",Normal,VATCodeTREO,false,VATCodeSClass); v = v + vs;
+  end;
+  if (HasTaxMatrix) then begin
+    if (HasVATZone) then begin
+    EditField(h,v,f,"Місцевий шабл. под.",Normal,TaxTemplateCode,false,TaxTemplateSClass);
+      EditField(h,v+=vs,f,VATZoneEditFieldLabel_UKR(1) & " Знижка",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass);
+      EditField(h,v+=vs,f,VATZoneEditFieldLabel_UKR(2) & " Знижка",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass); v = v + vs;
+    end else begin
+      EditField(h,v,f,"Подат. шаблон",Normal,TaxTemplateCode,false,TaxTemplateSClass);  
+    end;
+  end;
+  v = 6;
+  if (IsEnterprise) then begin
+    CheckBox(h2,v,0,"Розраховувати ПДВ для актів/накладних постачальників",SetVATValOnVI); v = v + 16;
+  end;
+  if (HasObjects) then begin
+    CheckBox(h2,v,0,"Об'єкти на рахунку ПДВ",VATUseObj); v = v + 16;  
+  end;
+  if ((HasRussianPrepayment and HasLocalization("PRT")==false) or (HasPrepayments and HasLocalization("LVA"))) then begin
+    CheckBox(h2,v,0,"ПДВ зі сплати",OPBookVAT);
+  end;
+  if (IsEnterprise) then begin
+//  CheckBox(h2,v+=16,0,"Post Prepayment #VAT#",PreOPBookVAT);
+    ButtonFrame(h2,v+=38,395,3,"ПДВ з передплати");
+    RadioButton(h2,v,kPreOPBookVATTypeNotVAT,0,"Без ПДВ",PreOPBookVAT);
+    RadioButton(h2,v+=16,kPreOPBookVATTypeVATForAllSupp,0,"ПДВ для усіх постач.",PreOPBookVAT);
+    RadioButton(h2,v+=16,kPreOPBookVATTypeVATForDomAndServiceItems,0,"ПДВ для місцев. постач. та ПДВ на послуги та вільні товари для не місцев. постач.",PreOPBookVAT);
+
+    CheckBox(h2,v+=32,0,"Сума передплати без ПДВ",PrepExclVAT);
+    CheckBox(h2,v+=16,0,"ПДВ на курсовий прибуток",BookVATonRateGain);
+    CheckBox(h2,v+=16,0,"ПДВ з кредитових актів/накл. на рахунок ПДВ спл.",BookCreditOnSalesAcc);
+    if (true) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 06 05 2020 y. at 11:41:01 AM
+    CheckBox(h2,v+=16,0,"Нарах. ПДВ з акт/накл. на рах. под. кред.",PostVIVATonVATCorr);
+    end;
+    CheckBox(h2,v+=16,0,"Не передавати ПДВ в платежі",NoPasteVATToOP);
+    CheckBox(h2,v+=16,0,"Вимагати рядок ПДВ, якщо викор. кілька кодів ПДВ",ForceRowVatIfDiff);
+    if (true) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 06 05 2020 y. at 11:40:53 AM
+    CheckBox(h2,v+=16,0,"Викор. курси валют для ПДВ на дату акту/накл.",VATCurRateOnInvDate);
+    end;
+  end;
+  if (HasMultiCurrency) then begin
+  Tile(tilenr,200,false,"3",CredAcc); tilenr = tilenr + 1;
+  end;
+  h2 = 350;
+  v = 6;
+  if (IsEnterprise) then begin
+    v = 6;
+//    EditField(h,v=6,f,"Write Offs Gain",Normal,CredAcc,false,AccSClass);
+//    EditField(h,v+=vs,f,"Write Offs Loss",Normal,WriteOffLossAcc,false,AccSClass);
+    EditField(h,v,f,"Округлення курсу",Normal,RateRndOffAcc,false,AccSClass);
+    EditField(h,v+=vs,f,"Округлення курсу ЄВС",Normal,EMURndOffAcc,false,AccSClass);
+    EditField(h,v+=vs,f,"Списання курсу ЄВС",Normal,EMUWriteOffAcc,false,AccSClass);
+    EditField(h,v+=vs,f,"Списання округлення курсу",Normal,PCredAcc,false,AccSClass);
+  end;
+  if (HasMultiCurrency) then begin
+    if (IsEnterprise==false) then begin
+      h3 = h2;
+      h2 = h;
+    end;
+    EditField(h2,v=6,f,"Курс. прибуток",Normal,RateGainAcc,false,AccSClass);
+    EditField(h2,v+=vs,f,"Курс. збиток",Normal,RateLossAcc,false,AccSClass);
+    CheckBox(h3+20,v,0,"Відобр. курс. приб./збитки на кожну лінію платежу",BookRateGainPerOPRow);
+  end;
+  if (IsEnterprise) then begin
+    EditField(h2,v+=vs,f,"Б. курс/приб.",Normal,BankRateGainAcc,false,AccSClass);
+    EditField(h2,v+=vs,f,"Б. курс/збит.",Normal,BankRateLossAcc,false,AccSClass); 
+//    EditField(h,v+=vs,f,"EMU Rate Write Off",Normal,EMUWriteOffAcc,false,AccSClass);
+//    EditField(h,v+=vs,f,"Write Off Round Off",Normal,PCredAcc,false,AccSClass);
+  end;
+  EndWindow;
+end;
