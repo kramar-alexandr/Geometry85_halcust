@@ -2555,6 +2555,7 @@ EditField(h2,v,100,"Ориг. клієнт",Normal,OrgCust,false,AllCUSClass);
   EditField(h3=510,v=vm,-50,"№ документу",Normal,Reference,false,0);// 62
   EditField(h3,v+=vs,-50,"Конт. особа",Normal,VEContact,false,ContactSClass);
   EditField(h3,v+=vs,-50,"Об'єкти",Normal,Objects,false,ObjSClass);
+  EditField(h1,v+=vs, -50,"Комментар",Normal,Comment,false,0);
   EnterSkip(Math);
   Tile(2,120,true,"2",Math);
   CheckBox(20,-20,0,"OK",OKFlag);
