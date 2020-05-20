@@ -1846,3 +1846,30 @@ end;
   end;
   EndWindow;
 end;
+
+window WorkflowWClass:4
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer,iPhone,iPad,android,android_tab")
+begin
+  WindowBegin("Управління робочими процесами",WorkflowWClass,CGother,RcType); 
+  UseView(RcVc);
+  CloseOnCancel;
+  DynamicWindow;
+  SetWRect(130,80,470,620);
+  Sizeable(-1,-1,0,0);
+  // AttachSubsetButton(-40,-15);
+  if (GuiType==kGuiAndroid) then begin
+    ToolBar;
+    PushButton(-70,5,-10,22,ToolNewActivity,"Новий");  
+    EndToolBar;
+  end;
+  if (GuiType==kGuiCocoa or GuiType==kGuiiPhone or GuiType==kGuiAndroid) then begin
+    WorkflowManager(1,16,-16,-23,"links"); 
+  end else begin
+    DataList(0,0,-1,-1,"WorkflowManager");
+    DataListCell(1,3,21,18,AdjLeft,"TagImage","",M4Image);
+    DataListCell(1,23,-100,1,AdjLeft,"Person","Співробітник",M4Str); 
+    DataListCell(1,-95,-1,1,AdjLeft,"Timestamp","Відмітка часу",M4Str); 
+    DataListCell(1,23,-1,11,AdjLeft,"Task","Завдання",M4Str);
+  end;
+  EndWindow;
+end;
