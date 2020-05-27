@@ -10,6 +10,7 @@ external inner function Boolean StandardHansa();
 external inner function Boolean HasModNL();
 external inner function Boolean HasDownpayments();
 external inner function Boolean HasLanguages();
+external inner function Boolean HasObjects();
 
 remote function Integer MailAcceptanceStatus(LongInt);
 external inner function Boolean HasMailTags();
