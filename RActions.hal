@@ -1153,20 +1153,59 @@ BEGIN
   LongInt res;
   val LocOKNr;
   record AccBlock ARAccRec;
-  Integer i,rwcnt;
+  Integer i,rwcnt,iprwcnt,ipi;
   row IVVc IVrw;
-  	record ARVc ARr,OldArr;
+	record ARVc ARr,OldArr;
+	record ARPayVc ARPayr;
+	record ARPayHistVc ARPayHistr;
+	record IPVc IPr;
+	row IPVc IPrw;
+	record ORVc ORr;
+  	
   res = inner.IVVcRecordUpdateAfter(IVr,IV2r,long3,long4);
   if (IVr.OKFlag!=0)  and (res==-1) then begin
-	Arr.InvoiceNr = IVr.SerNr;
-	if (readfirstmain(ARr,1,true)) then begin
-		if (Arr.PRCode <> IVr.PRCode) then begin
-			RecordCopy(OldArr,Arr);
-			Arr.PRCode = IVr.PRCode;
-			if (RecordUpdate(oldARr,ARr,false)==0) then begin end;
+		Arr.InvoiceNr = IVr.SerNr;
+		if (readfirstmain(ARr,1,true)) then begin
+			if (Arr.PRCode <> IVr.PRCode) then begin
+				RecordCopy(OldArr,Arr);
+				Arr.PRCode = IVr.PRCode;
+				if (RecordUpdate(oldARr,ARr,false)==0) then begin end;
+			end;
 		end;
-	end;
   end;
+  
+  if(IVr.OKFlag==1)then begin
+		rwcnt = matrowcnt(IVr);// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 2:06:10 PM
+		for(i=0;i<rwcnt;i=i+1)begin
+			matrowget(IVr,i,IVrw);
+			if(IVrw.stp==kInvoiceRowTypePrepayment)then begin
+				ARPayHistr.CUPNr = IVrw.CUPNr;
+				ARPayHistr.FileName = "IPVc";
+				if (ReadFirstMain(ARPayHistr,2,true)) then begin
+					IPr.SerNr = ARPayHistr.SerNr;
+					if (ReadFirstMain(IPr,1,true)) then begin
+						iprwcnt = MatRowCnt(IPr);
+						for (ipi=0;ipi<iprwcnt;ipi=ipi+1) begin
+							MatRowGet(IPr,ipi,IPrw);              
+							if (IPrw.CUPNr==IVrw.CUPNr) then begin
+								if(IPrw.OrderNr>-1)then begin
+									ORr.SerNr = IPrw.OrderNr;
+									if(readfirstmain(ORr,1,true))then begin
+										createrecordlink(IVr,currentcompany,IPr,currentcompany);
+										createrecordlink(IPr,currentcompany,IVr,currentcompany);
+										
+										createrecordlink(IVr,currentcompany,ORr,currentcompany);
+										createrecordlink(ORr,currentcompany,IVr,currentcompany);
+									end;
+								end;
+							end;
+						end;
+					end;
+				end;
+			end;
+		end;
+  end;
+  
   IVVcRecordUpdateAfter = res; 
   RETURN;
 END;
@@ -1178,9 +1217,16 @@ BEGIN
   LongInt res;
   val LocOKNr;
   record AccBlock ARAccRec;
-  Integer i,rwcnt;
+  Integer i,rwcnt,iprwcnt,ipi;
   row IVVc IVrw;
-  	record ARVc ARr,OldArr;
+	record ARVc ARr,OldArr;
+	record ARPayVc ARPayr;
+	record ARPayHistVc ARPayHistr;
+	record IPVc IPr;
+	row IPVc IPrw;
+	record ORVc ORr;  	
+  	
+  	
   res = inner.IVVcRecordSaveAfter(IVr,IV2r,long3,long4);
   if (IVr.OKFlag!=0)  and (res==-1) then begin
 	Arr.InvoiceNr = IVr.SerNr;
@@ -1192,6 +1238,40 @@ BEGIN
 		end;
 	end;
   end;
+  
+  
+  if(IVr.OKFlag==1)then begin
+		rwcnt = matrowcnt(IVr);// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 2:06:10 PM
+		for(i=0;i<rwcnt;i=i+1)begin
+			matrowget(IVr,i,IVrw);
+			if(IVrw.stp==kInvoiceRowTypePrepayment)then begin
+				ARPayHistr.CUPNr = IVrw.CUPNr;
+				ARPayHistr.FileName = "IPVc";
+				if (ReadFirstMain(ARPayHistr,2,true)) then begin
+					IPr.SerNr = ARPayHistr.SerNr;
+					if (ReadFirstMain(IPr,1,true)) then begin
+						iprwcnt = MatRowCnt(IPr);
+						for (ipi=0;ipi<iprwcnt;ipi=ipi+1) begin
+							MatRowGet(IPr,ipi,IPrw);              
+							if (IPrw.CUPNr==IVrw.CUPNr) then begin
+								if(IPrw.OrderNr>-1)then begin
+									ORr.SerNr = IPrw.OrderNr;
+									if(readfirstmain(ORr,1,true))then begin
+										createrecordlink(IVr,currentcompany,IPr,currentcompany);
+										createrecordlink(IPr,currentcompany,IVr,currentcompany);
+										
+										createrecordlink(IVr,currentcompany,ORr,currentcompany);
+										createrecordlink(ORr,currentcompany,IVr,currentcompany);
+									end;
+								end;
+							end;
+						end;
+					end;
+				end;
+			end;
+		end;
+  end;
+  
   IVVcRecordSaveAfter = res; 
   RETURN;
 END;

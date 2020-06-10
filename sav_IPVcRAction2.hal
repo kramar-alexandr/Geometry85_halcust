@@ -1092,6 +1092,9 @@ global
 updating function LongInt IPVcRecordSaveAfter(var record IPVc IPr,record IPVc IP2r,LongInt stat,LongInt long4)
 BEGIN
   LongInt res;
+  record ORVc ORr;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 1:58:49 PM
+  integer rwcnt,i;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 1:58:47 PM
+	row IPVc IPrw;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 2:02:09 PM
 
   if (IPr.OKFlag!=0) then begin
     IPrsStats(IPr,false,true);
@@ -1106,7 +1109,24 @@ BEGIN
   end;
   if (nonblank(IPr.OfficialSerNr)) then begin
     UpdateOffSerNr(IPr.SerNr,"IPVc",0,IPr.OfficialSerNr,false);
-  end;        
+  end;      
+  
+  if(IPr.OKFlag==1)then begin
+		rwcnt = matrowcnt(IPr);// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 1:59:03 PM
+		for(i=0;i<rwcnt;i=i+1)begin
+			matrowget(IPr,i,IPrw);
+			if(IPrw.OrderNr>-1)then begin
+				ORr.SerNr = IPrw.OrderNr;
+				if(readfirstmain(ORr,1,true))then begin
+					createrecordlink(ORr,currentcompany,IPr,currentcompany);
+					createrecordlink(IPr,currentcompany,ORr,currentcompany);
+				end;
+			end;
+		end;
+  end;
+  // Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 2:01:05 PM
+  
+    
   IPVcRecordSaveAfter = res;
   RETURN;
 END;
@@ -1151,7 +1171,10 @@ global
 updating function LongInt IPVcRecordUpdateAfter(var record IPVc IPr,record IPVc IP2r,LongInt stat,LongInt long4)
 BEGIN
   LongInt res;
-
+  record ORVc ORr;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 1:58:49 PM
+  integer rwcnt,i;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 1:58:47 PM
+	row IPVc IPrw;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 2:02:09 PM
+	
   if ((IPr.OKFlag!=0) and (IP2r.OKFlag==0)) then begin
     IPrsStats(IPr,false,true);
     UpdateCSFromIP(IPr,false);
@@ -1178,6 +1201,21 @@ BEGIN
       DeleteOffSerNr(IP2r.SerNr,"IPVc");
     end;
   end;
+  
+  if(IPr.OKFlag==1)then begin
+		rwcnt = matrowcnt(IPr);// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 1:59:03 PM
+		for(i=0;i<rwcnt;i=i+1)begin
+			matrowget(IPr,i,IPrw);
+			if(IPrw.OrderNr>-1)then begin
+				ORr.SerNr = IPrw.OrderNr;
+				if(readfirstmain(ORr,1,true))then begin
+					createrecordlink(ORr,currentcompany,IPr,currentcompany);
+					createrecordlink(IPr,currentcompany,ORr,currentcompany);
+				end;
+			end;
+		end;
+  end;
+  // Edit ************************** BPI Ukraine - KramarAlexandr - 03, 10 06 2020 y. at 2:01:05 PM
   IPVcRecordUpdateAfter = res;
   RETURN;
 END;
