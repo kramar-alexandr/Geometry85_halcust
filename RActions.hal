@@ -240,6 +240,7 @@ BEGIN
   string 20 tstr;
   record MailVc Mailr;
 		
+		
 		// Edit Start ---------------------------------------------- Edit Start
 	//Friday, 8 February 2013 10:40:13
 	
@@ -1045,9 +1046,9 @@ BEGIN
     end;
   LOPVcRecordCheck:;
 
-  if res!=-1 then begin
+  if(res!=-1)then begin
 
-  res=inner.OPVcRecordCheck(OPp,OP2p,stat,long4);
+  res = inner.OPVcRecordCheck(OPp,OP2p,stat,long4);
   end;
   
   OPVcRecordCheck = res;
