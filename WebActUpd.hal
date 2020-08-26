@@ -73,6 +73,7 @@ begin
 	record ActVc Actr;
 	string 100 number;
 	area resarea;
+	record OPVc OPr;
 	
 	number = webgetarg("argpar");
 	
@@ -88,6 +89,20 @@ begin
 						addParamToJSONArea("Comment",NormalizeStrToJson(Actr.Comment),resarea);
 						delLastComaInArea(resarea);
 					AddTextToArea("},",resarea);
+					
+					switch(Actr.FromFileName)begin
+						case "OPVc":OPr.SerNr = Actr.FromSerNr;
+												if(readfirstmain(OPr,1,true))then begin
+													if(nonblank(OPr.BankName))then begin
+														AddTextToArea("{",resarea);
+															addParamToJSONArea("Comment",NormalizeStrToJson(OPr.BankName),resarea);
+															delLastComaInArea(resarea);
+														AddTextToArea("},",resarea);
+													end;
+												end;
+					
+					end;
+					
 					/*AddTextToArea("{",resarea);
 						addParamToJSONArea("Comment",NormalizeStrToJson(Actr.Comment),resarea);
 						delLastComaInArea(resarea);
