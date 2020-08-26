@@ -1,0 +1,237 @@
+SetLangMode(LangUkrainian,"UKR",0);
+
+procedure addParamToJSONArea(string param, string value, var area req)
+begin
+
+AddTextToArea("\"" & param & "\":" &  "\"" & value & "\",",req);
+
+return;
+end;
+
+procedure delLastComaInArea(var area req)
+begin
+	longint alen;
+	string 1 lastsymb;
+	area tmpar;
+	
+	alen = getarealength(req);
+	lastsymb = getstringfromarea(req,alen-1,1);
+	if(lastsymb==",")then begin
+		getareafromarea(req,0,alen-1,tmpar);
+		setareazerosize(req);
+		getareafromarea(tmpar,0,getarealength(tmpar),req);
+	end;
+
+return;
+end;
+
+global function string 255 NormalizeStrToJson (string Str)
+begin
+	integer strln,i;
+	string 255 NormStr;
+	
+
+	NormStr = "";
+	strln = len(Str);
+	for (i=0;i<strln;i=i+1)begin
+		if(mid(Str,i,1)==chr(34))then begin
+			NormStr = NormStr & chr(92) & mid(Str,i,1);
+		end else begin
+			NormStr = NormStr & mid(Str,i,1);
+		end;
+	end;
+	
+	
+	NormalizeStrToJson = NormStr;
+	
+	return;
+end;
+
+global webpublic procedure WebIsLogInGEO()
+begin
+  Time checkTime;
+  array string 5 checkTimeStr;
+  string 255 sentMD5,checkMD5;
+  integer deltaMin,i,cti;
+  boolean isLogedIn;
+    
+  isLogedIn = WebLoginStatus==3;
+  logtext(0,"isLogedIn " & isLogedIn);
+  
+  if (isLogedIn and nonblank(currentuser)) then begin
+  	logtext(0,"WebIsLogIn" & currentuser);
+    WebOutString("true");
+  end else begin
+  	WebOutString("false");
+  end;
+  
+  return;
+end;
+
+global webpublic procedure WebGetCurrentAct()
+begin
+	record ActVc Actr;
+	string 100 number;
+	area resarea;
+	
+	number = webgetarg("argpar");
+	
+	if(WebLoginStatus==3)then begin
+		WebSetContentType("application/json; charset=UTF-8");	
+		
+		Actr.SerNr = stringtolongint(number);
+		if(readfirstmain(Actr,1,true))then begin
+			if(Actr.MainPersons==currentuser)then begin
+				if(Actr.OKFlag==0)then begin
+					AddTextToArea("[",resarea);
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("Comment",NormalizeStrToJson(Actr.Comment),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("},",resarea);
+					/*AddTextToArea("{",resarea);
+						addParamToJSONArea("Comment",NormalizeStrToJson(Actr.Comment),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("},",resarea);
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("Comment",NormalizeStrToJson(Actr.Comment),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("},",resarea);
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("Comment",NormalizeStrToJson(Actr.Comment),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("},",resarea);
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("Comment",NormalizeStrToJson(Actr.Comment),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("},",resarea);*/
+					delLastComaInArea(resarea);
+					AddTextToArea("]",resarea);
+				end else begin
+					AddTextToArea("[",resarea);
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("Comment",NormalizeStrToJson("Задача завершена"),resarea);
+						addParamToJSONArea("error",NormalizeStrToJson("error"),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("},",resarea);
+					delLastComaInArea(resarea);
+					AddTextToArea("]",resarea);
+				end;
+			end else begin
+				AddTextToArea("[",resarea);
+				AddTextToArea("{",resarea);
+					addParamToJSONArea("Comment",NormalizeStrToJson("Не тот пользователь"),resarea);
+					addParamToJSONArea("error",NormalizeStrToJson("error"),resarea);
+					delLastComaInArea(resarea);
+				AddTextToArea("},",resarea);
+				delLastComaInArea(resarea);
+				AddTextToArea("]",resarea);
+			end;
+		end;
+		weboutarea2(resarea);
+	end;
+
+return;
+end;
+
+global webpublic updating procedure WebGetSendOKAct()
+begin
+	record ActVc Actr,oldActr;
+	string 100 number;
+	area resarea;
+	
+	number = webgetarg("argpar");
+	
+	if(WebLoginStatus==3)then begin
+		WebSetContentType("application/json; charset=UTF-8");	
+		
+		Actr.SerNr = stringtolongint(number);
+		if(readfirstmain(Actr,1,true) and Actr.OKFlag==0)then begin
+			if(Actr.MainPersons==currentuser)then begin
+				
+				recordCopy(oldActr,Actr);
+				Actr.ActResult = "ACPT";
+				Actr.OKFlag = 1;
+				if(recordupdate(oldActr,Actr,true)==0)then begin
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("result",NormalizeStrToJson("ok"),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("}",resarea);
+				end else begin
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("result",NormalizeStrToJson("error"),resarea);
+						addParamToJSONArea("error",NormalizeStrToJson("Не удалось утвердить документ. Попробуйте его утвердить в системе StandardERP"),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("}",resarea);
+				end;
+				
+			end else begin
+				AddTextToArea("{",resarea);
+					addParamToJSONArea("result",NormalizeStrToJson("error"),resarea);
+					addParamToJSONArea("error",NormalizeStrToJson("Не тот пользователь"),resarea);
+					delLastComaInArea(resarea);
+				AddTextToArea("}",resarea);
+			end;
+		end else begin
+			AddTextToArea("{",resarea);
+				addParamToJSONArea("result",NormalizeStrToJson("error"),resarea);
+				addParamToJSONArea("error",NormalizeStrToJson("Задача не найдена"),resarea);
+				delLastComaInArea(resarea);
+			AddTextToArea("}",resarea);
+		end;
+		weboutarea2(resarea);
+	end;
+
+return;
+end;
+
+global webpublic updating procedure WebGetSendREJAct()
+begin
+	record ActVc Actr,oldActr;
+	string 100 number;
+	area resarea;
+	
+	number = webgetarg("argpar");
+	
+	if(WebLoginStatus==3)then begin
+		WebSetContentType("application/json; charset=UTF-8");	
+		
+		Actr.SerNr = stringtolongint(number);
+		if(readfirstmain(Actr,1,true) and Actr.OKFlag==0)then begin
+			if(Actr.MainPersons==currentuser)then begin
+				
+				recordCopy(oldActr,Actr);
+				Actr.ActResult = "REJEC";
+				Actr.OKFlag = 1;
+				if(recordupdate(oldActr,Actr,true)==0)then begin
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("result",NormalizeStrToJson("ok"),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("}",resarea);
+				end else begin
+					AddTextToArea("{",resarea);
+						addParamToJSONArea("result",NormalizeStrToJson("error"),resarea);
+						addParamToJSONArea("error",NormalizeStrToJson("Не удалось отклонить документ. Попробуйте его отклонить в системе StandardERP"),resarea);
+						delLastComaInArea(resarea);
+					AddTextToArea("}",resarea);
+				end;
+				
+			end else begin
+				AddTextToArea("{",resarea);
+					addParamToJSONArea("result",NormalizeStrToJson("error"),resarea);
+					addParamToJSONArea("error",NormalizeStrToJson("Не тот пользователь"),resarea);
+					delLastComaInArea(resarea);
+				AddTextToArea("}",resarea);
+			end;
+		end else begin
+			AddTextToArea("{",resarea);
+				addParamToJSONArea("result",NormalizeStrToJson("error"),resarea);
+				addParamToJSONArea("error",NormalizeStrToJson("Задача не найдена"),resarea);
+				delLastComaInArea(resarea);
+			AddTextToArea("}",resarea);
+		end;
+		weboutarea2(resarea);
+	end;
+
+return;
+end;
+
