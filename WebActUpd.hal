@@ -74,6 +74,8 @@ begin
 	string 100 number;
 	area resarea;
 	record OPVc OPr;
+	row OPVc OPrw;
+	integer i,rwcnt;
 	
 	number = webgetarg("argpar");
 	
@@ -98,6 +100,38 @@ begin
 															addParamToJSONArea("Comment",NormalizeStrToJson(OPr.BankName),resarea);
 															delLastComaInArea(resarea);
 														AddTextToArea("},",resarea);
+													end;
+													rwcnt = matrowcnt(OPr);
+													for(i=0;i<rwcnt;i=i+1)begin
+														matrowget(OPr,i,OPrw)
+														if(OPrw.VISerNr>0)then begin
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson("Оплата по акт/накл:" & OPrw.VISerNr & " <B>" & OPrw.RecVal & " " & OPrw.RecCurncy & " </B>"),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson(OPrw.VEName),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson(OPrw.Comment),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+														end;
+														if(OPrw.PrepayNr>0)then begin
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson("Предоплата:" & OPrw.PrepayNr & " <B>" & OPrw.RecVal & " " & OPrw.RecCurncy & " </B>"),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson(OPrw.VEName),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson(OPrw.Comment),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+														end;
 													end;
 												end;
 					
