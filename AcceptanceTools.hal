@@ -3062,7 +3062,7 @@ begin
 //                ReadFirstMain(OPr,1,true);
 //                RecordCopy(oldOPr,OPr);
                 OPr.OrderedFlag = 1;
-                OPr.DoneFlag = 1;
+                //OPr.DoneFlag = 1;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 08 2020 y. at 4:44:58 PM
                 RecordUpdate(oldOPr,OPr,true);
               end else begin
                 RecordUpdate(oldOPr,OPr,false);//no vcrecordupdate triger, if we want vcrecordupdate we need to do recordcheck
