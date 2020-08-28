@@ -75,6 +75,10 @@ begin
 	area resarea;
 	record OPVc OPr;
 	row OPVc OPrw;
+	record QTVc QTr;
+	row QTVc QTrw;
+	record POVc POr;
+	row POVc POrw;
 	integer i,rwcnt;
 	
 	number = webgetarg("argpar");
@@ -134,6 +138,56 @@ begin
 														end;
 													end;
 												end;
+							case "QTVc":QTr.SerNr = Actr.FromSerNr;
+													if(readfirstmain(QTr,1,true))then begin
+														AddTextToArea("{",resarea);
+															addParamToJSONArea("Comment",NormalizeStrToJson("<B>Коммерческое предложение</B> " & QTr.SerNr & " " & QTr.Sum4 & " " & QTr.CurncyCode),resarea);
+															delLastComaInArea(resarea);
+														AddTextToArea("},",resarea);
+														if(nonblank(QTr.Addr0))then begin
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson(QTr.Addr0),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+														end;
+														rwcnt = matrowcnt(QTr);
+														for(i=0;i<rwcnt;i=i+1)begin
+															matrowget(QTr,i,QTrw)
+																AddTextToArea("{",resarea);
+																	if(QTrw.Sum!=0)then begin
+																		addParamToJSONArea("Comment",NormalizeStrToJson(QTrw.Spec & " x " & QTrw.Quant & " <B>" & QTrw.Sum & QTr.CurncyCode & "<B>"),resarea);
+																	end else begin
+																		addParamToJSONArea("Comment",NormalizeStrToJson(QTrw.Spec),resarea);
+																	end;
+																	delLastComaInArea(resarea);
+																AddTextToArea("},",resarea);
+														end;
+													end;
+							case "POVc":POr.SerNr = Actr.FromSerNr;
+													if(readfirstmain(POr,1,true))then begin
+														AddTextToArea("{",resarea);
+															addParamToJSONArea("Comment",NormalizeStrToJson("<B>Заказ поставщику</B> " & POr.SerNr & " " & POr.Sum4 & " " & POr.CurncyCode),resarea);
+															delLastComaInArea(resarea);
+														AddTextToArea("},",resarea);
+														if(nonblank(POr.Addr0))then begin
+															AddTextToArea("{",resarea);
+																addParamToJSONArea("Comment",NormalizeStrToJson(POr.Addr0),resarea);
+																delLastComaInArea(resarea);
+															AddTextToArea("},",resarea);
+														end;
+														rwcnt = matrowcnt(POr);
+														for(i=0;i<rwcnt;i=i+1)begin
+															matrowget(POr,i,POrw)
+																AddTextToArea("{",resarea);
+																	if(POrw.Sum!=0)then begin
+																		addParamToJSONArea("Comment",NormalizeStrToJson(POrw.Spec & " x " & POrw.Quant & " <B>" & POrw.Sum & POr.CurncyCode & "</B>"),resarea);
+																	end else begin
+																		addParamToJSONArea("Comment",NormalizeStrToJson(POrw.Spec),resarea);
+																	end;
+																	delLastComaInArea(resarea);
+																AddTextToArea("},",resarea);
+														end;
+													end;
 					
 					end;
 					
