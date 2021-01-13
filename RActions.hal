@@ -1600,3 +1600,42 @@ begin
 
 return;
 end;
+
+
+global
+updating function LongInt VIVcRecordSaveAfter(var record VIVc VIr,record VIVc VI2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  record POVc POr;
+  
+  res = inner.VIVcRecordSaveAfter(VIr,VI2r,stat,long4);
+  if (VIr.POSerNr!=-1) then begin
+  	POr.SerNr = VIr.POSerNr;
+  	if(readfirstmain(POr,1,true))then begin
+			CreateRecordLink(VIr,CurrentCompany,POr,CurrentCompany);  
+			CreateRecordLink(POr,CurrentCompany,VIr,CurrentCompany);
+		end; 
+  end; 
+  
+  VIVcRecordSaveAfter = res;
+  RETURN;
+END;
+
+global
+updating function LongInt VIVcRecordUpdateAfter(var record VIVc VIr,record VIVc VI2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  record POVc POr;
+  
+  res = inner.VIVcRecordUpdateAfter(VIr,VI2r,stat,long4);
+  if (VIr.POSerNr!=-1) then begin
+  	POr.SerNr = VIr.POSerNr;
+  	if(readfirstmain(POr,1,true))then begin
+			CreateRecordLink(VIr,CurrentCompany,POr,CurrentCompany);  
+			CreateRecordLink(POr,CurrentCompany,VIr,CurrentCompany);
+		end; 
+  end; 
+  
+  VIVcRecordUpdateAfter = res;
+  RETURN;
+END;
