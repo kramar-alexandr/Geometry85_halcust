@@ -2198,6 +2198,11 @@ begin
 	  SpecialMenu("Відкити бюджет проекту",' ',6,"OpenTBBUPRD");
   EndWindow;
   
+	WindowBegin("Інформація діяльності",ActPrintInfoRClass,CGRcW,RcType);
+		SetWRect(20,80,400,200);
+		v = 6; vs = 20; h = 120;
+	EndWindow;
+	
  WindowBegin("Замовлення постачальнику",PODClass,CGview,-);
   SetWRect(20,80,650,400);
   Sizeable(-1,-1,0,0);
@@ -2881,6 +2886,7 @@ SpecialMenu("Статус товару",'I',1,"ItemStatusQTDsm");
   end;
   SpecialMenu("Статус клієнта",'e',6,"CUStatusActDsm");
   SpecialMenu("Надіслати запрошення",'i',7,"SendInvitationDsm");
+	SpecialMenu("Друк інформації",' ',8,"PrintInfoActDsm");  //  by Ira
   EndWindow;
 
   WindowBegin("Визначте НА на момент часу",AssetAtTimeRClass,CGRcW,RcType);
@@ -3247,6 +3253,7 @@ SpecialMenu("Статус товару",'I',1,"ItemStatusQTDsm");
   RlColKey(50,2,"Назва",Name,false,Name);
   SearchField("Пошук");
   EndWindow;
+	
 	
 	// Edit End ---------------------------------------------- Edit End
 	

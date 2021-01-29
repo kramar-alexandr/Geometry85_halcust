@@ -20,6 +20,121 @@ begin
   return;
 end; 
 
+global  //  by Ira
+procedure ActPrintInfoRn(record RcVc RepSpec)
+begin
+	record ActVc Actr;
+	record UserVc Ur;
+	record QTVc QTr;
+	record OPVc OPr;
+	record POVc POr;
+	row OPVc OPrw;
+	row QTVc QTrw;
+	row POVc POrw;
+  string 255 doctype;
+  integer rwcnt,i,wn;
+	
+	
+	Actr.SerNr = RepSpec.long1;
+	
+  SetLangMode(LangUkrainian,"UKR",0);
+ if (ReadFirstMain(Actr,1,true)) then begin
+  StartReportJob("Інформація");
+	EndHeader;
+		SetRepCol(2,50);
+		SetRepCol(3,100);
+		SetRepCol(4,150);
+		
+		
+		StartFormat(15);
+		OutString(0,0,"INTERNAL APPROVAL FORM",false);
+		OutString(0,0,"DOCUMENT:   " & Actr.FromFileName,false);
+		OutString(0,0,"NUMBER:     " & Actr.FromSerNr,false);
+		OutString(0,0,"CLIENT/SUPPLIER:   " & Actr.Comment,false);
+		EndFormat;
+		
+		switch(Actr.FromFileName) begin
+			case "QTVc" :
+				StartFormat(15);
+				OutString(0,0,"Найменування",false);
+				OutString(1,0,"Сума",true);	
+				EndFormat;
+				
+				QTr.SerNr = Actr.FromSerNr;
+				if(readfirstmain(QTr,1,true))then begin
+					rwcnt = MatRowCnt(QTr);
+					for(i = 0; i < rwcnt; i = i + 1) begin
+						MatRowGet(QTr,i,QTrw);
+						
+						StartFormat(15);
+						OutString(0,0,QTrw.Spec,false);
+						OutString(1,0,QTrw.Sum,true);
+						EndFormat;
+					end;
+					StartFormat(15);
+					OutString(0,0,"Разом  " & QTr.Sum1,false);
+					OutString(0,0,"Всього  "  & QTr.Sum4,false);
+					EndFormat;
+				end;
+				
+			case "POVc" :
+				StartFormat(15);
+				OutString(0,0,"Опис",false);
+				OutString(1,0,"Сума",true);
+				EndFormat;
+				
+				POr.SerNr = Actr.FromSerNr;
+				if(readfirstmain(POr,1,true))then begin
+					rwcnt = MatRowCnt(POr);
+					for(i = 0; i < rwcnt; i = i + 1) begin
+						MatRowGet(POr,i,POrw);
+						StartFormat(15);	
+						OutString(0,0,POrw.Spec,false);
+						OutString(1,0,POrw.Sum,true);
+						EndFormat;
+					end;
+						StartFormat(15);
+						OutString(0,0,"Разом  " & POr.Sum1,false);
+						OutString(0,0,"Всього  " & POr.Sum4,false);
+						EndFormat;
+				end;
+			case "OPVc" :
+				StartFormat(15);
+					OutString(0,0,"Ім'я",false);
+					OutString(3,0,"Перераховано",false);
+					OutString(1,0,"Коментар",true);
+					
+				EndFormat;
+				
+				OPr.SerNr = Actr.FromSerNr;
+				if(readfirstmain(OPr,1,true))then begin
+					rwcnt = MatRowCnt(OPr);
+					for(i = 0; i < rwcnt; i = i + 1) begin
+						MatRowGet(OPr,i,OPrw);
+						StartFormat(15);
+						OutString(0,0,OPrw.VEName,false);						
+						OutString(3,0,OPrw.RecVal,false);
+						OutString(1,0,OPrw.Comment,true);
+						EndFormat;
+					end;
+				end;
+		end;
+		StartFormat(15);
+		Ur.Code = Actr.MainPersons;
+		readfirstmain(Ur,1,true);
+		OutString(0,0,"APPROVER:   " & Ur.Name, false);
+		OutString(0,0,"APPROVAL DATE AND TIME:   " & Actr.EndDate & " " & Actr.EndTime,false);
+		OutString(0,0,"SYSTEM GENERATED DOCUMENT",false);
+		EndFormat;
+		
+	
+	EndJob;
+	
+	end;
+  return;
+end;
+
+
 procedure RepQT( record QTVc QTp,record RcVc RepSpec)
 begin
   Integer i,rwcnt;

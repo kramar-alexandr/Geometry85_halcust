@@ -3,6 +3,25 @@ external inner function roundmode SetRoundModeD(Integer);
 external inner function roundmode DefaultRoundMode();
 external inner procedure GetUserName(string,var string);
 
+
+
+global  //  by Ira
+procedure PrintInfoActDsm()
+begin
+	record ActVc Actr;
+  record RcVc RepSpec;
+  integer wn;
+  wn = CurWindow;
+  GetWindowRecord(wn,Actr);
+	RepSpec.Media = mtScreen; 
+  RepSpec.repname = "ActPrintInfoRn";
+  RepSpec.long1 = Actr.SerNr;
+//  if(usercanaction("AllowExportTableToExcelStockTake",true))then begin
+		RunReport(RepSpec,0);
+//  end;  
+return;
+end;
+
 function string 255 Convert(string source)
 begin
   string 255 res;
@@ -341,6 +360,7 @@ record CUVc CUr;
 	end;
 	return;
 end;
+
 
 global
 procedure ClientBankOPDsm()
