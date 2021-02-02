@@ -48,7 +48,11 @@ begin
 		
 		StartFormat(15);
 		OutString(0,0,"INTERNAL APPROVAL FORM",false);
-		OutString(0,0,"DOCUMENT:   " & Actr.FromFileName,false);
+		switch(Actr.FromFileName)begin
+			case "POVc": OutString(0,0,"DOCUMENT:   Purchase Order",false);
+			case "OPVc": OutString(0,0,"DOCUMENT:   Payment",false);
+			case "QTVc": OutString(0,0,"DOCUMENT:   Cost estimate",false);
+		end;
 		OutString(0,0,"NUMBER:     " & Actr.FromSerNr,false);
 		OutString(0,0,"CLIENT/SUPPLIER:   " & Actr.Comment,false);
 		EndFormat;
