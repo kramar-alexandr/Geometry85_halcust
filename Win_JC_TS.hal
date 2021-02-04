@@ -2787,6 +2787,7 @@ EditField(h2,v,100,"Ориг. клієнт",Normal,OrgCust,false,AllCUSClass);
     if (GuiType==kGuiCocoa) then begin
       SpecialMenu("Скопіювати до iCal",' ',7,"CopyToLocalCalendarDsm");
     end;  
+  SpecialMenu("Друк інформації",' ',8,"PrintInfoActDsm");  //  by Ira
   EndWindow;
 
   WindowBegin("Визначте товар",INSClass,CGslist,-);
