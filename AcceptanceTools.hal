@@ -2261,6 +2261,7 @@ begin
       if (Actr.TodoFlag!=kTodoFlagTodo) then begin found = false; end;
       if (Actr.FromFileName!=FromFileName) then begin found = false; end;
       if (Actr.FromSerNr!=FromSerNr) then begin found = false; end;
+      if (Actr.Invalid==1) then begin found = false; end;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 26 02 2021 y. at 12:31:25 PM
       if (found) then begin
         testf = true;
         if (testf) then begin
@@ -2428,6 +2429,8 @@ begin
         if (Actr.TodoFlag!=kTodoFlagTodo) then begin found = false; end;
         if (Actr.FromFileName!=FromFileName) then begin found = false; end;
         if (Actr.FromSerNr!=FromSerNr) then begin found = false; end;
+        if (Actr.Invalid==1) then begin found = false; end;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 26 02 2021 y. at 12:29:21 PM
+
         if (found) then begin
           testf = true;
           if (Actr.OKFlag!=0) then begin testf = false; end;
@@ -2881,6 +2884,7 @@ begin
         end;
       end;
     case "QTVc":
+    	messagebox(0,"QTVc");
       QTr.SerNr = StringToLongInt(Actr.FromSerNr);
       if (ReadFirstMain(QTr,1,true)) then begin
         if (ReadAcceptanceRules(kAcceptanceQT,QTr.CustCode,Acptr)) then begin
@@ -2896,7 +2900,8 @@ begin
             SetAcceptanceTasksRejectedForAllLevels("QTVc",QTr.SerNr,bc1v,Actr,Acptr);
           end;
           if (Actr.ActResult==Acptr.AcceptedActType) then begin
-            testf = AcceptanceTasksAcceptedForAllLevels("QTVc",QTr.SerNr,bc1v,Actr,Acptr);            
+            testf = AcceptanceTasksAcceptedForAllLevels("QTVc",QTr.SerNr,bc1v,Actr,Acptr);          
+            messagebox(0,"testf " & testf);  
             if (testf) then begin
               QTr.AcceptanceStatus = kAcceptanceStateApproved;
               if(QTr.AcceptanceStatus==kAcceptanceStateApproved)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 03 12 2019 y. at 1:10:47 PM
@@ -3766,6 +3771,8 @@ begin
       if (Actr.TodoFlag!=kTodoFlagTodo) then begin found = false; end;
       if (Actr.FromFileName!=FromFileName) then begin found = false; end;
       if (Actr.FromSerNr!=FromSerNr) then begin found = false; end;
+      if (Actr.Invalid==1) then begin found = false; end;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 26 02 2021 y. at 12:31:25 PM
+
       if (found) then begin
         testf = true;
         if (Actr.OKFlag==1) then begin testf = false; end;
