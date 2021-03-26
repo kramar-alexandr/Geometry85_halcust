@@ -35,7 +35,10 @@ begin
 		RecordField(ProjType,M4Int,0,0);				// was added 
 		RecordField(Ident,M4Code,20,PRVc);			// was added  
 		RecordField(PreFinishedDate,M4Date,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 30 March 2018 12:12:27
-
+		RecordField(WorksectionID_Pr,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 12 03 2021 y. at 1:56:40 PM
+		RecordField(WSPage_Pr,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 16 03 2021 y. at 5:13:04 PM
+		RecordField(WorksectionID_Tsk,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 12 03 2021 y. at 1:56:40 PM
+		RecordField(WSPage_Tsk,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 16 03 2021 y. at 5:13:04 PM
 		SubsetKeyBegin2(PRCode); // should not be mainkey
 		StoreInBaseKey;
 		AppendListFieldToKeyName(SalesGroup);
@@ -107,7 +110,8 @@ begin
 		ChangeField(Comment2,M4Str,255,0);//60-255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:43:24
 		RecordField(ContactCode,M4Str,20,0);
 		RecordField(FullName,M4Str,255,0);// 6.2// Edit ************************** Thursday, 19 September 2013 12:55:04
-	
+		RecordField(WSFolder,M4Str,100,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 23 03 2021 y. at 2:11:47 PM
+		
 		KeyBegin(ContactCode);//6.2sav ==== added by prev
 		KeySegment(ContactCode);
 		KeySegment(Code);
@@ -613,6 +617,26 @@ begin
 		KeySegment(PONr);
 		KeySegment(SerNr);
   EndRecord;
-	    
+	
+	BlockBegin(WorksectionBlock,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 12 03 2021 y. at 11:58:08 AM
+		RecordField(ApiKey,M4Str,255,0);
+		RecordField(ApiPage,M4Str,255,0);
+  EndBlock;
+	 
+	RecordBegin(WorksectionUserVc,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 17 03 2021 y. at 3:18:00 PM
+		RecordField(eMail,M4Str,50,0);
+		RecordField(id,M4Str,50,0);		
+		RecordField(first_name,M4Str,50,0);
+		RecordField(last_name,M4Str,50,0);
+		RecordField(name,M4Str,50,0);
+		RecordField(title,M4Str,250,0);
+		RecordField(avatar,M4Str,250,0);
+		RecordField(group,M4Str,50,0);
+		RecordField(department,M4Str,250,0);
+		RecordField(role,M4Str,50,0);
+		MainKeyBegin(eMail,0);
+		KeySegment(eMail);
+  EndRecord; 
+	
  	return;
 end;

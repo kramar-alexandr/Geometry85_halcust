@@ -146,6 +146,12 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
     SetWRect(20,80,380,180);
     StaticText(30,75,"Натисніть запуск",false);
 	EndWindow;
+	
+	WindowBegin("Завантажити час з WorkSection",WorkSectionGetCostsVClass,CGMnt,RcType);
+    SetWRect(20,80,380,180);
+    PeriodField(60,50,"Період");
+    StaticText(60,25,"Натисніть запуск",false);
+	EndWindow;
 
 	WindowBegin("Find Ring",RingInProjVClass,CGMnt,RcType);
 	SetWRect(20,80,380,180);
@@ -326,7 +332,34 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
 	EditFieldTL(h,v+=vs, 150,"Поле",   M4UStr,Normal,60,f4,false,0);  
 
   EndWindow;  
-
+	
+	
+	
+	
+	WindowBegin("Worksection Користувачі",WorksectionUserLClass,CGmlist,-);
+		SpawnClass(WorksectionUserDClass);
+		SetWRect(64,80,900,298);
+		Sizeable(-1,-1,0,0);
+		UseView(WorksectionUserVc);
+		RecordList(4,17,-21,-39);
+		RlColKey(4,4,"eMail",eMail,false,eMail);
+		RlCol(44,44,"first_name",first_name,false);
+		RlCol(104,104,"last_name",last_name,false);
+		RlCol(154,154,"name",name,false);
+  EndWindow; 
+  
+  WindowBegin("Worksection Користувач",WorksectionUserDClass,CGview,-);
+		SetWRect(20,80,640,360);
+		Sizeable(-1,-1,0,0);
+		UseView(WorksectionUserVc);
+		vs = 20; h=100; h1=280; h2=380;  
+		EditField(h,v=10, 200,"eMail",Normal,eMail,false,0);
+		EditField(h,v+=25, 200,"id",Normal,id,false,0);
+		EditField(h,v+=25, 200,"first_name",Normal,first_name,false,0);
+		EditField(h,v+=25, 200,"last_name",Normal,last_name,false,0);
+		EditField(h,v+=25, 200,"eMail",Normal,name,false,0);
+  EndWindow;
+	
 
 	WindowBegin("Відредаговані табелі часу",ChangedTSRClass,CGRcW,RcType);
 	SetWRect(20,80,380,300);
@@ -1288,6 +1321,7 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
   RadioButton(h2-20,v,0,0,"компанія",CustType);
   RadioButton(h2+60,v,1,0,"особа",CustType);
   EditField(h,v,120,"ІПН",Normal,VATNr,false,0);
+  EditField(h,v+=vs,120,"Папка WorkSection",Normal,WSFolder,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 23 03 2021 y. at 2:13:25 PM
 //  EditField(h,v+=vs,120,"Канал",Normal,WebServiceChannel,false,SetSClass);
   v = 84;
   v = VATZoneButtonsLabelsUKR(h5+30,v,150,16);
@@ -1912,4 +1946,19 @@ begin
     end;
   end;
   EndWindow;
+end;
+
+
+window WorksectionTClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v,vs,h;
+  Integer f,flipnr;
+	WindowBegin("Настройки Worksection",WorksectionTClass,CGSbl,-);
+		SetWRect(64,80,470,290);
+		SetBlid(WorksectionBlock);
+		v = 0; vs = 25; h = 75; f = 150;
+		EditField(h=70,v+=30,-20,"ApiKey",Normal,ApiKey,false,0);
+		EditField(h,v+=20,-20,"Домен",Normal,ApiPage,false,0);
+	EndWindow;
 end;

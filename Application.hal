@@ -1,0 +1,13 @@
+global
+updating procedure OnApplicationStartupComplete()
+begin
+  record RcVc RepSpec;
+  Integer wn;
+  Integer pt;
+
+	inner.OnApplicationStartupComplete;
+	
+	NewPeriodicTask("WorkSection-Users","WorkSection Update Users","WorkSectionUpdateGetUsersRequest","",60,"");
+
+  return;
+end;
