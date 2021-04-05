@@ -1957,8 +1957,9 @@ begin
 	WindowBegin("Настройки Worksection",WorksectionTClass,CGSbl,-);
 		SetWRect(64,80,470,290);
 		SetBlid(WorksectionBlock);
-		v = 0; vs = 25; h = 75; f = 150;
-		EditField(h=70,v+=30,-20,"ApiKey",Normal,ApiKey,false,0);
+		v = 0; vs = 25; h = 140; f = 150;
+		EditField(h=130,v+=30,-20,"ApiKey",Normal,ApiKey,false,0);
 		EditField(h,v+=20,-20,"Домен",Normal,ApiPage,false,0);
+		EditField(h,v+=20,-20,"Папка меток проектов",Normal,TagsPage,false,0);
 	EndWindow;
 end;

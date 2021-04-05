@@ -622,6 +622,7 @@ begin
 	BlockBegin(WorksectionBlock,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 12 03 2021 y. at 11:58:08 AM
 		RecordField(ApiKey,M4Str,255,0);
 		RecordField(ApiPage,M4Str,255,0);
+		RecordField(TagsPage,M4Str,255,0);
   EndBlock;
 	 
 	RecordBegin(WorksectionUserVc,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 17 03 2021 y. at 3:18:00 PM
