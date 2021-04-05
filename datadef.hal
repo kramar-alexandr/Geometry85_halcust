@@ -39,6 +39,7 @@ begin
 		RecordField(WSPage_Pr,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 16 03 2021 y. at 5:13:04 PM
 		RecordField(WorksectionID_Tsk,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 12 03 2021 y. at 1:56:40 PM
 		RecordField(WSPage_Tsk,M4Str,255,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 16 03 2021 y. at 5:13:04 PM
+		RecordField(WSSended,M4Int,0,0);
 		SubsetKeyBegin2(PRCode); // should not be mainkey
 		StoreInBaseKey;
 		AppendListFieldToKeyName(SalesGroup);

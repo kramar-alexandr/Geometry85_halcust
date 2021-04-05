@@ -2199,6 +2199,7 @@ begin
   EditField(h+100,v+=20,-40,"WSPage_Pr",Normal,WSPage_Pr,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 16 03 2021 y. at 5:20:28 PM
   EditField(h+100,v+=20,-40,"WorksectionID_Tsk",Normal,WorksectionID_Tsk,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 16 03 2021 y. at 5:20:28 PM
   EditField(h+100,v+=20,-40,"WSPage_Tsk",Normal,WSPage_Tsk,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 16 03 2021 y. at 5:20:28 PM
+  EditField(h+100,v+=20,-40,"WSSended",Normal,WSSended,false,0);
   
    SpecialMenu("§нформацґЯ про проект",'I',2,"ProInvPRD");
    SpecialMenu("‘творити комерц. пропоз.",'q',3,"DoQTFromPRD");
