@@ -1,0 +1,11 @@
+global
+function string 255 PRCodeText(var record ViVc Vir)
+begin
+	record POVc POr;
+
+	POr.SerNr = Vir.SerNr;
+	if(Readfirstmain(POr,1,true))then begin
+		PRCodeText = POr.PRCode;
+	end;
+  return;
+end;
