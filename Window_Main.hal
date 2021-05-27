@@ -3893,3 +3893,32 @@ begin
   end;
   EndWindow;
 end;
+
+
+window QTAccRClass:2 //Edit **********************************************Vas-P 24.05.2021
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs;
+  WindowBegin("Визначте статистику рішень по пропозиціям",QTAccRClass,CGRcW,RcType);
+  SetWRect(20,80,450,220);
+  v = 6; vs = 20; h = 150;
+  EditFieldTL(h,v, 80,"Пропозиції",   M4UStr,Normal,60,f1,false,0);
+  EditFieldTL(h,v+=vs, 80,"Вид пропозиції",   M4UStr,Normal,5,f4,false,QuoteClassSClass);
+  EditFieldTL(h,v+=vs, 80,"Продавець",   M4UStr,Normal,30,f2,false,UserSClass);
+  if (HasSalesGroup) then begin
+  EditFieldTL(h,v+=vs ,50,"Група продажу",M4UStr,Normal,10,ObjStr,false,SalesGroupSClass);
+  end;
+  EditFieldTL(h,v+=vs ,80,"Клієнт",M4UStr,Normal,50,f3,false,CUSClass);
+  if (HasCategories) then begin
+    EditFieldTL(h,v+=vs,50,"Категорія",M4UStr,Normal,11,f9,false,CCatSClass);  
+  end;
+  if (HasContactClassification) then begin
+    EditFieldTL(h,v+=vs,150,"Класифікація", M4UStr,Normal,60,f10,false,CClassSClass);  
+  end;
+  EditFieldTL(h,v+=vs ,80,"Не вкл., якщо менш ніж",M4Val,Normal,0,vals0,false,0);
+  PeriodField(h,v+=vs,"Зміна статусу");	
+	EditFieldTL(h,v+=vs,150,"Заплановане відвант.",M4UStr,Normal,21,Stext,false,PerSClass);
+	EditFieldTL(h,v+=vs,150,"Відвантаження",M4UStr,Normal,21,f11,false,PerSClass);
+	
+  EndWindow;
+end;
