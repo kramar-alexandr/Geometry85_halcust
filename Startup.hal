@@ -43,6 +43,8 @@ begin
 	
 	Maintenance("Завантажити час з WorkSection",WorkSectionGetCostsVClass,WorkSectionGetCostsMn,modTS);
 	
+	Maintenance("Закрыть проекты в WS",WorkSectionGetCostsVClass,WorkSectionGetCostsMnReply,modTS);
+	
 	Maintenance("UpdateTS",UpdateTSVClass,UpdateTSMn,modTS);
 	Maintenance("Find Ring",RingInProjVClass,RingInProjMn,modTS); 
 	Maintenance("Update proj",UpdateProjVClass,UpdateProjMn,modTS); 
