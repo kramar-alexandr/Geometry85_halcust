@@ -150,6 +150,7 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
 	WindowBegin("Завантажити час з WorkSection",WorkSectionGetCostsVClass,CGMnt,RcType);
     SetWRect(20,80,380,180);
     PeriodField(60,50,"Період");
+    EditField(60,80,-20,"Співробітник",Normal,f1,false,WorksectionUserSClass);  
     StaticText(60,25,"Натисніть запуск",false);
 	EndWindow;
 
@@ -337,6 +338,18 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
 	
 	
 	WindowBegin("Worksection Користувачі",WorksectionUserLClass,CGmlist,-);
+		SpawnClass(WorksectionUserDClass);
+		SetWRect(64,80,900,298);
+		Sizeable(-1,-1,0,0);
+		UseView(WorksectionUserVc);
+		RecordList(4,17,-21,-39);
+		RlColKey(4,4,"eMail",eMail,false,eMail);
+		RlCol(44,44,"first_name",first_name,false);
+		RlCol(104,104,"last_name",last_name,false);
+		RlCol(154,154,"name",name,false);
+  EndWindow; 
+  
+  WindowBegin("Worksection Користувачі",WorksectionUserSClass,CGslist,-);
 		SpawnClass(WorksectionUserDClass);
 		SetWRect(64,80,900,298);
 		Sizeable(-1,-1,0,0);

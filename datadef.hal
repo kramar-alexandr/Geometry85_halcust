@@ -162,6 +162,7 @@ begin
 		RecordField(UserCode,M4Code,10,UserVc);	// was added
 		RecordField(Stage,M4Int,0,0);	// was added
 		RecordField(Authority,M4UStr,60,0);	// was added for 6005
+		ArrayField(WSTaskId,M4Str,20,0);
 		
 		//KeyBegin(ActSerNr);
 		SubsetKeyBegin2(ActSerNr);
