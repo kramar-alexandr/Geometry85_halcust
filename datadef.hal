@@ -639,7 +639,31 @@ begin
 		RecordField(role,M4Str,50,0);
 		MainKeyBegin(eMail,0);
 		KeySegment(eMail);
-  EndRecord; 
+  EndRecord;
+
+
+	RecordBegin(WSPVc,-,"");	//Edit **********************************************Vas-P	15/07/2021
+		RecordField(PRCode,M4Code,20,0);
+		RecordField(WSID,M4Str,100,0);
+		RecordField(TaskID,M4Str,100,0);
+		RecordField(Status,M4Int,0,0);
+
+		MainKeyBegin(PRCode,0);
+		KeySegment(PRCode);
+		
+		KeyBegin(WSID);
+		KeySegment(WSID);
+		KeySegment(PRCode);
+		
+		KeyBegin(TaskID);
+		KeySegment(TaskID);
+		KeySegment(PRCode);
+		
+		KeyBegin(Status);
+		KeySegment(Status);
+		KeySegment(PRCode);
+		
+	EndRecord;	
 	
  	return;
 end;

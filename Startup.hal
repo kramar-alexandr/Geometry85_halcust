@@ -73,6 +73,7 @@ begin
 	
 	Maintenance("Замінити Тип проекту",UpdTypVClass,UpdTypMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:23
 	Maintenance("Замінити Классифікацію проекту",UpdClassVClass,UpdClassMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:24
+	Maintenance("Заполнить WorkSectionProjects",UpdWSPVClass,UpdWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
 	
 	Setting("Історія змін регистрів",RecordHistoryLClass,modSY);
 	Setting("Серії номерів - Історія змін регистрів",RecHistSerSerTClass,modSY);
@@ -81,6 +82,8 @@ begin
 	
 	Setting("Податкові накладні (кр)",FEVILCLass,modPL);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 16 01 2020 y. at 11:00:09 AM
 	
+	Setting("Настройки WorkSectionProjects",WorkSectionProjectsLClass,modTS);	//Edit **********************************************Vas-P	15/07/2021
+		
 	Report("Історія змін регістру Контакти",RecHistCustRClass,RecHistCustRn,0,modSY);
 	Report("Відредаговані табелі часу",ChangedTSRClass,ChangedTSRn,0,modTS);
 	Report("Журнал замовлень постачальникам (новий)",PurOrdJRClass,NewPurOrdJRn,0,modPO);

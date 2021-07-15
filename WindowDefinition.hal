@@ -1170,6 +1170,10 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
 
   EndWindow;
 	// Edit End ---------------------------------------------- Edit End
+
+	WindowBegin("Заполнить WorkSectionProjects",UpdWSPVClass,CGMnt,RcType);	//Edit **********************************************Vas-P	15/07/2021
+		SetWRect(20,80,300,200);
+	EndWindow;
 	
 	 WindowBegin("Контакт",CUDClass,CGview,-);
   DynamicWindow;
@@ -1975,4 +1979,42 @@ begin
 		EditField(h,v+=20,-20,"Домен",Normal,ApiPage,false,0);
 		EditField(h,v+=20,-20,"Папка меток проектов",Normal,TagsPage,false,0);
 	EndWindow;
+end;
+
+
+window WorkSectionProjectsDClass:1		//Edit **********************************************Vas-P	15/07/2021
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+	real h,h2,v,vs;
+	boolean viewornot;
+  WindowBegin("Настройка WorkSectionProjects",WorkSectionProjectsDClass,CGview,-);
+  UseView(WSPVc);
+  SetWRect(20,100,680,300);
+  Sizeable(-1,-1,0,0);
+  h=90; v = 10; vs = 20;
+	
+	EditField(h,v,140,"PRCode",Normal,PRCode,false,0);
+  EditField(h,v+=vs,140,"WSID",Normal,WSID,false,0);
+	EditField(h,v+=vs,140,"TaskID",Normal,TaskID,false,0);
+	EditField(h,v+=vs,140,"Status",Normal,Status,false,0);
+
+  EndWindow;
+end;
+
+window WorkSectionProjectsLClass:1 //Edit **********************************************Vas-P	15/07/2021
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Настройки WorkSectionProjects",WorkSectionProjectsLClass,CGmlist,-);
+  SpawnClass(WorkSectionProjectsDClass);
+  SetWRect(20,80,800,500);
+  Sizeable(-1,-1,0,0);
+  UseView(WSPVc);
+  RecordList(4,17,-21,-39);
+	
+	RlColKey(10,10,"PRCode",PRCode,false,PRCode);
+	RlColKey(100,100,"WSID",WSID,false,WSID);
+  RlColKey(150,150,"TaskID",TaskID,false,TaskID);
+	RlColKey(200,200,"Status",Status,false,Status);
+
+  EndWindow;
 end;
