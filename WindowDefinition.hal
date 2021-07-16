@@ -1171,7 +1171,11 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
   EndWindow;
 	// Edit End ---------------------------------------------- Edit End
 
-	WindowBegin("Заполнить WorkSectionProjects",UpdWSPVClass,CGMnt,RcType);	//Edit **********************************************Vas-P	15/07/2021
+	WindowBegin("Заповнити WorkSectionProjects",UpdWSPVClass,CGMnt,RcType);	//Edit **********************************************Vas-P	15/07/2021
+		SetWRect(20,80,300,200);
+	EndWindow;
+	
+	WindowBegin("Перевірка WorkSectionProjects",CheckWSPVClass,CGMnt,RcType);	//Edit **********************************************Vas-P	15/07/2021
 		SetWRect(20,80,300,200);
 	EndWindow;
 	

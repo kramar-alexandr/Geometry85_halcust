@@ -73,7 +73,8 @@ begin
 	
 	Maintenance("Замінити Тип проекту",UpdTypVClass,UpdTypMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:23
 	Maintenance("Замінити Классифікацію проекту",UpdClassVClass,UpdClassMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:24
-	Maintenance("Заполнить WorkSectionProjects",UpdWSPVClass,UpdWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
+	Maintenance("Заповнити WorkSectionProjects",UpdWSPVClass,UpdWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
+	Maintenance("Перевірка WorkSectionProjects",CheckWSPVClass,CheckWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
 	
 	Setting("Історія змін регистрів",RecordHistoryLClass,modSY);
 	Setting("Серії номерів - Історія змін регистрів",RecHistSerSerTClass,modSY);
