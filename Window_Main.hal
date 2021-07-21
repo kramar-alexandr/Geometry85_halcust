@@ -2682,13 +2682,13 @@ SpecialMenu("Статус товару",'I',1,"ItemStatusQTDsm");
   EditField(560,v,120,"Підпис",Normal,Authority,false,UserSClass); // 62
   EnterSkip(Math);
   h=4; v=v+(vs+17);
-  MatrixBegin(4,vm=v,-50,-26,-,99);
+  MatrixBegin(4,vm=v,-50,-26,-,299);
   MatTypedRow(stp);
   MatOverStrike(ovst);
   Flip(0);
-  MatCol(1,h1=24,"Дата",0,date,false,PasteCurDate);
+  MatCol(1,h1=30,"Дата",0,date,false,PasteCurDate);
   //MatCol(1,h1+=80,"Співроб.",0,EMCode,false,UserSClass); // 62
-  MatText(2,24,"Підпис",true);
+  MatText(2,30,"Підпис",true);
   MatCol(2,124,"-1",0,EMCode,false,0);
   MatText(2,154," ",true);
   Flip(1);
