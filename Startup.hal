@@ -42,6 +42,7 @@ begin
 	Report("Реєстр отриманих та виданих податкових накладних",VATVIRegUkrRClass,VATVIRegUkrRn,0,modPL);
 	
 	Maintenance("Завантажити час з WorkSection",WorkSectionGetCostsVClass,WorkSectionGetCostsMn,modTS);
+	Maintenance("Завантажити відпустки та ін. WorkSection",WorkSectionGetCostsVClass,WorkSectionGetHolidaysMn,modTS);
 	
 	Maintenance("Закрыть проекты в WS",WorkSectionGetCostsVClass,WorkSectionGetCostsMnReplyMn,modTS);
 	
