@@ -5,7 +5,7 @@ external inner procedure PRVc_PasteLeader(var record PRVc);
 external inner procedure PRVc_PastePrSalesMan(var record PRVc,string);
 external inner procedure PRVc_PasteContact(var record PRVc);
 external updating procedure UpdateProjMn(record RcVc);
-external updating procedure closeNextProjectinWS();
+external inner updating procedure closeNextProjectinWS();
 
 global updating procedure ImportProjectsIn()
 begin
