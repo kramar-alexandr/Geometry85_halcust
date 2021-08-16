@@ -5,6 +5,7 @@ external inner procedure PRVc_PasteLeader(var record PRVc);
 external inner procedure PRVc_PastePrSalesMan(var record PRVc,string);
 external inner procedure PRVc_PasteContact(var record PRVc);
 external updating procedure UpdateProjMn(record RcVc);
+external updating procedure closeNextProjectinWS();
 
 global updating procedure ImportProjectsIn()
 begin
@@ -232,6 +233,7 @@ begin
 	string 100 prcode,prevclosedate,closedate;
 	date bldate,prcldate,cldate;
 	boolean changed;
+	area acloseprojects;
 	
 	SetImportCodePage("WINDOWS-1251");
 	
@@ -277,6 +279,8 @@ begin
 				
 				if(changed)then begin
 					logtext(0,"CloseProjectsIn for project " & oldPRr.Code & " FinishedDate = " & oldPRr.FinishedDate & " PreFinishedDate = " & oldPRr.PreFinishedDate);
+					addtexttoarea(oldPRr.Code,acloseprojects);
+					addtexttoarea(chr(13) & chr(10),acloseprojects);
 					recordupdate(newPRr,oldPRr,true);
 				end;
 			end;
@@ -284,6 +288,11 @@ begin
 		end;
 		NextImportLine(true);
 	end;
+	
+	
+	writeareatofile(acloseprojects,"closenextprojects.txt",0);
+	
+	closeNextProjectinWS;
 	
 return;
 end;
