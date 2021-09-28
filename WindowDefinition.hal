@@ -147,11 +147,11 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
     StaticText(30,75,"Натисніть запуск",false);
 	EndWindow;
 	
-	WindowBegin("Завантажити час з WorkSection",WorkSectionGetCostsVClass,CGMnt,RcType);
+	WindowBegin("Завантажити данні з WorkSection",WorkSectionGetCostsVClass,CGMnt,RcType);
     SetWRect(20,80,380,180);
     PeriodField(60,50,"Період");
-    EditField(60,80,-20,"Співробітник",Normal,f1,false,WorksectionUserSClass);  
-    StaticText(60,25,"Натисніть запуск",false);
+    EditField(160,80,-20,"Співробітник",Normal,f1,false,WorksectionUserSClass);  
+    StaticText(160,25,"Натисніть запуск",false);
 	EndWindow;
 
 	WindowBegin("Find Ring",RingInProjVClass,CGMnt,RcType);
@@ -343,10 +343,10 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
 		Sizeable(-1,-1,0,0);
 		UseView(WorksectionUserVc);
 		RecordList(4,17,-21,-39);
-		RlColKey(4,4,"eMail",eMail,false,eMail);
-		RlCol(44,44,"first_name",first_name,false);
-		RlCol(104,104,"last_name",last_name,false);
-		RlCol(154,154,"name",name,false);
+		RlColKey(4,4,"e-Mail",eMail,false,eMail);
+		RlCol(200,200,"Ім'я",first_name,false);
+		RlCol(300,300,"Призвище",last_name,false);
+		RlCol(400,400,"Повне",name,false);
   EndWindow; 
   
   WindowBegin("Worksection Користувачі",WorksectionUserSClass,CGslist,-);
@@ -355,10 +355,10 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
 		Sizeable(-1,-1,0,0);
 		UseView(WorksectionUserVc);
 		RecordList(4,17,-21,-39);
-		RlColKey(4,4,"eMail",eMail,false,eMail);
-		RlCol(44,44,"first_name",first_name,false);
-		RlCol(104,104,"last_name",last_name,false);
-		RlCol(154,154,"name",name,false);
+		RlColKey(4,4,"e-Mail",eMail,false,eMail);
+		RlCol(200,200,"Ім'я",first_name,false);
+		RlCol(300,300,"Призвище",last_name,false);
+		RlCol(400,400,"Повне",name,false);
   EndWindow; 
   
   WindowBegin("Worksection Користувач",WorksectionUserDClass,CGview,-);
