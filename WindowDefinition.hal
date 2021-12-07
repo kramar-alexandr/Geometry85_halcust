@@ -2022,3 +2022,34 @@ begin
 
   EndWindow;
 end;
+
+
+window PurOrdJRClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vm,vs;
+  WindowBegin("Визначте журнал замовлень постачальникам",PurOrdJRClass,CGRcW,RcType);
+  SetWRect(20,80,470,270);
+  v= 6; vs = 20; h = 150;
+  PeriodField(h,v,"Період");
+  EditFieldTL(h,v+=vs, 150,"Замовл. постачальника",   M4Str,Normal,30,f1,false,0);
+  EditFieldTL(h,v+=vs ,150,"Постачальник",M4UStr,Normal,50,f2,false,VESClass);
+  EditFieldTL(h,v+=vs ,150,"Документ фільтр",M4UStr,Normal,50,f10,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 07 12 2021 y. at 12:18:56 PM
+  EditFieldTL(h,v+=vs,60,"Категорія",M4UStr,Normal,11,f9,false,VGSClass);  
+  EditFieldTL(h,v+=20 ,150,"Класифікація",M4UStr,Normal,60,f4,false,CClassSClass);
+  EditFieldTL(h,v+=20 ,70,"Тип класифікації",M4UStr,Normal,30,f5,false,CTypeSClass);
+  EditFieldTL(h,v+=vs ,150,"Вид",M4UStr,Normal,5,FirstAcc,false,POrderClassSClass);
+  EditFieldTL(h,v+=vs, 100,"Склад",M4UStr,Normal,10,f3,false,LocationSClass);
+  ButtonFrame(h=30,vm=(v+=41),123,3,"Функція");
+  RadioButton(h,v,0,0,"зведений",ArtMode);
+  RadioButton(h,v+=16,1,0,"докладний",ArtMode);
+  RadioButton(h,v+=16,2,0,"Без ПДВ",ArtMode);  
+  ButtonFrame(h=175,v=vm,130,3,"Статус");
+  RadioButton(h,v,0,0,"Пропуст.закриті",flags[3]);  
+  RadioButton(h,v+=16,1,0,"Включ.закриті",flags[3]);  
+  RadioButton(h,v+=16,2,0,"Лише закриті",flags[3]);  
+  ButtonFrame(h=325,v=vm,100,2,"Статус");
+  CheckBox(h,v,0,"Затв.",flags[1]);  
+  CheckBox(h,v+=16,0,"Не затв.",flags[2]);  
+  EndWindow;
+end;
