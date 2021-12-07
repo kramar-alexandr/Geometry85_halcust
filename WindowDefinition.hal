@@ -2029,13 +2029,15 @@ window PurOrdJRClass:1
 begin
   real h,v,vm,vs;
   WindowBegin("Визначте журнал замовлень постачальникам",PurOrdJRClass,CGRcW,RcType);
-  SetWRect(20,80,470,270);
+  SetWRect(20,80,570,370);
   v= 6; vs = 20; h = 150;
   PeriodField(h,v,"Період");
   EditFieldTL(h,v+=vs, 150,"Замовл. постачальника",   M4Str,Normal,30,f1,false,0);
   EditFieldTL(h,v+=vs ,150,"Постачальник",M4UStr,Normal,50,f2,false,VESClass);
-  EditFieldTL(h,v+=vs ,150,"Документ фільтр",M4UStr,Normal,50,f10,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 07 12 2021 y. at 12:18:56 PM
+  EditFieldTL(h,v+=vs ,70,"Документ фільтр",M4UStr,Normal,50,f10,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 07 12 2021 y. at 12:18:56 PM
+  StaticText(h+100,v+vs,"Вставте ! перед пошуком для виключення.",false);
   EditFieldTL(h,v+=vs,60,"Категорія",M4UStr,Normal,11,f9,false,VGSClass);  
+  StaticText(h+100,v+vs,"Наприклад !Y&R",false);
   EditFieldTL(h,v+=20 ,150,"Класифікація",M4UStr,Normal,60,f4,false,CClassSClass);
   EditFieldTL(h,v+=20 ,70,"Тип класифікації",M4UStr,Normal,30,f5,false,CTypeSClass);
   EditFieldTL(h,v+=vs ,150,"Вид",M4UStr,Normal,5,FirstAcc,false,POrderClassSClass);
