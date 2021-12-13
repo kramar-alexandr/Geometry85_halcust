@@ -2,6 +2,7 @@ event Startup
 begin
   SetLangMode(LangUkrainian,"UKR",0);
 
+  SourceFile("hal.hob",0);
   
 	/*StrSetAdd(3);
 	StrSetText(  ChangeStatusQT,"Зміна статусу - комерційна пропозиція");
@@ -76,6 +77,7 @@ begin
 	Maintenance("Замінити Классифікацію проекту",UpdClassVClass,UpdClassMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 25 May 2018 17:16:24
 	Maintenance("Заповнити WorkSectionProjects",UpdWSPVClass,UpdWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
 	Maintenance("Перевірка WorkSectionProjects",CheckWSPVClass,CheckWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
+	Maintenance("Заповнити групу продажу",CheckWSPVClass,FillSalesGroupTOTsMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 12:09:02 PM
 	
 	Setting("Історія змін регистрів",RecordHistoryLClass,modSY);
 	Setting("Серії номерів - Історія змін регистрів",RecHistSerSerTClass,modSY);
@@ -183,6 +185,7 @@ begin
   StrSetText(AllowIVInvDateChange,"Зміна дати в акті/накл.");
   StrSetText(AllowIVSerNrChange,"Зміна номера акта/накл.");
 	StrSetText(ViewAllTemeSheets,"Переглядати чужі табелі часу");// Edit ************************** Friday, July 11, 2014 at 10:35:46
+  StrSetText(DoNotShowAllSalesGroups,"Табелі тільки по групі продажу");
   StrSetText(ChangeSHItemSpec,"Зміна наменув. товару у відвантаженні"); 
   StrSetText(ChangeIVItemSpec,"Змінити найменув. товару на акті/накл.");
   StrSetText(ChangeORItemSpec,"Зміна наменув. товару у разунку клієнту"); 
@@ -455,6 +458,8 @@ begin
   StrSetText(AllowNoClockInOut,"Allow Working without Clock In/Out Activities");
   StrSetText(WorkflowOverview,"Огляд робочих процесів");  
   StrSetText(RestAPI,"Rest API"); //!!TRANSLATE
+  StrSetText(ViewListPOSalesGroup,"Перегляд Замовлень постачальників по всім групам продажу");
+  StrSetText(ViewListQTSalesGroup,"Перегляд Коммерційних пропозіций по всім групам продажу");
   EndStrSet;
   
 	// Edit End ---------------------------------------------- Edit End

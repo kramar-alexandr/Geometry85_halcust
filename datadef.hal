@@ -168,12 +168,14 @@ begin
 		SubsetKeyBegin2(ActSerNr);
 		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:53:45
 		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:53:44
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(SerNr);
 	
 		//KeyBegin(ActRegDate);
 		SubsetKeyBegin2(ActRegDate);
 		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:53:52
 		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:53:49
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(RegDate);
 		KeySegment(SerNr);
 	
@@ -181,6 +183,7 @@ begin
 		SubsetKeyBegin2(ActOKFlag);
 		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:54:02
 		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:54:00
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(OKFlag);
 		KeySegment(SerNr);
 	
@@ -188,6 +191,7 @@ begin
 		SubsetKeyBegin2(ActComment);
 		StoreInBaseKey;// Edit ************************** Friday, July 11, 2014 at 11:54:08
 		AppendFieldToKeyName(UserCode);// Edit ************************** Friday, July 11, 2014 at 11:54:08
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(Comment);
 		KeySegment(SerNr);
 		
@@ -202,26 +206,31 @@ begin
 		SubsetKeyBegin2(NewSerNr);
 		StoreInBaseKey;
 		AppendFieldToKeyName(UserCode);
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(SerNr);
 		SubsetKeyBegin2(NewOKFlag);
 		StoreInBaseKey;
 		AppendFieldToKeyName(UserCode);
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(OKFlag);
 		KeySegment(SerNr);
 		SubsetKeyBegin2(NewRegDate);
 		StoreInBaseKey;
 		AppendFieldToKeyName(UserCode);
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(RegDate);
 		KeySegment(SerNr);
 		SubsetKeyBegin2(NewComment);
 		StoreInBaseKey;
 		AppendFieldToKeyName(UserCode);
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(Comment);
 		KeySegment(SerNr);
 		KeySegment(RegDate);
 		SubsetKeyBegin2(NewSign);
 		StoreInBaseKey;
 		AppendFieldToKeyName(UserCode);
+		AppendFieldToKeyName(SalesGroup);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 11:43:23 AM
 		KeySegment(Sign);
 		KeySegment(SerNr);
 		
