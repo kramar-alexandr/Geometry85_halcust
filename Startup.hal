@@ -85,6 +85,7 @@ begin
 	Setting("Настройки Worksection",WorksectionTClass,modTS);
 	
 	Setting("Податкові накладні (кр)",FEVILCLass,modPL);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 16 01 2020 y. at 11:00:09 AM
+	Setting("Серії номерів - Податкові накл. (кр)",FEVISerTClass,modPL);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 11 01 2022 y. at 3:36:47 PM
 	
 	Setting("Настройки WorkSectionProjects",WorkSectionProjectsLClass,modTS);	//Edit **********************************************Vas-P	15/07/2021
 		
