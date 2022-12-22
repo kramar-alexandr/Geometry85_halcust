@@ -117,14 +117,14 @@ RusLen = len(tstr)+k;
 return;
 end;
 
-procedure ExportOPrRow(row OPVc OPRw,longint num, string PMbBankNr,string PayDate,val Summ,val Summ1,boolean BankFlag)
+procedure ExportOPrRow(record KBSettBlock KBb,row OPVc OPRw,longint num, string PMbBankNr,string PayDate,val Summ,val Summ1,boolean BankFlag)
 begin
 	record CUvc CUr;
 	record BankVc BNr;
 	string 255 tstr,temp;
 	array string 255 res;
 	boolean ibanfound;
-	
+	record CountryVc Countryr;
 	
 	
 	Cur.Code = OPRw.VECode;
@@ -170,12 +170,26 @@ begin
 		ExportPadString(CUr.Name,RusLen(CUr.Name),"",true);//45	
 	end;
 	ExportPadString("######",6,"",true);
-	tstr = right(BNr.Nr1,6);
+	tstr = right(BNr.Nr1,6);//51
 	//if(currentdate<stringtodate("01/11/2019"))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 5 November 2019 14:44:50
 	if(true)then begin
 		//ExportPadString(tstr,len(tstr),"",true);//51	//закоментировано с 13/01/2020// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 14 01 2020 y. at 4:33:53 PM
 	end;
-	ExportPadString("#####################",21,"",true);
+	ExportPadString("##############",14,"",true);
+	if(KBb.updatefor2023==1)then begin
+    if(nonblank(CUr.BenCountryForExport))then begin
+      Countryr.Code = CUr.BenCountryForExport;
+      if(readfirstmain(Countryr,1,true))then begin
+        ExportPadString(Countryr.Comment,RusLen(Countryr.Comment),"",true);
+      end else begin
+        ExportPadString(Countryr.Code,RusLen(Countryr.Code),"",true);
+      end;
+    end;
+	end;
+  //!!!!!!!!!     Beneficiary country of residence ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
+	ExportPadString("#",1,"",true);
+	//!!!!!!!!!     Beneficiary scheme name proprietary ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
+	ExportPadString("######",6,"",true);
 	temp = OPrw.Comment;
 	RetCharsArray(temp,res);
 	//tstr = left(temp,35);
@@ -262,7 +276,7 @@ record CUVc CUr;
 					end else begin
 						tstr=PMbBankNr[OPrw.PayMode];
 					end;
-					ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+					ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
 					OPrw.KBExportNum = num;
 					MatRowPut(OPr,i,OPrw);
 					num=num+1;
@@ -301,7 +315,7 @@ record CUVc CUr;
 								end;
 							end;
 						end;
-						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+						ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
 						OPrw.KBExportNum = num;
 						MatRowPut(OPr,i,OPrw);
 						num=num+1;
@@ -341,7 +355,7 @@ record CUVc CUr;
 								end;
 							end;
 						end;
-						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,true);
+						ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,true);
 						OPrw.KBExportNum = num;
 						MatRowPut(OPr,i,OPrw);
 						num=num+1;
@@ -639,7 +653,7 @@ record CUVc CUr;
 					end else begin
 						tstr=PMbBankNr[OPrw.PayMode];
 					end;
-					ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+					ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
 					OPrw.KBExportNum = num;
 					MatRowPut(OPr,i,OPrw);
 					num=num+1;
@@ -678,7 +692,7 @@ record CUVc CUr;
 								end;
 							end;
 						end;
-						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,false);
+						ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
 						OPrw.KBExportNum = num;
 						MatRowPut(OPr,i,OPrw);
 						num=num+1;
@@ -718,7 +732,7 @@ record CUVc CUr;
 								end;
 							end;
 						end;
-						ExportOPrRow(OPrw,num,tstr,PayDate,Summ,Summ1,true);
+						ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,true);
 						OPrw.KBExportNum = num;
 						MatRowPut(OPr,i,OPrw);
 						num=num+1;

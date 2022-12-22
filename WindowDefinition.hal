@@ -399,6 +399,7 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
   EditField(h,v+=20,-40,"Номер",Normal,FileName,false,0);
   EditField(h,v+=20,-40,"Дата",Normal,FileDate,false,0);
   EditField(h,v+=20,-40,"Папка",Normal,Path,false,0);
+  CheckBox(h,v+40,0,"Оновлення 2023 CITI ISO 20022 XML",updatefor2023);
   EndWindow;
 
   WindowBegin("Будь ласка підтвердьте",SpecYesNoCancelWClass,CGother,RcType);
@@ -1342,6 +1343,10 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
   RadioButton(h2-20,v,0,0,"компанія",CustType);
   RadioButton(h2+60,v,1,0,"особа",CustType);
   EditField(h,v,120,"ІПН",Normal,VATNr,false,0);
+  v = v+vs;
+  EditField(h+200,v+=vs,120,"CITI Bank Export: Країна проживання бенефіціара",Normal,BenCountryForExport,false,CountrySClass);
+  EditField(h+200,v+=vs,120,"CITI Bank Export: Ідентифікатор Одержувача",Normal,BenCountryForExport,false,0);
+  EditField(h+200,v+=vs,120,"CITI Bank Export: Власна назва схеми бенефіціару",Normal,BenIDTypeForExport,false,CityTypeSClass);
   EditField(h,v+=vs,120,"Папка WorkSection",Normal,WSFolder,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 23 03 2021 y. at 2:13:25 PM
 //  EditField(h,v+=vs,120,"Канал",Normal,WebServiceChannel,false,SetSClass);
   v = 84;
@@ -2053,5 +2058,13 @@ begin
   ButtonFrame(h=325,v=vm,100,2,"Статус");
   CheckBox(h,v,0,"Затв.",flags[1]);  
   CheckBox(h,v+=16,0,"Не затв.",flags[2]);  
+  EndWindow;
+end;
+
+window MyVClass:1 // Edit ************************** Friday, 17 October 2014 11:47:19
+ wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+ begin
+WindowBegin("Maintenance",MyVClass,CGMnt,RcType);
+  SetWRect(20,120,360,220);
   EndWindow;
 end;

@@ -112,7 +112,9 @@ begin
 		RecordField(ContactCode,M4Str,20,0);
 		RecordField(FullName,M4Str,255,0);// 6.2// Edit ************************** Thursday, 19 September 2013 12:55:04
 		RecordField(WSFolder,M4Str,100,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 23 03 2021 y. at 2:11:47 PM
-		
+		RecordField(BenCountryForExport,M4Str,100,0);
+		RecordField(BenIDForExport,M4Str,100,0);
+		RecordField(BenIDTypeForExport,M4Str,10,0);
 		KeyBegin(ContactCode);//6.2sav ==== added by prev
 		KeySegment(ContactCode);
 		KeySegment(Code);
@@ -124,7 +126,12 @@ begin
 		KeyBegin(EmplName);		
 		KeySegment(Name);		
 		KeySegment(Code);// SAV 6016	
-
+	EndRecordAdd;
+	
+	RecordAddBegin(BankVc,"Cust_BankVc");
+		RecordField(BenCountryForExport,M4Str,100,0);
+		RecordField(BenIDForExport,M4Str,100,0);
+		RecordField(BenIDTypeForExport,M4Str,10,0);
 	EndRecordAdd;
 
 	RecordAddBegin(POVc,"Cust_POVc");
@@ -565,6 +572,7 @@ begin
 		RecordField(FileName,M4Long,0,0);
 		RecordField(FileDate,M4Date,0,0);
 		RecordField(Path,M4Str,2550,0);
+		RecordField(updatefor2023,M4Int,0,0);
 	EndBlock; 
 		
 	RecordBegin(RecordHistoryVc,-,""); // SAV 2011_09_08
