@@ -178,12 +178,7 @@ begin
 	ExportPadString("##############",14,"",true);
 	if(KBb.updatefor2023==1)then begin
     if(nonblank(CUr.BenCountryForExport))then begin
-      Countryr.Code = CUr.BenCountryForExport;
-      if(readfirstmain(Countryr,1,true))then begin
-        ExportPadString(Countryr.Comment,RusLen(Countryr.Comment),"",true);
-      end else begin
-        ExportPadString(Countryr.Code,RusLen(Countryr.Code),"",true);
-      end;
+      ExportPadString(CUr.BenCountryForExport,RusLen(CUr.BenCountryForExport),"",true);
     end;
 	end;
   //!!!!!!!!!     Beneficiary country of residence ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
