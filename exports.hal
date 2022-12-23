@@ -188,6 +188,16 @@ begin
 	end;
   //!!!!!!!!!     Beneficiary country of residence ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
 	ExportPadString("#",1,"",true);
+	if(KBb.updatefor2023==1)then begin
+	
+	  tstr = CUr.BenIDTypeForExport;
+	  if (BankFlag) then begin
+	    if(nonblank(BNr.BenIDTypeForExport))then begin
+	      tstr = BNr.BenIDTypeForExport;
+	    end;
+	  end;
+	  ExportPadString(tstr,RusLen(tstr),"",true);
+	end;
 	//!!!!!!!!!     Beneficiary scheme name proprietary ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
 	ExportPadString("######",6,"",true);
 	temp = OPrw.Comment;
@@ -227,6 +237,17 @@ begin
 	ExportPadString("#",1,"",true);//
 	tstr = left(CUr.RegNr1,10);
 	if (BankFlag) then begin tstr = BNr.VATNr; end;
+	
+	if(KBb.updatefor2023==1)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:27:01 AM
+	  tstr = CUr.BenIDForExport;
+	  if (BankFlag) then begin
+	    if(nonblank(BNr.BenIDForExport))then begin
+	      tstr = BNr.BenIDForExport;
+	    end;
+	  end;
+	  ExportPadString(tstr,RusLen(tstr),"",true);
+	end;
+	
 	ExportPadString(tstr,len(tstr),"",true);//80
 	ExportPadString("##############",14,"",true); 
 return;
@@ -240,7 +261,7 @@ record OPVc OPr,OldOPr;
 row OPVc OPrw,OP2rw;
 integer i,rwcnt,j;
 string 255 tstr,PayDate,Comment;
-boolean trhs,testf;
+boolean trhs,testf,check;
 longint num;
 record PMBlock PMb;
 row PMBlock PMbr;
@@ -249,6 +270,7 @@ val Summ,Summ1;
 array integer UsedRowNo;
 record KBSettBlock KBb;
 record CUVc CUr;
+record BankVc BNr;
 	
 	if (SetExportCodePage("UTF-8")== false) then begin end;
 	num = RepSpec.long1;
@@ -270,7 +292,16 @@ record CUVc CUr;
 			rwcnt = MatRowCnt(OPr);
 			for (i=0;i<rwcnt;i=i+1) begin
 				MatRowGet(OPr,i,OPrw);
-				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+				check = true;
+				if(KBb.updatefor2023==1)then begin
+				  CUr.Code = OPrw.VECode;
+          if (ReadFirstMain(CUr,1,true)) then begin 
+            if(blank(CUr.BenIDTypeForExport) or blank(CUr.BenIDForExport))then begin
+              check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
+            end;
+          end;
+				end;
+				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
 					if blank(OPrw.PayMode) then begin
 						tstr=PMbBankNr[OPr.PayMode];
 					end else begin
@@ -288,7 +319,16 @@ record CUVc CUr;
 			rwcnt = MatRowCnt(OPr);
 			for (i=0;i<rwcnt;i=i+1) begin
 				MatRowGet(OPr,i,OPrw);
-				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+				check = true;
+				if(KBb.updatefor2023==1)then begin
+				  CUr.Code = OPrw.VECode;
+          if (ReadFirstMain(CUr,1,true)) then begin 
+            if(blank(CUr.BenIDTypeForExport) or blank(CUr.BenIDForExport))then begin
+              check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
+            end;
+          end;
+				end;
+				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
 					if blank(OPrw.PayMode) then begin
 						tstr=PMbBankNr[OPr.PayMode];
 					end else begin
@@ -324,11 +364,22 @@ record CUVc CUr;
 				end;
 			end;
 		end;
-		if (OPr.PayperSupplier ==3) then begin
+		if (OPr.PayperSupplier==3) then begin
 			rwcnt = MatRowCnt(OPr);
 			for (i=0;i<rwcnt;i=i+1) begin
 				MatRowGet(OPr,i,OPrw);
-				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+				check = true;
+				if(KBb.updatefor2023==1)then begin
+				  CUr.Code = OPrw.VECode;
+          if (ReadFirstMain(CUr,1,true)) then begin 
+            BNr.Code = CUr.AccOperator;
+            readfirstmain(BNr,1,true);
+            if((blank(BNr.BenIDTypeForExport) or blank(BNr.BenIDForExport)) and (blank(CUr.BenIDTypeForExport) or blank(CUr.BenIDForExport)))then begin
+              check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
+            end;
+          end;
+				end;
+				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
 					if blank(OPrw.PayMode) then begin
 						tstr=PMbBankNr[OPr.PayMode];
 					end else begin
@@ -609,7 +660,7 @@ record OPVc OPr,OldOPr;
 row OPVc OPrw,OP2rw;
 integer i,rwcnt,j;
 string 255 tstr,PayDate,Comment,FileName;
-boolean trhs,testf;
+boolean trhs,testf,check;
 longint num;
 record PMBlock PMb;
 row PMBlock PMbr;
@@ -618,6 +669,7 @@ val Summ,Summ1;
 array integer UsedRowNo;
 record KBSettBlock KBb;
 record CUVc CUr;
+record BankVc BNr;
 	
 	num = RepSpec.long1;
 	if (RepSpec.long1==-1) then begin num = 1; end;
@@ -647,7 +699,18 @@ record CUVc CUr;
 			rwcnt = MatRowCnt(OPr);
 			for (i=0;i<rwcnt;i=i+1) begin
 				MatRowGet(OPr,i,OPrw);
-				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+				check = true;
+				if(KBb.updatefor2023==1)then begin
+				  CUr.Code = OPrw.VECode;
+          if (ReadFirstMain(CUr,1,true)) then begin 
+            BNr.Code = CUr.AccOperator;
+            readfirstmain(BNr,1,true);
+            if(blank(CUr.BenIDTypeForExport) or blank(CUr.BenIDForExport))then begin
+              check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
+            end;
+          end;
+				end;
+				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
 					if blank(OPrw.PayMode) then begin
 						tstr=PMbBankNr[OPr.PayMode];
 					end else begin
@@ -665,7 +728,18 @@ record CUVc CUr;
 			rwcnt = MatRowCnt(OPr);
 			for (i=0;i<rwcnt;i=i+1) begin
 				MatRowGet(OPr,i,OPrw);
-				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+				check = true;
+				if(KBb.updatefor2023==1)then begin
+				  CUr.Code = OPrw.VECode;
+          if (ReadFirstMain(CUr,1,true)) then begin 
+            BNr.Code = CUr.AccOperator;
+            readfirstmain(BNr,1,true);
+            if(blank(CUr.BenIDTypeForExport) or blank(CUr.BenIDForExport))then begin
+              check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
+            end;
+          end;
+				end;
+				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
 					if blank(OPrw.PayMode) then begin
 						tstr=PMbBankNr[OPr.PayMode];
 					end else begin
@@ -705,7 +779,18 @@ record CUVc CUr;
 			rwcnt = MatRowCnt(OPr);
 			for (i=0;i<rwcnt;i=i+1) begin
 				MatRowGet(OPr,i,OPrw);
-				if (OPrw.RecCurncy == "UAH") and (OPrw.RecVal > 0)then begin
+				check = true;
+				if(KBb.updatefor2023==1)then begin
+				  CUr.Code = OPrw.VECode;
+          if (ReadFirstMain(CUr,1,true)) then begin 
+            BNr.Code = CUr.AccOperator;
+            readfirstmain(BNr,1,true);
+            if((blank(BNr.BenIDTypeForExport) or blank(BNr.BenIDForExport)) and (blank(CUr.BenIDTypeForExport) or blank(CUr.BenIDForExport)))then begin
+              check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
+            end;
+          end;
+				end;
+				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
 					if blank(OPrw.PayMode) then begin
 						tstr=PMbBankNr[OPr.PayMode];
 					end else begin

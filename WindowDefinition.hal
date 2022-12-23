@@ -11,6 +11,9 @@ external inner function Boolean HasModNL();
 external inner function Boolean HasDownpayments();
 external inner function Boolean HasLanguages();
 external inner function Boolean HasObjects();
+external inner function boolean HasBankImport;
+external inner function boolean ISENTERPRISE;
+external inner function boolean HASYAPILY;
 
 remote function Integer MailAcceptanceStatus(LongInt);
 external inner function Boolean HasMailTags();
@@ -1344,9 +1347,9 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
   RadioButton(h2+60,v,1,0,"особа",CustType);
   EditField(h,v,120,"ІПН",Normal,VATNr,false,0);
   v = v+vs;
-  EditField(h+200,v+=vs,120,"CITI Bank Export: Країна проживання бенефіціара",Normal,BenCountryForExport,false,CountrySClass);
-  EditField(h+200,v+=vs,120,"CITI Bank Export: Ідентифікатор Одержувача",Normal,BenCountryForExport,false,0);
-  EditField(h+200,v+=vs,120,"CITI Bank Export: Власна назва схеми бенефіціару",Normal,BenIDTypeForExport,false,CityTypeSClass);
+  EditField(h+200,v+=vs,120,"CITI Bank Export: Країна проживання бенефіціара",Normal,BenCountryForExport,false,CountrySClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:45 AM
+  EditField(h+200,v+=vs,120,"CITI Bank Export: Ідентифікатор Одержувача",Normal,BenIDForExport,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:46 AM
+  EditField(h+200,v+=vs,120,"CITI Bank Export: Власна назва схеми бенефіціару",Normal,BenIDTypeForExport,false,CityTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:49 AM
   EditField(h,v+=vs,120,"Папка WorkSection",Normal,WSFolder,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 23 03 2021 y. at 2:13:25 PM
 //  EditField(h,v+=vs,120,"Канал",Normal,WebServiceChannel,false,SetSClass);
   v = 84;
@@ -2066,5 +2069,130 @@ window MyVClass:1 // Edit ************************** Friday, 17 October 2014 11:
  begin
 WindowBegin("Maintenance",MyVClass,CGMnt,RcType);
   SetWRect(20,120,360,220);
+  EndWindow;
+end;
+
+
+window CityTypeSClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer,iPad")
+begin
+  WindowBegin("Власна назва схеми бенефіціару",CityTypeSClass,CGother,RcType);
+  SetWRect(90,73,470,291);
+	Sizeable(-1,-1,0,0);
+  StringList(9,9,-23,-10);
+  SearchField("Найти");
+  EndWindow;
+end;
+
+
+window BankDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,vm,tilenr;
+  WindowBegin("Bank",BankDClass,CGview,BankView);
+  UseView(BankVc);
+  if (IsEnterprise) then begin
+    SetWRect(64,80,559,400);
+    v = 10; vs = 20; h = 190;
+    Tile(0,50,false,"",Code);
+    EditField(h,v, 100,"Code",Normal,Code,false,0);
+    tilenr = 1;
+    TileButton(tilenr,"Misc"); tilenr = tilenr + 1;
+    TileButton(tilenr,"Address"); tilenr = tilenr + 1;
+    TileButton(tilenr,"Banking File"); tilenr = tilenr + 1;
+    if (HasLocalization("POL")) then begin
+      TileButton(tilenr,"emSzmal"); tilenr = tilenr + 1;
+    end;
+    tilenr = 1;
+    Tile(tilenr,240,false,"1",Nr1); tilenr = tilenr + 1;
+    v = 6;
+    EditField(h,v,240,"Clearing",Normal,Nr1,false,0);
+    EditField(h,v+=vs,240,"Account (IBAN)",Normal,Nr2,false,0);
+    EditField(h,v+=vs,240,"BIC (SWIFT)",Normal,SWIFT,false,0);
+    EditField(h,v+=vs,240,"#Bank ID Code#",Normal,BankIDCode,false,0);
+    EditField(h,v+=vs,240,"Expense Account",Normal,CorrspAcc,false,0);
+    EditField(h,v+=vs,240,"Exchange Rate Contract Number",Normal,ExchangeRateContract,false,0);
+    EditField(h,v+=vs,240,"Factoring Type Code",Normal,FactoringType,false,0);
+    Tile(tilenr,260,false,"2",Name); tilenr = tilenr + 1;
+    v = 6;
+    EditField(h,v,100,"Contact Code",Normal,CustCode,false,ContactCUSClass);
+    EditField(h,v+=vs,240,"Name",Normal,Name,false,0);
+    EditField(h,v+=vs,240,"Address",Normal,Address0,false,0);
+    EditField(h,v+=vs,240,"",Normal,Address1,false,0);
+    EditField(h,v+=vs,240,"",Normal,Address2,false,0);
+    EditField(h,v+=vs,240,"",Normal,Address3,false,0);
+    EditField(h,v+=vs,240,"",Normal,Address4,false,0);
+    EditField(h,v+=vs,50,"Country",Normal,CountryCode,false,CountrySClass);
+    EditField(h,v+=vs,200,"Sort Key",Normal,Sorting,false,0);
+    EditField(h,v+=vs,120,"#VAT Reg. No.#",Normal,VATNr,false,0);
+    EditField(h,v+=vs,50,"Language",Normal,LangCode,false,LangSClass);
+    
+    EditField(h+100,v+=vs,120,"CITI Bank Export: Країна проживання бенефіціара",Normal,BenCountryForExport,false,CountrySClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:45 AM
+    EditField(h+100,v+=vs,120,"CITI Bank Export: Ідентифікатор Одержувача",Normal,BenIDForExport,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:46 AM
+    EditField(h+100,v+=vs,120,"CITI Bank Export: Власна назва схеми бенефіціару",Normal,BenIDTypeForExport,false,CityTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:49 AM
+
+    
+    
+    Tile(tilenr,150,false,"3",Bank); tilenr = tilenr + 1;
+    v = 6;
+    EditField(h,v,240,"Payment File Format",Normal,Bank,false,SetSClass);
+    EditField(h,v+=vs,240,"Bank Statement",Normal,ReceiptBank,false,SetSClass);
+    if (HasYapily) then begin
+      EditField(h,v+=vs,240,"Yapily Bank",Normal,YapilyBank,false,StrSetSClass);
+    end;
+//    EditField(h,v+=vs,240,"Direct Debit File Format",Normal,DirectDebitBank,false,SetSClass);
+    ButtonFrame(80,v+=42,360,3,"APCA User No, Banking File");
+    EditField(h,v+=6,240,"Payments",Normal,Sorting,false,0);
+    EditField(h,v+=20,240,"Direct Debit",Normal,DirectDebitSorting,false,0);
+    if (HasLocalization("POL")) then begin
+      Tile(tilenr,150,false,"4",emSzmalBankLogin); tilenr = tilenr + 1;
+      v = 6;
+      EditField(h,v,240,"Bank Login",Normal,emSzmalBankLogin,false,0);
+      EditField(h,v+=vs,240,"Bank Password",Normal,emSzmalBankPassword,false,0);
+      EditField(h,v+=vs,240,"Bank Provider",Normal,emSzmalBankProvider,false,StrSetSClass);
+      EditField(h,v+=vs,240,"User Context",Normal,emSzmalBankUserContext,false,0);
+      //EditField(h,v+=vs,240,"Token",Normal,emSzmalBankToken,false,0);
+      ButtonFrame(h,vm=(v+=40),123,2,"Authentication method");
+      RadioButton(h,v,0,0,"SMS",SkipSms);
+      RadioButton(h,v+=16,1,0,"Mobile API",SkipSms);
+      EndFrame;
+      h = 100;
+      HalPushButton(h,5+170,h+170,25,"EmSzmalBalancesm","Get Account Balance List");
+      h = 280;
+      HalPushButton(h,5+170,h+170,25,"EmSzmalHistorysm","Get Account History");
+    end;
+  end else begin
+    SetWRect(64,80,509,340);
+    if (HasLocalization("ESP")) then begin
+      v = 10; vs = 20; h = 170;
+    end else begin
+      v = 10; vs = 20; h = 120;
+    end;
+    EditField(h,v, 100,"Code",Normal,Code,false,0);
+    EditField(h,v+=vs,240,"Name",Normal,Name,false,0);
+    EditField(h,v+=vs,240,"Address",Normal,Address0,false,0);
+    EditField(h,v+=vs,240,"",Normal,Address1,false,0);
+    EditField(h,v+=vs,240,"",Normal,Address2,false,0);
+    EditField(h,v+=vs,240,"Bank ID Code",Normal,BankIDCode,false,0);
+    EditField(h,v+=vs,240,"Clearing",Normal,Nr1,false,0);
+    EditField(h,v+=vs,240,"IBAN",Normal,Nr2,false,0);
+    EditField(h,v+=vs,240,"BIC (SWIFT)",Normal,SWIFT,false,0);
+    if (HasBankImport or HasLocalization("AUS")) then begin
+      EditField(h,v+=vs,240,"Payment File Format",Normal,Bank,false,SetSClass);
+    end;
+    if (HasBankImport) then begin
+      EditField(h,v+=vs,240,"Bank Statement",Normal,ReceiptBank,false,SetSClass);
+    end;
+    if (HasLocalization("AUS")) then begin
+      EditField(h,v+=vs,240,"Sort Key",Normal,Sorting,false,0);
+    end;
+    if (IsEnterprise) then begin
+      EditField(h,v+=vs,240,"Exchange Rate Contract Number",Normal,ExchangeRateContract,false,0);
+      EditField(h,v+=vs,240,"Factoring Type Code",Normal,FactoringType,false,0);
+    end;
+    if (HasLocalization("RUS")) then begin
+      EditField(h,v+=vs,240,"Corresponding A/C",Normal,CorrspAcc,false,0);
+    end;
+  end;
   EndWindow;
 end;
