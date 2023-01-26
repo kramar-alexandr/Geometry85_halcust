@@ -2428,7 +2428,7 @@ SpecialMenu("Відкрити таблицю подадків",' ',25,"OpenVatMatrixPODsm");
   SetWRect(20,80,640,460);
   Sizeable(-1,-1,0,0);
   UseView(QTVc);
-  //FormName(QTForm);
+  FormName(QTForm);
   ActiveFieldOnNew("CustCode");      
   CommunicateButton;
   Tile(0,50+24,false,"",CustCode);
@@ -3418,7 +3418,7 @@ begin
   SetWRect(20,80,640,460);
   Sizeable(-1,-1,0,0);
   UseView(QTVc);
-  //FormName(QTForm);
+  FormName(QTForm);
   ActiveFieldOnNew("CustCode");      
   CommunicateButton;
   Tile(0,50+24,false,"",CustCode);

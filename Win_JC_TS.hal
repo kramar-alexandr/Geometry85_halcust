@@ -2292,7 +2292,7 @@ WindowBegin("Таблиця часу",TSDClass,CGview,-);
   SetWRect(20,80,640,460);
   Sizeable(-1,-1,0,0);
   UseView(QTVc);
-  //FormName(QTForm);
+  FormName(QTForm);
   ActiveFieldOnNew("CustCode");      
   CommunicateButton;
 
@@ -3096,7 +3096,7 @@ begin
   SetWRect(20,80,640,460);
   Sizeable(-1,-1,0,0);
   UseView(QTVc);
-  //FormName(QTForm);
+  FormName(QTForm);
   ActiveFieldOnNew("CustCode");      
   CommunicateButton;
 
