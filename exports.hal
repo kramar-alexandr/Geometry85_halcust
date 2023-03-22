@@ -248,9 +248,11 @@ begin
 	    end;
 	  end;
 	  ExportPadString(tstr,RusLen(tstr),"",true);
+	end else begin
+    ExportPadString(tstr,len(tstr),"",true);//80
 	end;
 	
-	ExportPadString(tstr,len(tstr),"",true);//80
+	
 	ExportPadString("##############",14,"",true); 
 return;
 end;
