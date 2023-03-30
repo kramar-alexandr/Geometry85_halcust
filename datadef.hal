@@ -573,6 +573,11 @@ begin
 		RecordField(FileDate,M4Date,0,0);
 		RecordField(Path,M4Str,2550,0);
 		RecordField(updatefor2023,M4Int,0,0);
+		
+		RecordField(XMLPath,M4Str,255,0);
+		RecordField(XMLFileNum,M4Long,0,0);
+		RecordField(XMLTrPathNum,M4Long,0,0);
+		
 	EndBlock; 
 		
 	RecordBegin(RecordHistoryVc,-,""); // SAV 2011_09_08
