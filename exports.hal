@@ -934,6 +934,11 @@ array string 50 acomment;
   addtexttoarea("      <PmtMtd>TRF</PmtMtd>" & chr(13) & chr(10),xmlExportArea);  
   
   addtexttoarea("      <PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
+  
+  addtexttoarea("        <SvcLvl>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("          <Cd>NURG</Cd>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("        </SvcLvl>" & chr(13) & chr(10),xmlExportArea);
+  
   addtexttoarea("        <LclInstrm>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("          <Prtry>CITI555</Prtry>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("        </LclInstrm>" & chr(13) & chr(10),xmlExportArea);
@@ -967,11 +972,11 @@ array string 50 acomment;
   addtexttoarea("          <EndToEndId>" & OPrw.KBExportNum & "</EndToEndId>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("        </PmtId>" & chr(13) & chr(10),xmlExportArea);
   
-  addtexttoarea("        <PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
+  /*addtexttoarea("        <PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("          <CtgyPurp>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("            <Cd>SALA</Cd>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("          </CtgyPurp>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("        </PmtTpInf>" & chr(13) & chr(10),xmlExportArea);*/
   
   addtexttoarea("        <Amt>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("          <InstdAmt Ccy=\"UAH\">" & OPRw.RecVal & "</InstdAmt>" & chr(13) & chr(10),xmlExportArea);
@@ -992,7 +997,7 @@ array string 50 acomment;
   addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                    <Cd>" & "TXID" & "</Cd>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                    <Prtry>" & benschema & "</Prtry>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("            </OrgId>" & chr(13) & chr(10),xmlExportArea);
@@ -1001,7 +1006,7 @@ array string 50 acomment;
   addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                    <Cd>" & "TXID" & "</Cd>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                    <Prtry>" & benschema & "</Prtry>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("            </PrvtId>" & chr(13) & chr(10),xmlExportArea);
@@ -1022,11 +1027,11 @@ array string 50 acomment;
   
   
   
-  addtexttoarea("        <RgltryRptg>" & chr(13) & chr(10),xmlExportArea);
+  /*addtexttoarea("        <RgltryRptg>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("          <Dtls>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("            <Inf>" & benschema & "</Inf>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("          </Dtls>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </RgltryRptg>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("        </RgltryRptg>" & chr(13) & chr(10),xmlExportArea);*/
   
   if (OPrw.VATVal!=0) then begin
     tstr = "Y";
