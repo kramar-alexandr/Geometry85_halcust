@@ -670,7 +670,7 @@ record OPVc OPr,OldOPr,OPrxml;
 row OPVc OPrw,OP2rw;
 integer i,rwcnt,j,rowqty;
 string 255 tstr,PayDate,Comment,FileName,FileNameXML;
-boolean trhs,testf,check;
+boolean trhs,testf,check,sucessXML;
 longint num;
 record PMBlock PMb;
 row PMBlock PMbr;
@@ -683,7 +683,7 @@ record BankVc BNr;
 area xmlExportArea;
 string 20 datestring,timestring;
 record CYBlock CYb;
-string 100 owncompanyname,ownaccname,benschema,timestr;
+string 100 owncompanyname,ownaccname,benschema,timestr,benid;
 string 5 month,day,hour,min,sec;
 array string 50 acomment;
   
@@ -700,7 +700,7 @@ array string 50 acomment;
 	end;
 	
 	FileName = KBb.Path & "OP_" & KBb.FileDate & "_" & KBb.FileName+1 & ".imp";
-	FileNameXML = KBb.Path & "XMLV3_UA" & "_" & KBb.XMLFileNum+1 & ".xml";
+	FileNameXML = KBb.XMLPath & KBb.CITIPutFilaMask & KBb.XMLFileNum+1 & ".xml";
 	SetFileOnServer(true);
 	CreateFile(FileName);
 	if (SetExportCodePage("UTF-8")== false) then begin end;
@@ -896,7 +896,7 @@ array string 50 acomment;
 	owncompanyname = XmlEncode(CYb.CompName,false);
 	ownaccname = CYb.Bank2;
 	addtexttoarea("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 schema.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("  <CstmrCdtTrfInitn>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("    <GrpHdr>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("      <MsgId>XMLREF" & KBb.XMLFileNum+1 & "</MsgId>" & chr(13) & chr(10),xmlExportArea);
@@ -908,6 +908,7 @@ array string 50 acomment;
   addtexttoarea("    </GrpHdr>" & chr(13) & chr(10),xmlExportArea);
   
   
+  sucessXML = true;
   for(i=0;i<matrowcnt(OPrxml);i=i+1)begin
   matrowget(OPrxml,i,OPrw);
   
@@ -917,10 +918,16 @@ array string 50 acomment;
 	if (ReadFirstMain(BNr,1,true)) then begin end;
 	
 	if (OPrw.ovst==1) then begin
-	  benschema = BNr.BenIDForExport;
+	  benschema = BNr.BenIDTypeForExport;
+	  benid = BNr.BenIDForExport;
 	end else begin
-	  benschema = CUr.BenIDForExport;
+	  benschema = CUr.BenIDTypeForExport;
+	  benid = CUr.BenIDForExport;
 	end;
+  
+  if(blank(benschema) or blank(benid))then begin
+    sucessXML = false;
+  end;
   
   addtexttoarea("    <PmtInf>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("      <PmtInfId>" & OPrw.KBExportNum & "</PmtInfId>" & chr(13) & chr(10),xmlExportArea);
@@ -973,28 +980,29 @@ array string 50 acomment;
   addtexttoarea("        <Cdtr>" & chr(13) & chr(10),xmlExportArea);
   
   if (OPrw.ovst==1) then begin
-		addtexttoarea("          <Nm>" & XmlEncode(BNr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);	
+	addtexttoarea("          <Nm>" & XmlEncode(BNr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);	
 	end else begin
-		addtexttoarea("          <Nm>" &  XmlEncode(CUr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);
+	addtexttoarea("          <Nm>" &  XmlEncode(CUr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);
 	end;
   
-  addtexttoarea("         <Id>" & chr(13) & chr(10),xmlExportArea);
-  tstr = CUr.RegNr1;
+  addtexttoarea("          <Id>" & chr(13) & chr(10),xmlExportArea);
   
-  tstr = left(CUr.RegNr1,10);
-  if (OPrw.ovst==1) then begin
-    tstr = BNr.VATNr;
-  end;	
   if(CUr.CustType==0)then begin//Company
   addtexttoarea("            <OrgId>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                <Id>" & tstr & "</Id>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                    <Cd>" & "TXID" & "</Cd>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("            </OrgId>" & chr(13) & chr(10),xmlExportArea);
   end else begin//Person
   addtexttoarea("            <PrvtId>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                <Id>" & tstr & "</Id>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                    <Cd>" & "TXID" & "</Cd>" & chr(13) & chr(10),xmlExportArea);
+  addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("            </PrvtId>" & chr(13) & chr(10),xmlExportArea);
   end;
@@ -1058,14 +1066,24 @@ array string 50 acomment;
   addtexttoarea("  </CstmrCdtTrfInitn>" & chr(13) & chr(10),xmlExportArea);
   addtexttoarea("</Document>" & chr(13) & chr(10),xmlExportArea);
 	
-	writeareatofile(xmlExportArea,FileNameXML,0);
+	if(sucessXML)then begin
+    writeareatofile(xmlExportArea,FileNameXML,0);
+	  KBb.XMLFileNum=KBb.XMLFileNum+1;
+	  logtext(0,"./sftp_put.sh " & KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
+	  runprogram("./sftp_put.sh",KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
+	  
+	  
+	  NewTimedTask("sftpget","sftpget","sftpget","",CurrentDate,addseconds(CurrentTime,120),addseconds(CurrentTime,120),"");
+
+	  BlockStore(KBb);
+	end;
+	
 	
 	SetFileOnServer(false);
 	if (num<>RepSpec.long1) then begin
 		if (RecordUpdate(OldOPr,OPr,false)==0) then begin end;
 		KBb.StartNum = num;
 		KBb.FileName=KBb.FileName+1;
-		KBb.XMLFileNum=KBb.XMLFileNum+1;
 		BlockStore(KBb);
 		//CloseWindow(RepSpec.ArtMode);
 		//i = OpenWindow("OPDClass",1,0,"","",OPr);
@@ -1075,6 +1093,21 @@ array string 50 acomment;
 return;
 end;
 
+
+global
+updating procedure sftpget(string arg)
+begin
+  record KBSettBlock KBb;
+  
+  logtext(0,"sftpget");
+  
+  BlockLoad(KBb);
+  runprogram("./sftp_get.sh",KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.XMLPath);
+
+  
+  
+return;
+end;
 
 
 global 

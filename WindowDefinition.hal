@@ -402,8 +402,13 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
   EditField(h,v+=20,-40,"Номер",Normal,FileName,false,0);
   EditField(h,v+=20,-40,"Дата",Normal,FileDate,false,0);
   EditField(h,v+=20,-40,"Папка",Normal,Path,false,0);
-  
+  v=v+20;
+  EditField(h,v+=20,-40,"XML Папка",Normal,XMLPath,false,0);
   EditField(h,v+=20,-40,"XML Номер",Normal,XMLFileNum,false,0);
+  EditField(h,v+=20,-40,"CITI Account",Normal,CITIAccount,false,0);
+  EditField(h,v+=20,-40,"CITI Folder",Normal,CITIFolder,false,0);
+  EditField(h,v+=20,-40,"CITI FileMask",Normal,CITIPutFilaMask,false,0);
+  EditField(h,v+=20,-40,"CITI sftp url",Normal,CITIurl,false,0);
   
   CheckBox(h,v+40,0,"Оновлення 2023 CITI ISO 20022 XML",updatefor2023);
   EndWindow;
