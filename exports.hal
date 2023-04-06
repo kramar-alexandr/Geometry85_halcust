@@ -474,15 +474,17 @@ record BankVc BNr;
           MessageBox(10895,USetStr(31019));
           goto LClientBankOPDsm;
         end;
-        BNr.Code = CUr.AccOperator;
-        readfirstmain(BNr,1,true);
-        if(blank(BNr.BenIDForExport))then begin
-          MessageBox(10895,USetStr(31020));
-          goto LClientBankOPDsm;
-        end;
-        if(blank(BNr.BenIDTypeForExport))then begin
-          MessageBox(10895,USetStr(31021));
-          goto LClientBankOPDsm;
+        if (OPr.PayperSupplier==3) then begin
+          BNr.Code = CUr.AccOperator;
+          readfirstmain(BNr,1,true);
+          if(blank(BNr.BenIDForExport))then begin
+            MessageBox(10895,USetStr(31020));
+            goto LClientBankOPDsm;
+          end;
+          if(blank(BNr.BenIDTypeForExport))then begin
+            MessageBox(10895,USetStr(31021));
+            goto LClientBankOPDsm;
+          end;
         end;
 		  end;
 		  vCUUsed[OPrw.VECode] = true;
