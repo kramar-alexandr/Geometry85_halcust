@@ -178,15 +178,15 @@ begin
 	end;
 	ExportPadString("##############",14,"",true);
 	if(KBb.updatefor2023==1)then begin
-	  tstr = "";
-    if(nonblank(CUr.BenCountryForExport))then begin
+	  tstr = "UA";
+    /*if(nonblank(CUr.BenCountryForExport))then begin
       tstr = CUr.BenCountryForExport;
     end;
     if (BankFlag) then begin
 	    if(nonblank(BNr.BenCountryForExport))then begin
 	      tstr = BNr.BenCountryForExport;
 	    end;
-	  end;
+	  end;*/
 	  ExportPadString(tstr,RusLen(tstr),"",true);
 	end;
   //!!!!!!!!!     Beneficiary country of residence ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
@@ -352,8 +352,8 @@ record BankVc BNr;
 								if (OPrw.BankAcc<>OP2rw.BankAcc) then begin testf = false; end;//44
 								if (OPrw.VECode<>OP2rw.VECode) then begin testf = false; end;//45
 								if (testf) then begin
-									Summ =Summ +  OP2rw.RecVal;
-									Summ1 =Summ1 +  OP2rw.VATVal;
+									Summ =Summ + OP2rw.RecVal;
+									Summ1 =Summ1 + OP2rw.VATVal;
 									UsedRowNo[j]=1;
 									OP2rw.KBExportNum = num;
 									MatRowPut(OPr,j,OP2rw);
@@ -403,8 +403,8 @@ record BankVc BNr;
 								if (ReadFirstMain(CUr,1,true)) then begin end;
 								//if CUr.VECat<>"EMPL" then begin testf = false; end;// SAV 2012_02_16 закоментировано по просьбе Грея
 								if (testf) then begin
-									Summ =Summ +  OP2rw.RecVal;
-									Summ1 =Summ1 +  OP2rw.VATVal;
+									Summ =Summ + OP2rw.RecVal;
+									Summ1 =Summ1 + OP2rw.VATVal;
 									UsedRowNo[j]=1;
 									OP2rw.KBExportNum = num;
 									MatRowPut(OPr,j,OP2rw);
@@ -442,6 +442,9 @@ record CUVc VEr;
 integer wn,nwn,i,rwcnt,j;
 boolean testf;
 record KBSettBlock KBb;
+record CUVc CUr;
+vector boolean vCUUsed;
+record BankVc BNr;
 
 	wn = curwindow;
 	DeselectWindow(wn,false);
@@ -460,6 +463,31 @@ record KBSettBlock KBb;
 	
 	for (i=0;i<rwcnt;i=i+1) begin
 		MatRowGet(OPr,i,OPrw);
+		if(vCUUsed[OPrw.VECode]==false)then begin
+		  CUr.Code = OPrw.VECode;
+		  if(readfirstmain(CUr,1,true))then begin
+        if(blank(CUr.BenIDForExport))then begin
+          MessageBox(10895,USetStr(31018));
+          goto LClientBankOPDsm;
+        end;
+        if(blank(CUr.BenIDTypeForExport))then begin
+          MessageBox(10895,USetStr(31019));
+          goto LClientBankOPDsm;
+        end;
+        BNr.Code = CUr.AccOperator;
+        readfirstmain(BNr,1,true);
+        if(blank(BNr.BenIDForExport))then begin
+          MessageBox(10895,USetStr(31020));
+          goto LClientBankOPDsm;
+        end;
+        if(blank(BNr.BenIDTypeForExport))then begin
+          MessageBox(10895,USetStr(31021));
+          goto LClientBankOPDsm;
+        end;
+		  end;
+		  vCUUsed[OPrw.VECode] = true;
+		end;
+		
 		if (len(OPrw.Comment)>140) then begin 
 			MessageBox(10895,USetStr(31007));
 			i=rwcnt;
@@ -494,13 +522,15 @@ record KBSettBlock KBb;
 	//RepSpec.Media = mtFile;
 	//RepSpec.repname = "ClientBankEn";
 	RepSpec.ArtMode = curwindow;
+	RepSpec.flags[0] = 0;
 //	nwn = OpenWindow("ClientBankEClass",1,0,"","",RepSpec);
 	nwn = OpenWindow("SpecYesNoCancelWClass",1,0,"","",RepSpec);
-	
 
 	LClientBankOPDsm:;
 	return;
 end;
+
+
 //=================
 procedure ExportIPrRow(row IPVc IPRw,longint num, string PMbBankNr,string PayDate)
 begin
@@ -688,8 +718,7 @@ string 5 month,day,hour,min,sec;
 array string 50 acomment;
   
   blockload(CYb);
-
-	
+  	
 	num = RepSpec.long1;
 	if (RepSpec.long1==-1) then begin num = 1; end;
 	BlockLoad(PMb);
@@ -701,28 +730,29 @@ array string 50 acomment;
 	
 	FileName = KBb.Path & "OP_" & KBb.FileDate & "_" & KBb.FileName+1 & ".imp";
 	FileNameXML = KBb.XMLPath & KBb.CITIPutFilaMask & KBb.XMLFileNum+1 & ".xml";
-	SetFileOnServer(true);
-	CreateFile(FileName);
-	if (SetExportCodePage("UTF-8")== false) then begin end;
-	rwcnt = MatRowCnt(PMb);
-	for (i=0;i<rwcnt;i=i+1) begin
-		MatRowGet(PMb,i,PMbr);
-		PMbBankNr[PMbr.Code] = right(PMbr.BankNr,9);
-	end;
-	if (RepSpec.long2<>-1) then begin
-		OPr.SerNr = RepSpec.long2;
-		if (ReadFirstMain(OPr,1,true)) begin end;
-		RecordCopy(OldOPr,OPr);
-		ConvertDateToYYYYMMDD(OPr.PayDate,PayDate);
-		Summ = 0;
-		Summ1 = 0;
-		if (OPr.PayperSupplier==0) or (OPr.PayperSupplier==2) then begin
-			rwcnt = MatRowCnt(OPr);
-			for (i=0;i<rwcnt;i=i+1) begin
-				MatRowGet(OPr,i,OPrw);
-				check = true;
-				if(KBb.updatefor2023==1)then begin
-				  CUr.Code = OPrw.VECode;
+  if(RepSpec.flags[0]==0)then begin
+    CreateFile(FileName);
+  end;
+  if (SetExportCodePage("UTF-8")== false) then begin end;
+  rwcnt = MatRowCnt(PMb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(PMb,i,PMbr);
+    PMbBankNr[PMbr.Code] = right(PMbr.BankNr,9);
+  end;
+  if (RepSpec.long2<>-1) then begin
+    OPr.SerNr = RepSpec.long2;
+    if (ReadFirstMain(OPr,1,true)) begin end;
+    RecordCopy(OldOPr,OPr);
+    ConvertDateToYYYYMMDD(OPr.PayDate,PayDate);
+    Summ = 0;
+    Summ1 = 0;
+    if (OPr.PayperSupplier==0) or (OPr.PayperSupplier==2) then begin
+      rwcnt = MatRowCnt(OPr);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(OPr,i,OPrw);
+        check = true;
+        if(KBb.updatefor2023==1)then begin
+          CUr.Code = OPrw.VECode;
           if (ReadFirstMain(CUr,1,true)) then begin 
             BNr.Code = CUr.AccOperator;
             readfirstmain(BNr,1,true);
@@ -730,31 +760,35 @@ array string 50 acomment;
               check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
             end;
           end;
-				end;
-				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
-					if blank(OPrw.PayMode) then begin
-						tstr=PMbBankNr[OPr.PayMode];
-					end else begin
-						tstr=PMbBankNr[OPrw.PayMode];
-					end;
-					ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
-					OPrw.KBExportNum = num;
-					MatRowPut(OPr,i,OPrw);
-					OPrw.ovst = 0;//bankexport
-					MatRowPut(OPrxml,matrowcnt(OPrxml),OPrw);
-					num=num+1;
-					rowqty = rowqty + 1;
-					ExportPadString(chr(13) & chr(10),2,"",true);
-				end;
-			end;
-		end;
-		if (OPr.PayperSupplier==1) then begin
-			rwcnt = MatRowCnt(OPr);
-			for (i=0;i<rwcnt;i=i+1) begin
-				MatRowGet(OPr,i,OPrw);
-				check = true;
-				if(KBb.updatefor2023==1)then begin
-				  CUr.Code = OPrw.VECode;
+        end;
+        if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
+          if blank(OPrw.PayMode) then begin
+            tstr=PMbBankNr[OPr.PayMode];
+          end else begin
+            tstr=PMbBankNr[OPrw.PayMode];
+          end;
+          if(RepSpec.flags[0]==0)then begin
+            ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
+          end;
+          OPrw.KBExportNum = num;
+          MatRowPut(OPr,i,OPrw);
+          OPrw.ovst = 0;//bankexport
+          MatRowPut(OPrxml,matrowcnt(OPrxml),OPrw);
+          num=num+1;
+          rowqty = rowqty + 1;
+          if(RepSpec.flags[0]==0)then begin
+            ExportPadString(chr(13) & chr(10),2,"",true);
+          end;
+        end;
+      end;
+    end;
+    if (OPr.PayperSupplier==1) then begin
+      rwcnt = MatRowCnt(OPr);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(OPr,i,OPrw);
+        check = true;
+        if(KBb.updatefor2023==1)then begin
+          CUr.Code = OPrw.VECode;
           if (ReadFirstMain(CUr,1,true)) then begin 
             BNr.Code = CUr.AccOperator;
             readfirstmain(BNr,1,true);
@@ -762,57 +796,61 @@ array string 50 acomment;
               check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
             end;
           end;
-				end;
-				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
-					if blank(OPrw.PayMode) then begin
-						tstr = PMbBankNr[OPr.PayMode];
-					end else begin
-						tstr = PMbBankNr[OPrw.PayMode];
-					end;
-					if (UsedRowNo[i]==0) then begin
-						Summ = OPrw.RecVal;
-						Summ1 = OPrw.VATVal;
-						Comment = OPrw.Comment;
-						if (UsedRowNo[i]==0) and (i<rwcnt-1) then begin
-							UsedRowNo[i]=1;
-							for(j=j+1;j<rwcnt;j=j+1) begin
-								MatRowGet(OPr,j,OP2rw);
-								testf=true;
-								if nonblank(OP2rw.PayMode) then begin
-									if (tstr<>PMbBankNr[OP2rw.PayMode]) then begin testf = false; end;//12
-								end;
-								if (OPrw.BankAcc<>OP2rw.BankAcc) then begin testf = false; end;//44
-								if (OPrw.VECode<>OP2rw.VECode) then begin testf = false; end;//45
-								if (testf) then begin
-									Summ = Summ +  OP2rw.RecVal;
-									Summ1 = Summ1 + OP2rw.VATVal;
-									UsedRowNo[j] = 1;
-									OP2rw.KBExportNum = num;
-									MatRowPut(OPr,j,OP2rw);
-								end;
-							end;
-						end;
-						ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
-						OPrw.KBExportNum = num;
-						MatRowPut(OPr,i,OPrw);
-						OPrw.RecVal = Summ;
-						OPrw.VATVal = Summ1;
-						OPrw.ovst = 0;//bankexport
-						MatRowPut(OPrxml,matrowcnt(OPrxml),OPrw);
-						num=num+1;
-						rowqty = rowqty + 1;
-						ExportPadString(chr(13) & chr(10),2,"",true);
-					end;
-				end;
-			end;
-		end;
-		if (OPr.PayperSupplier ==3) then begin
-			rwcnt = MatRowCnt(OPr);
-			for (i=0;i<rwcnt;i=i+1) begin
-				MatRowGet(OPr,i,OPrw);
-				check = true;
-				if(KBb.updatefor2023==1)then begin
-				  CUr.Code = OPrw.VECode;
+        end;
+        if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
+          if blank(OPrw.PayMode) then begin
+            tstr = PMbBankNr[OPr.PayMode];
+          end else begin
+            tstr = PMbBankNr[OPrw.PayMode];
+          end;
+          if (UsedRowNo[i]==0) then begin
+            Summ = OPrw.RecVal;
+            Summ1 = OPrw.VATVal;
+            Comment = OPrw.Comment;
+            if (UsedRowNo[i]==0) and (i<rwcnt-1) then begin
+              UsedRowNo[i]=1;
+              for(j=j+1;j<rwcnt;j=j+1) begin
+                MatRowGet(OPr,j,OP2rw);
+                testf=true;
+                if nonblank(OP2rw.PayMode) then begin
+                  if (tstr<>PMbBankNr[OP2rw.PayMode]) then begin testf = false; end;//12
+                end;
+                if (OPrw.BankAcc<>OP2rw.BankAcc) then begin testf = false; end;//44
+                if (OPrw.VECode<>OP2rw.VECode) then begin testf = false; end;//45
+                if (testf) then begin
+                  Summ = Summ + OP2rw.RecVal;
+                  Summ1 = Summ1 + OP2rw.VATVal;
+                  UsedRowNo[j] = 1;
+                  OP2rw.KBExportNum = num;
+                  MatRowPut(OPr,j,OP2rw);
+                end;
+              end;
+            end;
+            if(RepSpec.flags[0]==0)then begin
+              ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,false);
+            end;
+            OPrw.KBExportNum = num;
+            MatRowPut(OPr,i,OPrw);
+            OPrw.RecVal = Summ;
+            OPrw.VATVal = Summ1;
+            OPrw.ovst = 0;//bankexport
+            MatRowPut(OPrxml,matrowcnt(OPrxml),OPrw);
+            num=num+1;
+            rowqty = rowqty + 1;
+            if(RepSpec.flags[0]==0)then begin
+              ExportPadString(chr(13) & chr(10),2,"",true);
+            end;
+          end;
+        end;
+      end;
+    end;
+    if (OPr.PayperSupplier==3) then begin
+      rwcnt = MatRowCnt(OPr);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(OPr,i,OPrw);
+        check = true;
+        if(KBb.updatefor2023==1)then begin
+          CUr.Code = OPrw.VECode;
           if (ReadFirstMain(CUr,1,true)) then begin 
             BNr.Code = CUr.AccOperator;
             readfirstmain(BNr,1,true);
@@ -820,278 +858,278 @@ array string 50 acomment;
               check = false;// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:12:12 AM
             end;
           end;
-				end;
-				if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
-					if blank(OPrw.PayMode) then begin
-						tstr=PMbBankNr[OPr.PayMode];
-					end else begin
-						tstr=PMbBankNr[OPrw.PayMode];
-					end;
-					if (UsedRowNo[i]==0) then begin
-						CUr.Code = OPrw.VECode;
-						if (ReadFirstMain(CUr,1,true)) then begin end;
-						Summ = OPrw.RecVal;
-						Summ1 = OPrw.VATVal;
-						Comment= OPrw.Comment;
-						if (i<rwcnt-1)  then begin //and (CUr.VECat=="EMPL")
-							UsedRowNo[i]=1;
-							for(j=j+1;j<rwcnt;j=j+1) begin
-								MatRowGet(OPr,j,OP2rw);
-								testf=true;
-								CUr.Code = OP2rw.VECode;
-								if (ReadFirstMain(CUr,1,true)) then begin end;
-								//if CUr.VECat<>"EMPL" then begin testf = false; end;
-								if (testf) then begin
-									Summ =Summ +  OP2rw.RecVal;
-									Summ1 =Summ1 +  OP2rw.VATVal;
-									UsedRowNo[j]=1;
-									OP2rw.KBExportNum = num;
-									MatRowPut(OPr,j,OP2rw);
-								end;
-							end;
-						end;
-						ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,true);
-						OPrw.KBExportNum = num;
-						MatRowPut(OPr,i,OPrw);
-						OPrw.RecVal = Summ;
-						OPrw.VATVal = Summ1;
-						OPrw.ovst = 1;//bankexport
-						MatRowPut(OPrxml,matrowcnt(OPrxml),OPrw);
-						num=num+1;
-						rowqty = rowqty + 1;
-						ExportPadString(chr(13) & chr(10),2,"",true);
-					end;
-				end;
-			end;
-		end;
-	end; 
-	CloseFile;
-	
-	month = getmonth(currentdate);
-	if(len(month)==1)then begin
-	  month = "0" & month;
-	end;
-	day = getday(currentdate);
-	if(len(day)==1)then begin
-	  day = "0" & day;
-	end;
-	datestring = getyear(currentdate) & "-" & month & "-" & day;
-	hour = gethour(currenttime);
-	min = getminute(currenttime);
-	sec = getsecond(currenttime);
-	
-	if(len(hour)==1)then begin
-	  hour = "0" & hour;
-	end;
-	if(len(min)==1)then begin
-	  min = "0" & min;
-	end;
-	if(len(sec)==1)then begin
-	  sec = "0" & sec;
-	end;
-	
-	
-	timestr = hour & ":" & min & ":" & sec;
-	timestring = "T" & timestr;
-	owncompanyname = XmlEncode(CYb.CompName,false);
-	ownaccname = CYb.Bank2;
-	addtexttoarea("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("  <CstmrCdtTrfInitn>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("    <GrpHdr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      <MsgId>XMLREF" & KBb.XMLFileNum+1 & "</MsgId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      <CreDtTm>" & datestring & timestring & "</CreDtTm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      <NbOfTxs>" & matrowcnt(OPrxml) & "</NbOfTxs>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      <InitgPty>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        <Nm>VMLY&amp;R</Nm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      </InitgPty>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("    </GrpHdr>" & chr(13) & chr(10),xmlExportArea);
-  
-  
-  sucessXML = true;
-  for(i=0;i<matrowcnt(OPrxml);i=i+1)begin
-  matrowget(OPrxml,i,OPrw);
-  
-  CUr.Code = OPRw.VECode;
-	if (ReadFirstMain(CUr,1,true)) then begin end;
-	BNr.Code = CUr.AccOperator;
-	if (ReadFirstMain(BNr,1,true)) then begin end;
-	
-	if (OPrw.ovst==1) then begin
-	  benschema = BNr.BenIDTypeForExport;
-	  benid = BNr.BenIDForExport;
-	end else begin
-	  benschema = CUr.BenIDTypeForExport;
-	  benid = CUr.BenIDForExport;
-	end;
-  
-  if(blank(benschema) or blank(benid))then begin
-    sucessXML = false;
+        end;
+        if (OPrw.RecCurncy=="UAH" and OPrw.RecVal>0 and check)then begin
+          if blank(OPrw.PayMode) then begin
+            tstr=PMbBankNr[OPr.PayMode];
+          end else begin
+            tstr=PMbBankNr[OPrw.PayMode];
+          end;
+          if (UsedRowNo[i]==0) then begin
+            CUr.Code = OPrw.VECode;
+            if (ReadFirstMain(CUr,1,true)) then begin end;
+            Summ = OPrw.RecVal;
+            Summ1 = OPrw.VATVal;
+            Comment= OPrw.Comment;
+            if (i<rwcnt-1)  then begin //and (CUr.VECat=="EMPL")
+              UsedRowNo[i]=1;
+              for(j=j+1;j<rwcnt;j=j+1) begin
+                MatRowGet(OPr,j,OP2rw);
+                testf=true;
+                CUr.Code = OP2rw.VECode;
+                if (ReadFirstMain(CUr,1,true)) then begin end;
+                //if CUr.VECat<>"EMPL" then begin testf = false; end;
+                if (testf) then begin
+                  Summ = Summ + OP2rw.RecVal;
+                  Summ1 =Summ1 + OP2rw.VATVal;
+                  UsedRowNo[j]=1;
+                  OP2rw.KBExportNum = num;
+                  MatRowPut(OPr,j,OP2rw);
+                end;
+              end;
+            end;
+            if(RepSpec.flags[0]==0)then begin
+              ExportOPrRow(KBb,OPrw,num,tstr,PayDate,Summ,Summ1,true);
+            end;
+            OPrw.KBExportNum = num;
+            MatRowPut(OPr,i,OPrw);
+            OPrw.RecVal = Summ;
+            OPrw.VATVal = Summ1;
+            OPrw.ovst = 1;//bankexport
+            MatRowPut(OPrxml,matrowcnt(OPrxml),OPrw);
+            num=num+1;
+            rowqty = rowqty + 1;
+            if(RepSpec.flags[0]==0)then begin
+              ExportPadString(chr(13) & chr(10),2,"",true);
+            end;
+          end;
+        end;
+      end;
+    end;
+  end; 
+  if(RepSpec.flags[0]==0)then begin
+    CloseFile;
   end;
-  
-  addtexttoarea("    <PmtInf>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      <PmtInfId>" & OPrw.KBExportNum & "</PmtInfId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      <PmtMtd>TRF</PmtMtd>" & chr(13) & chr(10),xmlExportArea);  
-  
-  addtexttoarea("      <PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("        <SvcLvl>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <Cd>NURG</Cd>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </SvcLvl>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("        <LclInstrm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <Prtry>CITI555</Prtry>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </LclInstrm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      </PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
-  
-  
-  addtexttoarea("      <ReqdExctnDt>" & datestring & "</ReqdExctnDt>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("      <Dbtr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        <Nm>" & owncompanyname & "</Nm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      </Dbtr>" & chr(13) & chr(10),xmlExportArea);
-  
-  
-  addtexttoarea("      <DbtrAcct>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        <Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            <Id>" & ownaccname & "</Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          </Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      </DbtrAcct>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("      <DbtrAgt>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        <FinInstnId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <BIC>" & "CITIUAUKXXX" & "</BIC>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </FinInstnId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("      </DbtrAgt>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("      <CdtTrfTxInf>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("        <PmtId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <EndToEndId>" & OPrw.KBExportNum & "</EndToEndId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </PmtId>" & chr(13) & chr(10),xmlExportArea);
-  
-  /*addtexttoarea("        <PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <CtgyPurp>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            <Cd>SALA</Cd>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          </CtgyPurp>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </PmtTpInf>" & chr(13) & chr(10),xmlExportArea);*/
-  
-  addtexttoarea("        <Amt>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <InstdAmt Ccy=\"UAH\">" & OPRw.RecVal & "</InstdAmt>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </Amt>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("        <Cdtr>" & chr(13) & chr(10),xmlExportArea);
-  
-  if (OPrw.ovst==1) then begin
-	addtexttoarea("          <Nm>" & XmlEncode(BNr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);	
-	end else begin
-	addtexttoarea("          <Nm>" &  XmlEncode(CUr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);
-	end;
-  
-  addtexttoarea("          <Id>" & chr(13) & chr(10),xmlExportArea);
-  
-  if(CUr.CustType==0)then begin//Company
-  addtexttoarea("            <OrgId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                    <Prtry>" & benschema & "</Prtry>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            </OrgId>" & chr(13) & chr(10),xmlExportArea);
-  end else begin//Person
-  addtexttoarea("            <PrvtId>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                    <Prtry>" & benschema & "</Prtry>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            </PrvtId>" & chr(13) & chr(10),xmlExportArea);
-  end;
-  addtexttoarea("          </Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <CtryOfRes>UA</CtryOfRes>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </Cdtr>" & chr(13) & chr(10),xmlExportArea);
-  
-  
-  
-  addtexttoarea("        <CdtrAcct>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            <Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("              <Id>" & OPRw.BankAcc & "</Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            </Othr>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          </Id>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </CdtrAcct>" & chr(13) & chr(10),xmlExportArea);
-  
-  
-  
-  /*addtexttoarea("        <RgltryRptg>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <Dtls>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            <Inf>" & benschema & "</Inf>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          </Dtls>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </RgltryRptg>" & chr(13) & chr(10),xmlExportArea);*/
-  
-  if (OPrw.VATVal!=0) then begin
-    tstr = "Y";
-	end else begin
-	  OPrw.VATVal = 0;
-		tstr = "N";
-	end;
-  
-  addtexttoarea("        <Tax>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          <Rcrd>" & chr(13) & chr(10),xmlExportArea);
-  if(tstr=="Y")then begin
-  addtexttoarea("            <TaxAmt>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("              <TtlAmt Ccy=\"UAH\">" & OPrw.VATVal & "</TtlAmt>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("            </TaxAmt>" & chr(13) & chr(10),xmlExportArea);
-  end;
-  addtexttoarea("            <AddtlInf>" & tstr & "</AddtlInf> " & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("          </Rcrd>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("        </Tax>" & chr(13) & chr(10),xmlExportArea);
-  
-  
-  
-  addtexttoarea("        <RmtInf>" & chr(13) & chr(10),xmlExportArea);
-  tstr = OPrw.Comment;
-  cleararray(acomment);
-	RetCharsArray(tstr,acomment);
-  for(j=0;j<acomment.length;j=j+1)Begin
-  if(nonblank(acomment[j]))then begin
-    addtexttoarea("        <Ustrd>" & XmlEncode(acomment[j],false) & "</Ustrd>" & chr(13) & chr(10),xmlExportArea);
-  end;
-  end;
-  addtexttoarea("        </RmtInf>" & chr(13) & chr(10),xmlExportArea);
-  
-  addtexttoarea("      </CdtTrfTxInf>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("    </PmtInf>" & chr(13) & chr(10),xmlExportArea);
-  end;
-  
-  addtexttoarea("  </CstmrCdtTrfInitn>" & chr(13) & chr(10),xmlExportArea);
-  addtexttoarea("</Document>" & chr(13) & chr(10),xmlExportArea);
 	
-	if(sucessXML)then begin
-    writeareatofile(xmlExportArea,FileNameXML,0);
-	  KBb.XMLFileNum=KBb.XMLFileNum+1;
-	  logtext(0,"./sftp_put.sh " & KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
-	  runprogram("./sftp_put.sh",KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
-	  
-	  
-	  NewTimedTask("sftpget","sftpget","sftpget","",CurrentDate,addseconds(CurrentTime,120),addseconds(CurrentTime,120),"");
-
-	  BlockStore(KBb);
-	end;
-	
-	
-	SetFileOnServer(false);
+	if(RepSpec.flags[0]==0)then begin
+    month = getmonth(currentdate);
+    if(len(month)==1)then begin
+      month = "0" & month;
+    end;
+    day = getday(currentdate);
+    if(len(day)==1)then begin
+      day = "0" & day;
+    end;
+    datestring = getyear(currentdate) & "-" & month & "-" & day;
+    hour = gethour(currenttime);
+    min = getminute(currenttime);
+    sec = getsecond(currenttime);
+  
+    if(len(hour)==1)then begin
+      hour = "0" & hour;
+    end;
+    if(len(min)==1)then begin
+      min = "0" & min;
+    end;
+    if(len(sec)==1)then begin
+      sec = "0" & sec;
+    end;
+  
+  
+    timestr = hour & ":" & min & ":" & sec;
+    timestring = "T" & timestr;
+    owncompanyname = XmlEncode(CYb.CompName,false);
+    ownaccname = CYb.Bank2;
+    addtexttoarea("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("  <CstmrCdtTrfInitn>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("    <GrpHdr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      <MsgId>XMLREF" & KBb.XMLFileNum+1 & "</MsgId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      <CreDtTm>" & datestring & timestring & "</CreDtTm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      <NbOfTxs>" & matrowcnt(OPrxml) & "</NbOfTxs>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      <InitgPty>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        <Nm>VMLY&amp;R</Nm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      </InitgPty>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("    </GrpHdr>" & chr(13) & chr(10),xmlExportArea);
+  
+  
+    sucessXML = true;
+    for(i=0;i<matrowcnt(OPrxml);i=i+1)begin
+    matrowget(OPrxml,i,OPrw);
+  
+    CUr.Code = OPRw.VECode;
+    if (ReadFirstMain(CUr,1,true)) then begin end;
+    BNr.Code = CUr.AccOperator;
+    if (ReadFirstMain(BNr,1,true)) then begin end;
+  
+    if (OPrw.ovst==1) then begin
+      benschema = BNr.BenIDTypeForExport;
+      benid = BNr.BenIDForExport;
+    end else begin
+      benschema = CUr.BenIDTypeForExport;
+      benid = CUr.BenIDForExport;
+    end;
+  
+    if(blank(benschema) or blank(benid))then begin
+      sucessXML = false;
+    end;
+    addtexttoarea("    <PmtInf>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      <PmtInfId>" & OPrw.KBExportNum & "</PmtInfId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      <PmtMtd>TRF</PmtMtd>" & chr(13) & chr(10),xmlExportArea);  
+  
+    addtexttoarea("      <PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("        <SvcLvl>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <Cd>NURG</Cd>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </SvcLvl>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("        <LclInstrm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <Prtry>CITI555</Prtry>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </LclInstrm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      </PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
+  
+  
+    addtexttoarea("      <ReqdExctnDt>" & datestring & "</ReqdExctnDt>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("      <Dbtr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        <Nm>" & owncompanyname & "</Nm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      </Dbtr>" & chr(13) & chr(10),xmlExportArea);
+  
+  
+    addtexttoarea("      <DbtrAcct>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        <Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            <Id>" & ownaccname & "</Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          </Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      </DbtrAcct>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("      <DbtrAgt>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        <FinInstnId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <BIC>" & "CITIUAUKXXX" & "</BIC>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </FinInstnId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("      </DbtrAgt>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("      <CdtTrfTxInf>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("        <PmtId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <EndToEndId>" & OPrw.KBExportNum & "</EndToEndId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </PmtId>" & chr(13) & chr(10),xmlExportArea);
+  
+    /*addtexttoarea("        <PmtTpInf>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <CtgyPurp>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            <Cd>SALA</Cd>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          </CtgyPurp>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </PmtTpInf>" & chr(13) & chr(10),xmlExportArea);*/
+  
+    addtexttoarea("        <Amt>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <InstdAmt Ccy=\"UAH\">" & OPRw.RecVal & "</InstdAmt>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </Amt>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("        <Cdtr>" & chr(13) & chr(10),xmlExportArea);
+  
+    if (OPrw.ovst==1) then begin
+    addtexttoarea("          <Nm>" & XmlEncode(BNr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);	
+    end else begin
+    addtexttoarea("          <Nm>" &  XmlEncode(CUr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);
+    end;
+  
+    addtexttoarea("          <Id>" & chr(13) & chr(10),xmlExportArea);
+  
+    if(CUr.CustType==0)then begin//Company
+    addtexttoarea("            <OrgId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                    <Prtry>" & benschema & "</Prtry>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            </OrgId>" & chr(13) & chr(10),xmlExportArea);
+    end else begin//Person
+    addtexttoarea("            <PrvtId>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("              <Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                <Id>" & benid & "</Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                <SchmeNm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                    <Prtry>" & benschema & "</Prtry>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("                </SchmeNm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("              </Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            </PrvtId>" & chr(13) & chr(10),xmlExportArea);
+    end;
+    addtexttoarea("          </Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <CtryOfRes>UA</CtryOfRes>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </Cdtr>" & chr(13) & chr(10),xmlExportArea);
+  
+  
+  
+    addtexttoarea("        <CdtrAcct>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            <Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("              <Id>" & OPRw.BankAcc & "</Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            </Othr>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          </Id>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </CdtrAcct>" & chr(13) & chr(10),xmlExportArea);
+  
+  
+  
+    /*addtexttoarea("        <RgltryRptg>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <Dtls>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            <Inf>" & benschema & "</Inf>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          </Dtls>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </RgltryRptg>" & chr(13) & chr(10),xmlExportArea);*/
+  
+    if (OPrw.VATVal!=0) then begin
+      tstr = "Y";
+    end else begin
+      OPrw.VATVal = 0;
+      tstr = "N";
+    end;
+  
+    addtexttoarea("        <Tax>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <Rcrd>" & chr(13) & chr(10),xmlExportArea);
+    if(tstr=="Y")then begin
+    addtexttoarea("            <TaxAmt>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("              <TtlAmt Ccy=\"UAH\">" & OPrw.VATVal & "</TtlAmt>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("            </TaxAmt>" & chr(13) & chr(10),xmlExportArea);
+    end;
+    addtexttoarea("            <AddtlInf>" & tstr & "</AddtlInf> " & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          </Rcrd>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("        </Tax>" & chr(13) & chr(10),xmlExportArea);
+  
+  
+  
+    addtexttoarea("        <RmtInf>" & chr(13) & chr(10),xmlExportArea);
+    tstr = OPrw.Comment;
+    cleararray(acomment);
+    RetCharsArray(tstr,acomment);
+    for(j=0;j<acomment.length;j=j+1)Begin
+    if(nonblank(acomment[j]))then begin
+      addtexttoarea("        <Ustrd>" & XmlEncode(acomment[j],false) & "</Ustrd>" & chr(13) & chr(10),xmlExportArea);
+    end;
+    end;
+    addtexttoarea("        </RmtInf>" & chr(13) & chr(10),xmlExportArea);
+  
+    addtexttoarea("      </CdtTrfTxInf>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("    </PmtInf>" & chr(13) & chr(10),xmlExportArea);
+    end;
+  
+    addtexttoarea("  </CstmrCdtTrfInitn>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("</Document>" & chr(13) & chr(10),xmlExportArea);
+  
+    if(sucessXML)then begin
+      writeareatofile(xmlExportArea,FileNameXML,0);
+      KBb.XMLFileNum=KBb.XMLFileNum+1;
+      logtext(0,"./sftp_put.sh " & KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
+      runprogram("./sftp_put.sh",KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
+      NewTimedTask("sftpget","sftpget","sftpget","",CurrentDate,addseconds(CurrentTime,120),addseconds(CurrentTime,120),"");
+      BlockStore(KBb);
+    end;
+  end;
+		
 	if (num<>RepSpec.long1) then begin
 		if (RecordUpdate(OldOPr,OPr,false)==0) then begin end;
 		KBb.StartNum = num;
 		KBb.FileName=KBb.FileName+1;
 		BlockStore(KBb);
-		//CloseWindow(RepSpec.ArtMode);
-		//i = OpenWindow("OPDClass",1,0,"","",OPr);
 	end;
 
 

@@ -28,6 +28,11 @@ begin
 	SString(31016,"Проект має бути в статусі Активно"); 
 	SString(31017,"Проект має бути у Рівні 1");
 	
+	SString(31018,"У картці постачальника треба заповнити поле CITI Bank Export: Ідентифікатор Одержувача");
+	SString(31019,"У картці постачальника треба заповнити поле CITI Bank Export: Власна назва схеми бенефіціару");
+	SString(31020,"У картці Банку постачальника треба заповнити поле CITI Bank Export: Ідентифікатор Одержувача");
+	SString(31021,"У картці Банку постачальника треба заповнити поле CITI Bank Export: Власна назва схеми бенефіціару");
+	
 	Setting("PErsVc",PErsLClass,modTC);
 	Setting("RHist",RHistLClass,modSY);
 	Setting("Access Groups History",AccessRecHistoryLClass,modSY);

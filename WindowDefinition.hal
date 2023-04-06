@@ -1355,7 +1355,7 @@ WindowBegin("’абелґ часу",TSReportRClass,CGRcW,RcType);
   RadioButton(h2+60,v,1,0,"особа",CustType);
   EditField(h,v,120,"§ЏЌ",Normal,VATNr,false,0);
   v = v+vs;
-  EditField(h+200,v+=vs,120,"CITI Bank Export: Љра»на проживаннЯ бенефґцґара",Normal,BenCountryForExport,false,CountrySClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:45 AM
+  //EditField(h+200,v+=vs,120,"CITI Bank Export: Љра»на проживаннЯ бенефґцґара",Normal,BenCountryForExport,false,CountrySClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:45 AM
   EditField(h+200,v+=vs,120,"CITI Bank Export: §дентифґкатор Ћдержувача",Normal,BenIDForExport,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:46 AM
   EditField(h+200,v+=vs,120,"CITI Bank Export: ‚ласна назва схеми бенефґцґару",Normal,BenIDTypeForExport,false,CityTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:49 AM
   EditField(h,v+=vs,120,"Џапка WorkSection",Normal,WSFolder,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 23 03 2021 y. at 2:13:25 PM
@@ -2135,8 +2135,8 @@ begin
     EditField(h,v+=vs,120,"#VAT Reg. No.#",Normal,VATNr,false,0);
     EditField(h,v+=vs,50,"Language",Normal,LangCode,false,LangSClass);
     
-    EditField(h+100,v+=vs,120,"CITI Bank Export: Љра»на проживаннЯ бенефґцґара",Normal,BenCountryForExport,false,CountrySClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:45 AM
-    EditField(h+100,v+=vs,120,"CITI Bank Export: §дентифґкатор Ћдержувача",Normal,BenIDForExport,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:46 AM
+    //EditField(h+100,v+=vs,120,"CITI Bank Export: Љра»на проживаннЯ бенефґцґара",Normal,BenCountryForExport,false,CountrySClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:45 AM
+    EditField(h+100,v+=vs,120,"CITI Bank Export: §дентифґкатор бенефґцґара",Normal,BenIDForExport,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:46 AM
     EditField(h+100,v+=vs,120,"CITI Bank Export: ‚ласна назва схеми бенефґцґару",Normal,BenIDTypeForExport,false,CityTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 23 12 2022 y. at 11:00:49 AM
 
     
