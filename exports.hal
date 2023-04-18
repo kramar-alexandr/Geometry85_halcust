@@ -732,6 +732,7 @@ array string 50 acomment;
 	
 	FileName = KBb.Path & "OP_" & KBb.FileDate & "_" & KBb.FileName+1 & ".imp";
 	FileNameXML = KBb.XMLPath & KBb.CITIPutFilaMask & KBb.XMLFileNum+1 & ".xml";
+  SetFileOnServer(true);
   if(RepSpec.flags[0]==0)then begin
     CreateFile(FileName);
   end;
@@ -1133,6 +1134,7 @@ array string 50 acomment;
 		KBb.FileName=KBb.FileName+1;
 		BlockStore(KBb);
 	end;
+	SetFileOnServer(false);
 
 
 return;
