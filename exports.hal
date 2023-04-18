@@ -1118,14 +1118,7 @@ array string 50 acomment;
     addtexttoarea("  </CstmrCdtTrfInitn>" & chr(13) & chr(10),xmlExportArea);
     addtexttoarea("</Document>" & chr(13) & chr(10),xmlExportArea);
   
-    if(sucessXML)then begin
-      writeareatofile(xmlExportArea,FileNameXML,0);
-      KBb.XMLFileNum=KBb.XMLFileNum+1;
-      logtext(0,"./sftp_put.sh " & KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
-      runprogram("./sftp_put.sh",KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
-      NewTimedTask("sftpget","sftpget","sftpget","",CurrentDate,addseconds(CurrentTime,120),addseconds(CurrentTime,120),"");
-      BlockStore(KBb);
-    end;
+    
   end;
 		
 	if (num<>RepSpec.long1) then begin
@@ -1135,7 +1128,15 @@ array string 50 acomment;
 		BlockStore(KBb);
 	end;
 	SetFileOnServer(false);
-
+	
+  if(sucessXML)then begin
+    writeareatofile(xmlExportArea,FileNameXML,0);
+    KBb.XMLFileNum=KBb.XMLFileNum+1;
+    logtext(0,"./sftp_put.sh " & KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
+    runprogram("./sftp_put.sh",KBb.CITIurl & " " & KBb.CITIAccount & " " & KBb.CITIFolder & " " & KBb.CITIPutFilaMask & " " & KBb.XMLPath);
+    NewTimedTask("sftpget","sftpget","sftpget","",CurrentDate,addseconds(CurrentTime,120),addseconds(CurrentTime,120),"");
+    BlockStore(KBb);
+  end;
 
 return;
 end;
