@@ -976,6 +976,16 @@ array string 50 acomment;
     if(blank(benschema) or blank(benid))then begin
       sucessXML = false;
     end;
+    
+    if blank(OPrw.PayMode) then begin
+      ownaccname = PMbBankNr[OPr.PayMode];
+    end else begin
+      ownaccname = PMbBankNr[OPrw.PayMode];
+    end;
+    if(blank(ownaccname))then begin
+      ownaccname = CYb.Bank2;
+    end;
+    
     addtexttoarea("    <PmtInf>" & chr(13) & chr(10),xmlExportArea);
     addtexttoarea("      <PmtInfId>" & OPrw.KBExportNum & "</PmtInfId>" & chr(13) & chr(10),xmlExportArea);
     addtexttoarea("      <PmtMtd>TRF</PmtMtd>" & chr(13) & chr(10),xmlExportArea);  
