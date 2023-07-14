@@ -740,7 +740,8 @@ array string 50 acomment;
   rwcnt = MatRowCnt(PMb);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(PMb,i,PMbr);
-    PMbBankNr[PMbr.Code] = right(PMbr.BankNr,9);
+    //PMbBankNr[PMbr.Code] = right(PMbr.BankNr,9);
+    PMbBankNr[PMbr.Code] = PMbr.BankNr;
   end;
   if (RepSpec.long2<>-1) then begin
     OPr.SerNr = RepSpec.long2;
