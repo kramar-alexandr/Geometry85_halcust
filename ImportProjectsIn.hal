@@ -276,7 +276,7 @@ begin
 					end;
 					changed = true;
 				end;
-				if(oldPRr.Terminated==1 or oldPRr.Terminated = 3)then begin
+				if(oldPRr.Terminated==1 or oldPRr.Terminated==3)then begin
 				  changed = true;
 				end;
 				
