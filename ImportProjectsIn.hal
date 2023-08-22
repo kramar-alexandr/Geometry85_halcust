@@ -278,6 +278,7 @@ begin
 				end;
 				if(oldPRr.Terminated==1 or oldPRr.Terminated==3)then begin
 				  changed = true;
+				  oldPRr.WSSended = 1;
 				end;
 				
 				if(changed)then begin
