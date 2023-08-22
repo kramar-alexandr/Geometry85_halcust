@@ -276,6 +276,9 @@ begin
 					end;
 					changed = true;
 				end;
+				if(oldPRr.Terminated==1 or oldPRr.Terminated = 3)then begin
+				  changed = true;
+				end;
 				
 				if(changed)then begin
 					logtext(0,"CloseProjectsIn for project " & oldPRr.Code & " FinishedDate = " & oldPRr.FinishedDate & " PreFinishedDate = " & oldPRr.PreFinishedDate);
