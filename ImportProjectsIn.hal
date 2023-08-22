@@ -296,7 +296,7 @@ begin
 	
 	writeareatofile(acloseprojects,"closenextprojects.txt",0);
 	
-	closeNextProjectinWS;
+	qupdating.closeNextProjectinWS;
 	
 return;
 end;
