@@ -126,6 +126,7 @@ begin
 	array string 255 res;
 	boolean ibanfound;
 	record CountryVc Countryr;
+	string 100 benschema,benid;
 	
 	
 	Cur.Code = OPRw.VECode;
@@ -192,14 +193,23 @@ begin
   //!!!!!!!!!     Beneficiary country of residence ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
 	ExportPadString("#",1,"",true);
 	if(KBb.updatefor2023==1)then begin
-	
-	  tstr = CUr.BenIDTypeForExport;
+	  
+	  
+	  if (OPrw.ovst==1) then begin
+      benschema = BNr.BenIDTypeForExport;
+      benid = BNr.BenIDForExport;
+    end else begin
+      benschema = CUr.BenIDTypeForExport;
+      benid = CUr.BenIDForExport;
+    end;
+	  
+	  /*tstr = CUr.BenIDTypeForExport;
 	  if (BankFlag) then begin
 	    if(nonblank(BNr.BenIDTypeForExport))then begin
 	      tstr = BNr.BenIDTypeForExport;
 	    end;
-	  end;
-	  ExportPadString(tstr,RusLen(tstr),"",true);
+	  end;*/
+	  ExportPadString(benschema,RusLen(benschema),"",true);
 	end;
 	//!!!!!!!!!     Beneficiary scheme name proprietary ToDO// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 09 12 2022 y. at 4:54:20 PM
 	ExportPadString("######",6,"",true);
@@ -248,7 +258,7 @@ begin
 	      tstr = BNr.BenIDForExport;
 	    end;
 	  end;
-	  ExportPadString(tstr,RusLen(tstr),"",true);
+	  ExportPadString(benid,RusLen(benid),"",true);//80
 	end else begin
     ExportPadString(tstr,len(tstr),"",true);//80
 	end;
