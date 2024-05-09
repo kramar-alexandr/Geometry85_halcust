@@ -85,6 +85,9 @@ begin
 	Maintenance("Заповнити WorkSectionProjects",UpdWSPVClass,UpdWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
 	Maintenance("Перевірка WorkSectionProjects",CheckWSPVClass,CheckWSPMn,modTS);//Edit **********************************************Vas-P	15/07/2021
 	Maintenance("Заповнити групу продажу",CheckWSPVClass,FillSalesGroupTOTsMn,modTS);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 12 2021 y. at 12:09:02 PM
+	Maintenance("Отримати WorkSection групи проектів",CheckWSPVClass,GetWSGroupMn,modTS);
+	Maintenance("Отримати WorkSection мітки проектів",CheckWSPVClass,GetWSTagsMn,modTS);
+	
 	
 	Setting("Історія змін регистрів",RecordHistoryLClass,modSY);
 	Setting("Серії номерів - Історія змін регистрів",RecHistSerSerTClass,modSY);
