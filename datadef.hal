@@ -666,6 +666,16 @@ begin
 		MainKeyBegin(eMail,0);
 		KeySegment(eMail);
   EndRecord;
+  
+  RecordBegin(WorksectionFoldersVc,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 17 03 2021 y. at 3:18:00 PM
+		RecordField(Id,M4Str,20,0);
+		RecordField(Name,M4Str,100,0);		
+		MainKeyBegin(Id,0);
+		KeySegment(Id);
+		KeyBegin(Name);
+		KeySegment(Name);
+		KeySegment(Id);
+  EndRecord;
 
 
 	RecordBegin(WSPVc,-,"");	//Edit **********************************************Vas-P	15/07/2021
