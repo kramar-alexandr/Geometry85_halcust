@@ -7,7 +7,7 @@ begin
 
 	inner.OnApplicationStartupComplete;
 	
-	NewPeriodicTask("WorkSection-Users","WorkSection Update Users","WorkSectionUpdateGetUsersRequest","",60,"");
+	//NewPeriodicTask("WorkSection-Users","WorkSection Update Users","WorkSectionUpdateGetUsersRequest","",60,"");
 
   return;
 end;

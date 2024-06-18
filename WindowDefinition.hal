@@ -2040,6 +2040,36 @@ begin
 end;
 
 
+window WSPSyncDClass:1		//Edit **********************************************Vas-P	15/07/2021
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+	real h,h2,v,vs;
+	boolean viewornot;
+  WindowBegin("Project to Sync",WorkSectionProjectsDClass,CGview,-);
+  UseView(WSPSyncVc);
+  SetWRect(20,100,100,100);
+  //Sizeable(-1,-1,0,0);
+  h=90; v = 10; vs = 20;
+	
+	EditField(h,v,140,"Code",Normal,PRCode,false,0);
+
+  EndWindow;
+end;
+
+window WSPSyncLClass:1 //Edit **********************************************Vas-P	15/07/2021
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Projects to Sync",WSPSyncLClass,CGmlist,-);
+  SpawnClass(WSPSyncDClass);
+  SetWRect(20,80,200,500);
+  Sizeable(-1,-1,0,0);
+  UseView(WSPSyncVc);
+  RecordList(4,17,-21,-39);
+	RlColKey(10,10,"PRCode",PRCode,false,PRCode);
+  EndWindow;
+end;
+
+
 window PurOrdJRClass:1
   wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin

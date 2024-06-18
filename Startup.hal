@@ -99,6 +99,8 @@ begin
 	
 	Setting("Настройки WorkSectionProjects",WorkSectionProjectsLClass,modTS);	//Edit **********************************************Vas-P	15/07/2021
 		
+	Setting("WorkSection Projects to Sync",WSPSyncLClass,modTS);
+		
 	Report("Історія змін регістру Контакти",RecHistCustRClass,RecHistCustRn,0,modSY);
 	Report("Відредаговані табелі часу",ChangedTSRClass,ChangedTSRn,0,modTS);
 	Report("Журнал замовлень постачальникам (новий)",PurOrdJRClass,NewPurOrdJRn,0,modPO);

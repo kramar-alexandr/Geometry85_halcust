@@ -701,5 +701,17 @@ begin
 		
 	EndRecord;	
 	
+	RecordBegin(WSPSyncVc,-,"");	//Edit **********************************************Vas-P	15/07/2021
+		RecordField(PRCode,M4Code,20,0);
+		RecordField(oldMotherCode,M4Code,20,0);
+		RecordField(updatef,M4Int,0,0);
+		RecordField(Terminated,M4Int,0,0);
+		RecordField(PRStage,M4Code,20,0);
+		RecordField(Type,M4Int,0,0);
+		
+		MainKeyBegin(PRCode,0);
+		KeySegment(PRCode);
+	EndRecord;	
+	
  	return;
 end;
