@@ -2,7 +2,7 @@ event Startup
 begin
   SetLangMode(LangUkrainian,"UKR",0);
 
-  SourceFile("hal.hob",0);
+  //SourceFile("hal.hob",0);
   
 	/*StrSetAdd(3);
 	StrSetText(  ChangeStatusQT,"Зміна статусу - комерційна пропозиція");
@@ -46,7 +46,7 @@ begin
 	Report("Реєстр податкових накладних виданих (новий)",VATIVRegUkrRClass,VATIVRegUkrNewRn,0,modSL);// Edit ************************** Monday, 23 September 2013 15:31:38
 	Report("Реєстр податкових накладних отриманих",VATIVRegUkrRClass,VATIVRegUkrRn,0,modSL);
 	Report("Реєстр отриманих та виданих податкових накладних",VATVIRegUkrRClass,VATVIRegUkrRn,0,modPL);
-	
+		
 	Maintenance("Завантажити час з WorkSection",WorkSectionGetCostsVClass,WorkSectionGetCostsMn,modTS);
 	Maintenance("Почистити копії проектів WS",MyVClass,CloaseByCodeWSMn,modTS);
 	Maintenance("Завантажити відпустки та ін. WorkSection",WorkSectionGetCostsVClass,WorkSectionGetHolidaysMn,modTS);
