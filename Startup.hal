@@ -51,7 +51,7 @@ begin
 	Maintenance("Почистити копії проектів WS",MyVClass,CloaseByCodeWSMn,modTS);
 	Maintenance("Завантажити відпустки та ін. WorkSection",WorkSectionGetCostsVClass,WorkSectionGetHolidaysMn,modTS);
 	
-	Maintenance("Закрыть проекты в WS",WorkSectionGetCostsVClass,WorkSectionGetCostsMnReplyMn,modTS);
+	Maintenance("Закрыть проекты в WS",MyVClass,WorkSectionGetCostsMnReplyMn,modTS);
 	Maintenance("Закрыть проекты в WS после импорта",MyVClass,closeNextProjectinWSMn,modTS);
 	
 	Maintenance("UpdateTS",UpdateTSVClass,UpdateTSMn,modTS);
