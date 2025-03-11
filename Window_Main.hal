@@ -3923,3 +3923,54 @@ begin
 
   EndWindow;
 end;
+
+
+window AT2DprDClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h1,h2,v,vs;
+  WindowBegin("Переоцінка НА",AT2DprDClass,CGview,-);
+  SetWRect(20,80,512,339);
+  UseView(AT2DprVc);
+  ActiveFieldOnNew("InventoryNr");
+  vs = 20; h=110; h1=310; h2=410;
+  Tile(0,90,false,"",InventoryNr);
+  EditField(h,v=10, 80, "Код",Normal,SerNr,false,TSerSClass);
+  EditField(h1,v,70,"Дата опер.",Normal,TransDate,false,PasteCurDate);  
+  EditField(h,v+=vs,120, "Інвентарний №",Normal,InventoryNr,false,AT2UnitSClass);
+  EditField(h1,v,-20, "Офіц. код",Normal,LegalCode,false,0);
+  EditField(h,v+=vs,-20,"Опис",Normal,Description,false,0);
+//  EditField(h,v+=vs, 70, "Asset Cat.",ViewOnly,AT2Code,false,AT2SClass);
+  TileButton(1,"Модель"); 
+  TileButton(2,"Різне");
+  v =v+6;
+  Tile(1,170,false,"1",StartingDate1);
+  v = 6;
+  EditField(h,v,70, "Початкова дата 1",Normal,StartingDate1,false,PasteCurDate);
+  EditField(h1,v,70, "Початкова дата 2",Normal,StartingDate2,false,PasteCurDate);
+  EditField(h,v+=vs,70, "Модель 1",Normal,Model1,false,DprModSClass);
+  EditField(h1,v,70, "Модель 2",Normal,Model2,false,DprModSClass);
+  EditField(h,v+=vs,70, "Поч. вартість 1",Normal,StartVal,true,0);
+  EditField(h1,v,70, "Поч. вартість 2",Normal,StartVal2,true,0);
+  EditField(h,v+=vs,70, "Обмеж. поч. в-ті 1",Normal,StartValLimit,true,0);
+  EditField(h1,v,70, "Обмеж. поч. в-ті 2",Normal,StartVal2Limit,true,0);
+  EditField(h,v+=vs,70, "Поч. вартість 1",Normal,InitDeprVal1,true,0);
+  EditField(h1,v,70, "Поч. вартість 2",Normal,InitDeprVal2,true,0);
+  
+  EditField(h,v+=vs,70, "Зал. вартість",Normal,FromBal,true,0);
+  EditField(h1,v,70, "Зал. років",Normal,LeftYears,true,0);
+  
+  Tile(2,170,false,"2",ResVal); 
+  v = 6;
+  EditField(h,v,70, "Нова залишк. вартість",Normal,ResVal,true,0);
+  EditField(h1,v,70, "Нова варт. землі",Normal,LandVal,true,0);
+  EditField(h,v+=vs,70, "Коеф. переоцінки",ViewOnly,ModSerNr,false,0);
+  EditField(h1,v,70, "Категорія",ViewOnly,AT2Code,true,0);
+  EditField(h,v+=vs,70, "Мін. залишок",Normal,NonFiscalCostVal,true,0);
+  EditField(h1,v,70, "Дата закінчення",Normal,EndDate,true,PasteCurDate);
+  EditField(h,v+=vs,-20, "Коментар",Normal,Comment,false,0);
+  CheckBox(h-20,v+=vs,0,"Припинити зменш. вар-ті",TerminateDpr);
+  SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);  
+  SpecialMenu("Створити симуляцію",' ',0,"CreateAT2DprSM");
+  EndWindow;
+end;

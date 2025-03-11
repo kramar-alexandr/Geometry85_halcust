@@ -10,6 +10,12 @@ begin
  		RecordField(DocumentsFlag,M4Str,20,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 24 September 2018 14:55:35
 	endrecordadd;
 	
+	recordaddbegin(AT2DprVc,"Cust_AT2DprVc");
+		RecordField(FromBal,M45Val,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 April 2018 11:28:29
+ 		RecordField(LeftYears,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 24 September 2018 14:55:35
+	endrecordadd;
+	
+	
 	recordaddbegin(INVc,"Cust_INVc");
 		SubsetKeyBegin2(ActCodeTS);// was added
 		StoreInBaseKey;
