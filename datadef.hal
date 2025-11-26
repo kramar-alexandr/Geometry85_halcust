@@ -144,8 +144,8 @@ begin
 	RecordAddBegin(POVc,"Cust_POVc");
 		ChangeField(Comment,M4Str,255,0);//60->255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:42:17
 		RecordField(Confirns,M4Mark,0,0);// was added
-		RecordField(AlertFlag,M4Mark,0,0);// SAV 2011_08_10 флажок переполнения суммы по бюджету
-		RecordField(OKDate,M4Date,0,0); // Gray-X SAV 2011_12_16 - дата простановки OKFlag	
+		RecordField(AlertFlag,M4Mark,0,0);// SAV 2011_08_10 пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		RecordField(OKDate,M4Date,0,0); // Gray-X SAV 2011_12_16 - пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ OKFlag	
 		ArrayField(POAmount,M4Val,0,0); // was added
 	EndRecordAdd;
 
@@ -167,7 +167,24 @@ begin
 		RecordField(Sum2,M4Val,0,0);// was added
 		RecordField(TAXAdv,M4Val,0,0);// was added
 	EndRecordAdd;  
-	
+
+
+	RecordAddBegin(AccVc,"Cust_AccVc");
+		RecordField(AccRules,M4Code,20,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 2025-11-25 at 17:48:28
+	EndRecordAdd;  
+
+	RecordBegin(AccRulesVc,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - 2025-11-25 at 17:49:11
+		RecordField(Code,M4Code,20,0);
+		RecordField(Comment,M4Str,255,0);
+		RecordField(RateGainAcc,M4Code,10,AccVc);
+		RecordField(RateLossAcc,M4Code,10,AccVc);
+		MainKeyBegin(Code,0);
+		KeySegment(Code);
+
+		KeyBegin(Comment);
+		KeySegment(Comment);
+		KeySegment(Code);
+	EndRecord;
 
 	
 	
@@ -309,12 +326,12 @@ begin
 	
 	RecordAddBegin(VATVIVc,"Cust_VATVIVc");
 	  ChangeField(Comment,M4Str,255,0);//60->255// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 16:40:01
-		RecordField(VEPN,M4Str,20,0); // SAV Gray-5 2011_01_03 Поле - пн поставщика
+		RecordField(VEPN,M4Str,20,0); // SAV Gray-5 2011_01_03 пїЅпїЅпїЅпїЅ - пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		RecordField(OperType,M4Code,10,0); // SAV Gray-5 2011_01_03 
 		RecordField(CredRow,M4Code,10,0); // Edit ************************** Thursday, 31 October 2013 14:08:13
 		ArrayField(Price,M4Val,0,0);// Edit ************************** Tuesday, 24 September 2013 13:39:35
 		ArrayField(vRebate,M4Val,0,0);// Edit ************************** Tuesday, 24 September 2013 13:39:36
-		KeyBegin(VEPN); // SAV Gray-5 2011_01_03 индекс по пн
+		KeyBegin(VEPN); // SAV Gray-5 2011_01_03 пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ
 		KeySegment(VEPN);
 		KeySegment(SerNr);// Edit ************************** Wednesday, 9 January 2013 15:53:01 
 	EndRecordAdd; 
@@ -377,7 +394,7 @@ begin
 		ArrayField(VATRateTier,M4StrSet,633,0);
 		ArrayField(TaxExemption,M4Code,5,TaxExemptionsBlock);
 		ArrayField(VATEntity,M4Code,2,0);
-		ArrayField(CorSalesVATAcc2,M4Code,10,AccVc); // SAV 2012_01_18 Добавление столбца для недопдв в Актах клиенту
+		ArrayField(CorSalesVATAcc2,M4Code,10,AccVc); // SAV 2012_01_18 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 		EndArray;
   EndBlock;

@@ -1,0 +1,175 @@
+external inner function boolean IsEnterprise();
+external inner function boolean HasLanguages();
+external inner function boolean HasMultiCurrency();
+external inner function boolean HasBase2();
+external inner function boolean HasModNL();
+external inner function boolean StandardHansa();
+
+SetLangMode(LangUkrainian,"UKR",2);
+
+window AccRulesLClass:1
+wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+real i,h,h1,h2,h3,h4,h5,h6,hs,v,vs,vm,hl,l,t,f,fs,tabv,v2;
+  string 255 label;
+  integer tilenr;
+WindowBegin("Налаштування фінансових рахунків",AccRulesLClass,CGmlist,-);
+  SpawnClass(AccRulesDClass);
+  SetWRect(74,80,560,298);
+  Sizeable(-1,-1,0,0);
+  UseView(AccRulesVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Код",Code,false,Code);
+  RlColKey(81,81,"Коментар",Comment,false,Comment);
+
+  SearchField("Пошук");
+  EndWindow;
+end;
+
+window AccRulesSClass:1
+wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+real i,h,h1,h2,h3,h4,h5,h6,hs,v,vs,vm,hl,l,t,f,fs,tabv,v2;
+  string 255 label;
+  integer tilenr;
+WindowBegin("Налаштування фінансових рахунків",AccRulesSClass,CGslist,-);
+  SpawnClass(AccRulesDClass);
+  SetWRect(74,80,560,298);
+  Sizeable(-1,-1,0,0);
+  UseView(AccRulesVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Код",Code,false,Code);
+  RlColKey(81,81,"Коментар",Comment,false,Comment);
+
+  SearchField("Пошук");
+  EndWindow;
+end;
+
+window AccRulesDClass:1
+wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+real i,h,h1,h2,h3,h4,h5,h6,hs,v,vs,vm,hl,l,t,f,fs,tabv,v2;
+  string 255 label;
+  integer tilenr;
+WindowBegin("Налаштування фінансових рахунків",AccRulesDClass,CGview,-);
+  SpawnClass(AccRulesВClass);
+  SetWRect(74,80,560,298);
+  //Sizeable(-1,-1,0,0);
+  UseView(AccRulesVc);
+  EditField(h=180,v=6,100,"Код",Normal,Code,false,0);
+  EditField(h,v+=20,-20,"Коментар",Normal,Comment,false,0);
+  EditField(h,v+=20,100,"Рахунок курсового прибутку",Normal,RateGainAcc,false,AccSClass);
+  EditField(h,v+=20,100,"Рахунок курсового збитку",Normal,RateLossAcc,false,AccSClass);
+  EndWindow;
+end;
+
+
+window AccDClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vm;
+  WindowBegin("Рахунок",AccDClass,CGview,AccView);
+  UseView(AccVc);
+  if (IsEnterprise) then begin
+    SetWRect(64,80,509,330);
+  Tile(0,70,false,"",AccNumber);
+//  AddBic(606,609,-9,17,ToolAttach,0,"");
+  EditField(h=105,v=6, 55, "Рахунок",Normal,AccNumber,false,0);
+  EditField(h,v+=20,300,"Найменування",Normal,Comment,false,0);
+  TileButton(1,"Вид");
+  TileButton(2,"Текст");
+  Tile(1,250,false,"",AccNumber);
+  EditField(h,v=6,55, "Автопроводка",Normal,AutCode,false,AutSClass);
+    if (StandardHansa==false) then begin
+      EditField(h2=290,v,55, "Код SRU",Normal,SRUCode,false,0);
+    end;
+  EditField(h,v+=20,55, "Код ПДВ",Normal,VATCode,false,VATCodeSClass);
+    if (StandardHansa==false) then begin
+  EditField(h2,v,55, "Рах. консолідації",Normal,ConsAccNumber,false,0);
+    end;
+//  EditField(h2,v,55, "% консолідації",Normal,Conspr,false,0);
+  EditField(h,v+=20,55, "Валюта",Normal,Curncy,false,CurncyCodeSClass);
+  if (StandardHansa==false) then begin
+    EditField(h2,v,55, "Вид. майб. пер.",Normal,PeriodCode,false,AutSimPerSClass);
+    EditField(h,v+=20,55, "Шабл. под.",Normal,TaxTemplateCode,false,TaxTemplateSClass);
+    EditField(h2,v,55, "Автопроводки",Normal,TransAutCode,false,AutSClass);
+   end;
+   EditField(h,v+=20,240,"Класифікація",Normal,AccClass,false,AccClassSClass);
+   EditField(h2,v+=20,55,"Налаштування фінансових рахунків",Normal,AccRules,false,AccRulesSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 2025-11-25 at 18:03:30
+
+/* Estonia should include these */
+    if (HasLocalization("EST")) then begin 
+      EditField(h,v+=20,300, "Об'єкти",Normal,Objects,false,ObjSClass); 
+      if (StandardHansa==false) then begin
+        CheckBox(h,v+=16,0,"Exclude from RiigiTarkvara Report",ExclFrRep);
+    end;
+    end;
+    if (HasLocalization("DEU")) then begin
+      CheckBox(h,v+=16,0,"Податкове вирахування",ExclFrRep); 
+    end;
+  ButtonFrame(h=22,vm=(v+=41),150,5,"Вид рахунка");
+    RadioButton(h,v,kAccTypeAsset,0,"Активи",AccType);
+    RadioButton(h,v+=16,kAccTypeLiability,0,"Зобов'язання",AccType); 
+    RadioButton(h,v+=16,kAccTypeEquity,0,"Капітал",AccType); 
+    RadioButton(h,v+=16,kAccTypeIncome,0,"Доходи",AccType); 
+    RadioButton(h,v+=16,kAccTypeExpense,0,"Витрати",AccType); 
+    if (HasLocalization("POL")) then begin
+      CheckBox(h,v+=20,0,"Не баланс",NotBalSheet);
+    end;
+  ButtonFrame(h=192,v=vm,150,2,"Звичайний запис по");
+  CheckBox(h,v,0,              "дебету",NVD);
+  CheckBox(h,v+=16,0,          "кредиту",NVC);
+  CheckBox(h,v+=24,0,          "Закрито",blockedFlag);
+    if (StandardHansa==false) then begin
+  CheckBox(h,v+=16,0, "Рахунок групи",GroupAcc);
+  CheckBox(h,v+=16,0, "% при консолідації",Conspr);
+    end;
+  end else begin
+  SetWRect(64,80,509,285);
+    Tile(0,70,false,"",AccNumber); 
+  EditField(h=105,v=6, 55, "Рахунок",Normal,AccNumber,false,0); 
+    CheckBox(h2=-100,v,0,"Закрито",blockedFlag);
+  EditField(h,v+=20,300,"Найменув.",Normal,Comment,false,0); 
+    if (HasLanguages) then begin
+      TileButton(1,"Різне"); 
+      TileButton(2,"Тексти"); 
+      Tile(1,250,false,"",AccNumber); 
+      EditField(h,v=6,55,"Код ПДВ",Normal,VATCode,false,VATCodeSClass); 
+    end else begin
+  EditField(h,v+=20,55,"Код ПДВ",Normal,VATCode,false,VATCodeSClass); 
+    end;
+    if (HasMultiCurrency or HasBase2) then begin
+      EditField(h2=260,v,55, "Валюта",Normal,Curncy,false,CurncyCodeSClass);
+    end;
+    if (Left(BuildProductCode,5)=="Books" and HasLocalization("FIN")) then begin  
+      EditField(h,v+=20,55, "Автом. проводки",Normal,TransAutCode,false,AutSClass);  
+    end;
+    if (HasModNL) then begin
+      if(IsEnterprise) then begin
+        h = 22; h2 = 192;
+      end else begin
+        h=105; h2 = 275;
+      end;
+      ButtonFrame(h=50,vm=(v+=41),150,5,"Тип рахунку");
+  RadioButton(h,v,0,0,"Активи",AccType); 
+  RadioButton(h,v+=16,1,0,"Зобов'язання",AccType); 
+  RadioButton(h,v+=16,2,0,"Капітал",AccType); 
+  RadioButton(h,v+=16,3,0,"Доходи",AccType); 
+  RadioButton(h,v+=16,4,0,"Витрати",AccType); 
+      ButtonFrame(h=242,v=vm,150,2,"Звичайний запис по");
+  CheckBox(h,v,0,"дебету",NVD); 
+  CheckBox(h,v+=16,0,"кредиту",NVC); 
+      if (HasLocalization("AGO,BRA,POL,PRT")) then begin
+        CheckBox(h,v+=24,0, "Груп. рахунок",GroupAcc);
+    end;
+    end;
+  end;
+  if (HasLanguages) then begin
+    Tile(2,205,true,"2",Math);
+    MatrixBegin(4,v=20,-32,-3,INTextRowType,99);
+    MatCol(1,24,"Мова",0,LangCode,false,LangSClass);
+    MatCol(1,84,"Текст",0,Text,false,0); 
+    EndMatrix;
+  end;
+  EndWindow;
+end;
