@@ -178,6 +178,8 @@ begin
 		RecordField(Comment,M4Str,255,0);
 		RecordField(RateGainAcc,M4Code,10,AccVc);
 		RecordField(RateLossAcc,M4Code,10,AccVc);
+		RecordField(Closed,M4Mark,0,0,);
+		
 		MainKeyBegin(Code,0);
 		KeySegment(Code);
 

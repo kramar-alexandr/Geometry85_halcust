@@ -13,7 +13,7 @@ begin
 real i,h,h1,h2,h3,h4,h5,h6,hs,v,vs,vm,hl,l,t,f,fs,tabv,v2;
   string 255 label;
   integer tilenr;
-WindowBegin("Налаштування фінансових рахунків",AccRulesLClass,CGmlist,-);
+WindowBegin("Налаштуванні рахунків курсових різниць",AccRulesLClass,CGmlist,-);
   SpawnClass(AccRulesDClass);
   SetWRect(74,80,560,298);
   Sizeable(-1,-1,0,0);
@@ -21,6 +21,7 @@ WindowBegin("Налаштування фінансових рахунків",Acc
   RecordList(4,17,-21,-39);
   RlColKey(4,4,"Код",Code,false,Code);
   RlColKey(81,81,"Коментар",Comment,false,Comment);
+  RlCol(-80,-80,"Виключено",Closed,false);
 
   SearchField("Пошук");
   EndWindow;
@@ -32,7 +33,7 @@ begin
 real i,h,h1,h2,h3,h4,h5,h6,hs,v,vs,vm,hl,l,t,f,fs,tabv,v2;
   string 255 label;
   integer tilenr;
-WindowBegin("Налаштування фінансових рахунків",AccRulesSClass,CGslist,-);
+WindowBegin("Налаштуванні рахунків курсових різниць",AccRulesSClass,CGslist,-);
   SpawnClass(AccRulesDClass);
   SetWRect(74,80,560,298);
   Sizeable(-1,-1,0,0);
@@ -40,7 +41,7 @@ WindowBegin("Налаштування фінансових рахунків",Acc
   RecordList(4,17,-21,-39);
   RlColKey(4,4,"Код",Code,false,Code);
   RlColKey(81,81,"Коментар",Comment,false,Comment);
-
+  RlCol(-80,-80,"Виключено",Closed,false);
   SearchField("Пошук");
   EndWindow;
 end;
@@ -51,7 +52,7 @@ begin
 real i,h,h1,h2,h3,h4,h5,h6,hs,v,vs,vm,hl,l,t,f,fs,tabv,v2;
   string 255 label;
   integer tilenr;
-WindowBegin("Налаштування фінансових рахунків",AccRulesDClass,CGview,-);
+WindowBegin("Налаштуванні рахунків курсових різниць",AccRulesDClass,CGview,-);
   SpawnClass(AccRulesВClass);
   SetWRect(74,80,560,298);
   //Sizeable(-1,-1,0,0);
@@ -60,6 +61,7 @@ WindowBegin("Налаштування фінансових рахунків",Acc
   EditField(h,v+=20,-20,"Коментар",Normal,Comment,false,0);
   EditField(h,v+=20,100,"Рахунок курсового прибутку",Normal,RateGainAcc,false,AccSClass);
   EditField(h,v+=20,100,"Рахунок курсового збитку",Normal,RateLossAcc,false,AccSClass);
+  CheckBox(h,v+=20,0,"Виключено",Closed);
   EndWindow;
 end;
 

@@ -119,7 +119,7 @@ begin
 	Setting("Експорт виписаних ПН",ExportVATIVXMLTClass,modNL);
 
 
-  Setting("Налаштування фінансових рахунків",AccRulesLClass,modNL);
+  Setting("Налаштуванні рахунків курсових різниць",AccRulesLClass,modNL);
 	Export("Реєстр отриманих та виданих податкових накладних",VATIVVIRegUkrEClass,VATIVVIRegUkrEn,modNL);
 	Setting("Поля, що задає користувач - Товари",INUserLabelTClass,modSL);
 	Report("TSRowRn",PurOrdJRClass,TSRowRn,0,modSL);
