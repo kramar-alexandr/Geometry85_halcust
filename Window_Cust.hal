@@ -97,7 +97,7 @@ begin
     EditField(h2,v,55, "Автопроводки",Normal,TransAutCode,false,AutSClass);
    end;
    EditField(h,v+=20,240,"Класифікація",Normal,AccClass,false,AccClassSClass);
-   EditField(h2,v+=20,55,"Налаштування фінансових рахунків",Normal,AccRules,false,AccRulesSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 2025-11-25 at 18:03:30
+   EditField(h2,v+=20,55,"Налаштуванні рахунків курсових різниць",Normal,AccRules,false,AccRulesSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - 2025-11-25 at 18:03:30
 
 /* Estonia should include these */
     if (HasLocalization("EST")) then begin 
