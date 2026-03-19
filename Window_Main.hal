@@ -2424,7 +2424,7 @@ SpecialMenu("Відкрити таблицю подадків",' ',25,"OpenVatMatrixPODsm");
   BrowseSubsetButton(-40,-15); //?? one choice to much
   EndWindow;
 
-  WindowBegin("Комерційна пропозиція",QTDClass1,CGview,-);
+  WindowBegin("Комерційна пропозиція",QTDClass,CGview,-);
   SetWRect(20,80,640,460);
   Sizeable(-1,-1,0,0);
   UseView(QTVc);
@@ -3414,7 +3414,7 @@ begin
   string 255 label;
   Integer f,flipnr,tilenr,rn;
 
-  WindowBegin("Комерційна пропозиція",QTDClass1,CGview,-);
+  WindowBegin("Комерційна пропозиція",QTDClass,CGview,-);
   SetWRect(20,80,640,460);
   Sizeable(-1,-1,0,0);
   UseView(QTVc);
