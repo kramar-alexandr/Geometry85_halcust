@@ -1874,7 +1874,7 @@ RlColKey(-170,-170, "Проект",PRCode,true,PRCode);// добавление столбца ѕроект //
    EditFieldTL(h,v+=vs,50,"Умови сплати",M4UStr,Normal,5,TransStr,false,PDSClass);
    EditFieldTL(h,v+=vs,250,"Офіційний номер",M4UStr,Normal,41,f6,false,0);
    EditFieldTL(h,v3=(v+=vs),50,"Мін. сума",M4Val,Normal,0,vals0,false,0);
-   EditFieldTL(h,v3=(v+=vs),50,"Тип документу",M4UStr,Normal,25,f9,false,DocumentTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 21 May 2018 13:57:55
+   EditFieldTL(h,v3=(v+=vs),150,"Тип документу",M4UStr,Normal,125,f9,false,DocumentTypeSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 21 May 2018 13:57:55
 	 EditFieldTL(h,v3=(v+=vs),50,"Наявн. докум.",M4Str,Normal,25,f10,false,DocumentsFlagSCLass);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 1 October 2018 18:28:31
  	 EditFieldTL(h,v3=(v+=vs),100,"Товар",M4Str,Normal,60,f11,false,INSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 September 2019 13:57:09
 	 EditFieldTL(h,v3=(v+=vs),100,"Проект",M4Str,Normal,60,f12,false,PRSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 4 September 2019 13:57:10
