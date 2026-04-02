@@ -459,6 +459,7 @@ begin
   StrSetText(AllowUsingRoomonBarTab,"Allow using 'Room' Button on Bar Tab");
   StrSetText(AllowUsingSplitonBarTab,"Allow using 'Split' Button on Bar Tab");
   StrSetText(AllowUsingSubonBarTab,"Allow using 'Subtract' Button on Bar Tab");
+  StrSetText(AllowFixVATInIVandVATIV,"Дозволяти коректувати транзакції для ПДВ");// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 1 April 2026 at 18:30:16
   StrSetText(ViewBI,"Перегляд BI");
   StrSetText(ViewDashboard,"Перегляд панелі інструментів");
   StrSetText(ViewDashboardTopCustomers,"View Dashboard Top Customers");  
