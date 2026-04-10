@@ -120,6 +120,7 @@ begin
 
 
   Setting("Налаштуванні рахунків курсових різниць",AccRulesLClass,modNL);
+  Setting("Налаштуванні перевірки транзакцій",NLSettingsBlock,modNL);
 	Export("Реєстр отриманих та виданих податкових накладних",VATIVVIRegUkrEClass,VATIVVIRegUkrEn,modNL);
 	Setting("Поля, що задає користувач - Товари",INUserLabelTClass,modSL);
 	Report("TSRowRn",PurOrdJRClass,TSRowRn,0,modSL);

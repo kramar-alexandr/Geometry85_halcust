@@ -739,5 +739,10 @@ begin
 		KeySegment(PRCode);
 	EndRecord;	
 	
+	BlockBegin(NLSettingsBlock,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 10 April 2026 at 15:37:48
+		RecordField(SkipObjTypeCheck,M4Int,0,0);
+		RecordField(SkipSubLegerCheck,M4Int,0,0);
+  EndBlock;
+	
  	return;
 end;

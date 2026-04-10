@@ -2234,3 +2234,18 @@ begin
   end;
   EndWindow;
 end;
+
+
+window NLSettingsBlock:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v,vs,h;
+  Integer f,flipnr;
+	WindowBegin("Налаштування перевірки транзакцій",NLSettingsBlock,CGSbl,-);
+		SetWRect(64,80,470,290);
+		SetBlid(NLSettingsBlock);
+		v = 50; vs = 25; h = 100; f = 150;
+		CheckBox(h,v,0,"Пропускати перевірку Типу Об'єкту",SkipObjTypeCheck);
+		CheckBox(h,v+vs,0,"Пропускати перевірку строну рахунків",SkipSubLegerCheck);
+	EndWindow;
+end;
