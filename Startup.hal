@@ -48,6 +48,7 @@ begin
 	Report("Реєстр отриманих та виданих податкових накладних",VATVIRegUkrRClass,VATVIRegUkrRn,0,modPL);
 		
 	Maintenance("Завантажити час з WorkSection",WorkSectionGetCostsVClass,WorkSectionGetCostsMn,modTS);
+	Maintenance("Видалити транзакції",MyVClass,DeleteAllTransactionMn,modDBMain);
 	Maintenance("Почистити копії проектів WS",MyVClass,CloaseByCodeWSMn,modTS);
 	Maintenance("Завантажити відпустки та ін. WorkSection",WorkSectionGetCostsVClass,WorkSectionGetHolidaysMn,modTS);
 	

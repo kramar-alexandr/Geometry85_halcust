@@ -3,6 +3,7 @@ external inner function roundmode SetRoundModeD(Integer);
 external inner function roundmode DefaultRoundMode();
 external inner procedure GetUserName(string,var string);
 external inner function string 50 TimeToString(time,string,boolean); 
+external inner updating function LongInt TRVcRecordRemove(var record TRVc,record TRVc,LongInt,LongInt);
 
 
 
@@ -1613,5 +1614,18 @@ begin
 		end;
 	end;
 	 MessageBox(0, "Створено " & i & "файлів");
+return;
+end;
+
+global updating procedure DeleteAllTransactionMn()
+begin
+  record TRVc TRr;
+  
+  while(loopmain(TRr,1,true))begin
+    TRVcRecordRemove(TRr,TRr,0,0);
+    recorddelete(TRr);
+    stepback(TRr);
+  end;
+
 return;
 end;

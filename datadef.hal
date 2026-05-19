@@ -16,6 +16,9 @@ begin
  		RecordField(LeftMonths,M4Int,0,0);
 	endrecordadd;
 	
+	recordaddbegin(NLRateVc,"Cust_NLRateVc");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 28 April 2026 at 12:02:57
+	  RecordField(ByObjects,M4Int,0,0);
+	endrecordadd;
 	
 	recordaddbegin(INVc,"Cust_INVc");
 		SubsetKeyBegin2(ActCodeTS);// was added
