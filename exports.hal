@@ -4,7 +4,24 @@ external inner function roundmode DefaultRoundMode();
 external inner procedure GetUserName(string,var string);
 external inner function string 50 TimeToString(time,string,boolean); 
 
+function string 255 XmlEncodeCustom(string inpstr)
+begin
+  string 255 res;
+  integer i;
+  string 1 char;
+  
+  for(i=0;i<len(inpstr);i=i+1)begin
+    char = mid(inpstr,i,1);
+    if(asc(char)>31)then begin
+      res = res & char;
+    end;
+  end;
+  
+  res = XmlEncode(res,false);
 
+  XmlEncodeCustom = res;
+return;
+end;
 
 global  //  by Ira
 procedure PrintInfoActDsm()
@@ -942,7 +959,7 @@ array string 50 acomment;
   
     timestr = hour & ":" & min & ":" & sec;
     timestring = "T" & timestr;
-    owncompanyname = XmlEncode(CYb.CompName,false);
+    owncompanyname = XmlEncodeCustom(CYb.CompName);
     ownaccname = CYb.Bank2;
     addtexttoarea("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" & chr(13) & chr(10),xmlExportArea);
     addtexttoarea("<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" & chr(13) & chr(10),xmlExportArea);
@@ -1043,9 +1060,9 @@ array string 50 acomment;
     addtexttoarea("        <Cdtr>" & chr(13) & chr(10),xmlExportArea);
   
     if (OPrw.ovst==1) then begin
-    addtexttoarea("          <Nm>" & XmlEncode(BNr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);	
+    addtexttoarea("          <Nm>" & XmlEncodeCustom(BNr.Name) & "</Nm>" & chr(13) & chr(10),xmlExportArea);	
     end else begin
-    addtexttoarea("          <Nm>" &  XmlEncode(CUr.Name,false) & "</Nm>" & chr(13) & chr(10),xmlExportArea);
+    addtexttoarea("          <Nm>" &  XmlEncodeCustom(CUr.Name) & "</Nm>" & chr(13) & chr(10),xmlExportArea);
     end;
   
     addtexttoarea("          <Id>" & chr(13) & chr(10),xmlExportArea);
@@ -1117,7 +1134,7 @@ array string 50 acomment;
     RetCharsArray(tstr,acomment);
     for(j=0;j<acomment.length;j=j+1)Begin
     if(nonblank(acomment[j]))then begin
-      addtexttoarea("        <Ustrd>" & XmlEncode(acomment[j],false) & "</Ustrd>" & chr(13) & chr(10),xmlExportArea);
+      addtexttoarea("        <Ustrd>" & XmlEncodeCustom(acomment[j]) & "</Ustrd>" & chr(13) & chr(10),xmlExportArea);
     end;
     end;
     addtexttoarea("        </RmtInf>" & chr(13) & chr(10),xmlExportArea);
