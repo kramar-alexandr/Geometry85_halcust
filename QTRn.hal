@@ -996,7 +996,7 @@ return;
 end;
 
 
-procedure SaveHistoryFix(string FileName, string TransNr, string FieldName, string OldCaption, string NewCaption,record RHistVc RHr)
+updating procedure SaveHistoryFix(string FileName, string TransNr, string FieldName, string OldCaption, string NewCaption,record RHistVc RHr)
 begin
 	record RecordHistoryVc RecHr,ordRecHr;
 	record CUVc CUr;
@@ -1058,14 +1058,14 @@ begin
     StartFormat(15);
       OutString (0,0,"‡בונודעט!",false);
     EndFormat;
-    //RecordStore(RecHr,false)
+    RecordStore(RecHr,false)
   end;
   
 	//if () then begin end;
 return;
 end;
 
-Procedure CUVcHistoryhcanges(record CUVc CUr,record CUVc CU2r,record RHistVc RHr)
+updating Procedure CUVcHistoryhcanges(record CUVc CUr,record CUVc CU2r,record RHistVc RHr)
 begin
 
 if Cur.Code<>CU2r.Code then begin  SaveHistoryFix("CUVc",Cur.Code,"Code",CU2r.Code,CUr.Code,RHr); end;
@@ -1229,7 +1229,7 @@ return;
 end;
 
 
-global procedure RHistRestoreRn()
+global updating procedure RHistRestoreRn()
 begin
   record RHistVc RHr,oldRHr;
   longint firstnr;
