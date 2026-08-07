@@ -996,7 +996,7 @@ return;
 end;
 
 
-updating procedure SaveHistoryFix(string FileName, string TransNr, string FieldName, string OldCaption, string NewCaption,record RHistVc RHr)
+procedure SaveHistoryFix(string FileName, string TransNr, string FieldName, string OldCaption, string NewCaption,record RHistVc RHr)
 begin
 	record RecordHistoryVc RecHr,ordRecHr;
 	record CUVc CUr;
@@ -1067,7 +1067,7 @@ begin
 return;
 end;
 
-updating Procedure CUVcHistorychanges(record CUVc CUr,record CUVc CU2r,record RHistVc RHr)
+Procedure CUVcHistorychanges(record CUVc CUr,record CUVc CU2r,record RHistVc RHr)
 begin
 
 if Cur.Code<>CU2r.Code then begin  SaveHistoryFix("CUVc",Cur.Code,"Code",CU2r.Code,CUr.Code,RHr); end;
@@ -1231,7 +1231,7 @@ return;
 end;
 
 
-global updating procedure RHistRestoreRn()
+global procedure RHistRestoreRn()
 begin
   record RHistVc RHr,oldRHr;
   longint firstnr;
