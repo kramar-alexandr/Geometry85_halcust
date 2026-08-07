@@ -996,7 +996,6 @@ return;
 end;
 
 
-
 procedure SaveHistoryFix(string FileName, string TransNr, string FieldName, string OldCaption, string NewCaption,record RHistVc RHr)
 begin
 	record RecordHistoryVc RecHr,ordRecHr;
@@ -1004,7 +1003,7 @@ begin
 	string 255 tstr;
 	boolean TrHs,needtosave;
 	
-	recordnew(RHr);
+	recordnew(RecHr);
 	RecHr.SerNr = NextSerNr("RecordHistoryVc",currentdate,-1,false,"");
 	RecHr.FileName=FileName;
 	RecHr.TransNr=TransNr;
@@ -1059,7 +1058,7 @@ begin
     StartFormat(15);
       OutString (0,0,"‡בונודעט!",false);
     EndFormat;
-    //RecordStore(RHr,false)
+    //RecordStore(RecHr,false)
   end;
   
 	//if () then begin end;
@@ -1232,13 +1231,13 @@ end;
 
 global procedure RHistRestoreRn()
 begin
-  record RHistVc RHr;
+  record RHistVc RHr,oldRHr;
   longint firstnr;
   string 1 c,nul;
   string 50 recname,compno;
   integer cter,i,pref,check;
   boolean TrHs,histexists;
-  record CUVc CUr,orCUr,refCUr;
+  record CUVc CUr,orCUr,refCUr,blCUr;
   vector boolean vCUChanged;
   array string 255 atags;
   
@@ -1248,10 +1247,13 @@ begin
   TrHs = true;
   while(loopbackkey("MainKey",RHr,1,TrHs))begin
     if(RHr.TransDate<stringtodate("01/01/2026"))then begin
-      TrHs = false;
+      compno = mid(RHr.RecidStr,1,asc(c));
+      if(stringtoint(compno)==currentcompany)then begin
+        TrHs = false;
+      end;
     end;
     
-    if(TrHs)then begin
+    if(TrHs and stringtoint(compno)==currentcompany)then begin
       firstnr = RHr.SerNr;
     end;    
   end;
@@ -1260,11 +1262,10 @@ begin
   TrHs = true;
   RHr.SerNr = firstnr;
   while(loopmain(RHr,1,TrHs))begin
-    if(RHr.TransDate<stringtodate("01/01/2026"))then begin
-      TrHs = false;
-    end;
     
     if(TrHs)then begin
+      logtext(0,"RHr " & RHr.SerNr);
+
       c = left(RHr.RecidStr,1);
       compno = mid(RHr.RecidStr,1,asc(c));
       recname = "";
@@ -1282,6 +1283,7 @@ begin
           end;
         end;        
       end;
+
       if(stringtoint(compno)==currentcompany and recname=="CUVc")then begin
         if(RHr.accode==kRecordHistoryActionUpdated or RHr.accode==kRecordHistoryActionCreated)then begin
           ReadOriginalRecord(RHr,orCUr);
@@ -1322,28 +1324,36 @@ begin
     RHr.RecidStr = BuildRecordIdStr(refCUr,currentcompany);    
     recordclear(CUr);
     recordclear(orCUr);
+    histexists = false;
     while(loopkey("RecidStr",RHr,1,TrHs))begin
-      if(CompareRecordIdStrings(RHr.RecidStr,BuildRecordIdStr(refCUr,currentcompany))!=0)then begin
-        TrHs = false;
-      end;
-      if(RHr.TransDate>stringtodate("05/09/2026"))then begin
-        TrHs = false;
-      end;
-      
-      histexists = false;
-      if(TrHs)then begin
-        if(RHr.TransDate<stringtodate("01/01/2026"))then begin
-          ReadOriginalRecord(RHr,CUr);
-        end else begin
-          ReadOriginalRecord(RHr,orCUr);
-          CUVcHistoryhcanges(orCUr,CUr,RHr);
-          recordcopy(CUr,orCUr);
-          histexists = true;
+      if(RHr.accode==kRecordHistoryActionUpdated or RHr.accode==kRecordHistoryActionCreated)then begin
+        if(CompareRecordIdStrings(RHr.RecidStr,BuildRecordIdStr(refCUr,currentcompany))!=0)then begin
+          TrHs = false;
+        end;
+        if(RHr.TransDate>stringtodate("05/09/2026"))then begin
+          TrHs = false;
+        end;
+        
+        
+        if(TrHs)then begin
+          if(RHr.TransDate<stringtodate("01/01/2026"))then begin
+            ReadOriginalRecord(RHr,CUr);
+          end else begin
+            if(RHr.accode==kRecordHistoryActionUpdated)then begin
+              ReadOriginalRecord(RHr,orCUr);
+              CUVcHistoryhcanges(orCUr,CUr,RHr);
+              recordcopy(CUr,orCUr);
+            end else begin
+              CUVcHistoryhcanges(orCUr,blCUr,RHr);
+            end;
+            histexists = true;
+            recordcopy(oldRHr,RHr);
+          end;
         end;
       end;
-      if(histexists)then begin
-        CUVcHistoryhcanges(refCUr,CUr,RHr);
-      end;
+    end;
+    if(histexists)then begin
+      CUVcHistoryhcanges(refCUr,orCUr,oldRHr);
     end;
   end;
   endjob;
