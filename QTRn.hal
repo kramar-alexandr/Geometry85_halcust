@@ -1058,14 +1058,14 @@ begin
     StartFormat(15);
       OutString (0,0,"‡בונודעט!",false);
     EndFormat;
-    RecordStore(RecHr,false)
+    //RecordStore(RecHr,false)
   end;
   
 	//if () then begin end;
 return;
 end;
 
-updating Procedure CUVcHistoryhcanges(record CUVc CUr,record CUVc CU2r,record RHistVc RHr)
+updating Procedure CUVcHistorychanges(record CUVc CUr,record CUVc CU2r,record RHistVc RHr)
 begin
 
 if Cur.Code<>CU2r.Code then begin  SaveHistoryFix("CUVc",Cur.Code,"Code",CU2r.Code,CUr.Code,RHr); end;
@@ -1341,10 +1341,10 @@ begin
           end else begin
             if(RHr.accode==kRecordHistoryActionUpdated)then begin
               ReadOriginalRecord(RHr,orCUr);
-              CUVcHistoryhcanges(orCUr,CUr,RHr);
+              CUVcHistorychanges(orCUr,CUr,RHr);
               recordcopy(CUr,orCUr);
             end else begin
-              CUVcHistoryhcanges(orCUr,blCUr,RHr);
+              CUVcHistorychanges(orCUr,blCUr,RHr);
             end;
             histexists = true;
             recordcopy(oldRHr,RHr);
@@ -1353,7 +1353,7 @@ begin
       end;
     end;
     if(histexists)then begin
-      CUVcHistoryhcanges(refCUr,orCUr,oldRHr);
+      CUVcHistorychanges(refCUr,orCUr,oldRHr);
     end;
   end;
   endjob;
