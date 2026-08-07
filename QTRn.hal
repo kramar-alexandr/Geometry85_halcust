@@ -1248,7 +1248,8 @@ begin
   RHr.SerNr = 9999999999;
   TrHs = true;
   while(loopbackkey("MainKey",RHr,1,TrHs))begin
-    if(RHr.TransDate<stringtodate("01/01/2026"))then begin
+    if(RHr.TransDate<stringtodate("01-01-2026"))then begin
+      c = left(RHr.RecidStr,1);
       compno = mid(RHr.RecidStr,1,asc(c));
       if(stringtoint(compno)==currentcompany)then begin
         TrHs = false;
@@ -1264,10 +1265,7 @@ begin
   TrHs = true;
   RHr.SerNr = firstnr;
   while(loopmain(RHr,1,TrHs))begin
-    
     if(TrHs)then begin
-      logtext(0,"RHr " & RHr.SerNr);
-
       c = left(RHr.RecidStr,1);
       compno = mid(RHr.RecidStr,1,asc(c));
       recname = "";
@@ -1316,6 +1314,8 @@ begin
 	EndFormat;
 	black_divider(0,1);
   
+  logtext(0,"atags.length " & atags.length);
+
   getvectortags(vCUChanged,atags);
   for(i=0;i<atags.length;i=i+1)begin
     resetloop(RHr);
@@ -1332,13 +1332,13 @@ begin
         if(CompareRecordIdStrings(RHr.RecidStr,BuildRecordIdStr(refCUr,currentcompany))!=0)then begin
           TrHs = false;
         end;
-        if(RHr.TransDate>stringtodate("05/09/2026"))then begin
+        if(RHr.TransDate>stringtodate("05-08-2026"))then begin
           TrHs = false;
         end;
         
         
         if(TrHs)then begin
-          if(RHr.TransDate<stringtodate("01/01/2026"))then begin
+          if(RHr.TransDate<stringtodate("01-01-2026"))then begin
             ReadOriginalRecord(RHr,CUr);
           end else begin
             if(RHr.accode==kRecordHistoryActionUpdated)then begin
