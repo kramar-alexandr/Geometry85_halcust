@@ -336,6 +336,12 @@ WindowBegin("Табелі часу",TSReportRClass,CGRcW,RcType);
 	EditFieldTL(h,v+=vs, 150,"Поле",   M4UStr,Normal,60,f4,false,0);  
 
   EndWindow;  
+  
+  
+  WindowBegin("Відновлення Історія змін регістру Контакти 2026",RHistRestoreRCLass,CGRcW,RcType);
+	SetWRect(20,80,380,300);
+	v = 6; vs = 20; h = 120;
+  EndWindow;  
 	
 	
 	

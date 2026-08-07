@@ -997,6 +997,102 @@ end;
 
 
 
+procedure SaveHistoryFix(string FileName, string TransNr, string FieldName, string OldCaption, string NewCaption,record RHistVc RHr)
+begin
+	record RecordHistoryVc RecHr,ordRecHr;
+	record CUVc CUr;
+	string 255 tstr;
+	boolean TrHs,needtosave;
+	
+	recordnew(RHr);
+	RecHr.SerNr = NextSerNr("RecordHistoryVc",currentdate,-1,false,"");
+	RecHr.FileName=FileName;
+	RecHr.TransNr=TransNr;
+	RecHr.FieldName=FieldName;
+	RecHr.OldCaption=OldCaption;
+	RecHr.NewCaption=NewCaption;
+	RecHr.TransDate=RHr.TransDate;
+	RecHr.UserCode=RHr.User;
+	RecHr.TransTime=RHr.TransTime;
+	
+	StartFormat(15);
+    OutString (0,0,RecHr.TransDate,false);
+    OutString (50,"dblCUvc",RecHr.TransNr,false);
+    CUr.Code = RecHr.TransNr;
+    if readfirstmain(CUr,1,true) then begin end;
+    OutString (100,0,CUr.Name,false);
+    OutString (350,0,RecHr.UserCode,false);
+    FieldNameSpec(RecHr.FieldName,tstr);
+    OutString (400,0,tstr,false);
+	EndFormat;
+	
+	StartFormat(15);
+    OutString (0,0,"Старе значення:",false);
+    if nonblank (RecHr.OldCaption) then begin
+      OutString (100,0,RecHr.OldCaption,false);
+    end else begin
+      OutString (100,0," ",false);
+    end;
+  EndFormat;
+  StartFormat(15);
+    OutString (0,0,"Нове значення:",false);
+    OutString (100,0,RecHr.NewCaption,false);
+  EndFormat;
+  
+  ordRecHr.FileName = FileName;
+  ordRecHr.TransDate = RHr.TransDate;
+  ordRecHr.UserCode = RHr.User;
+  TrHs = true;
+  needtosave = true;
+  while(loopkey("FileDateUser",ordRecHr,3,TrHs))begin
+    if(ordRecHr.FileName!=FileName)then begin TrHs = false; end;
+    if(ordRecHr.TransDate!=RHr.TransDate)then begin TrHs = false; end;
+    if(ordRecHr.UserCode!=RHr.User)then begin TrHs = false; end;
+    
+    if(TrHs)then begin
+      if(ordRecHr.TransTime==RecHr.TransTime and ordRecHr.FieldName==RecHr.FieldName and RecHr.NewCaption==ordRecHr.NewCaption)then begin
+        needtosave = false;
+      end;
+    end;
+  end;
+  if(needtosave)then begin
+    StartFormat(15);
+      OutString (0,0,"Зберегти!",false);
+    EndFormat;
+    //RecordStore(RHr,false)
+  end;
+  
+	//if () then begin end;
+return;
+end;
+
+Procedure CUVcHistoryhcanges(record CUVc CUr,record CUVc CU2r,record RHistVc RHr)
+begin
+
+if Cur.Code<>CU2r.Code then begin  SaveHistoryFix("CUVc",Cur.Code,"Code",CU2r.Code,CUr.Code,RHr); end;
+if Cur.CustCat<>CU2r.CustCat then begin  SaveHistoryFix("CUVc",Cur.Code,"CustCat",CU2r.CustCat,CUr.CustCat,RHr); end;
+if Cur.PayDeal<>CU2r.PayDeal then begin  SaveHistoryFix("CUVc",Cur.Code,"PayDeal",CU2r.PayDeal,CUr.PayDeal,RHr); end;
+if Cur.VATCode<>CU2r.VATCode then begin  SaveHistoryFix("CUVc",Cur.Code,"VATCode",CU2r.VATCode,CUr.VATCode,RHr); end;
+if Cur.Objects<>CU2r.Objects then begin  SaveHistoryFix("CUVc",Cur.Code,"Objects",CU2r.Objects,CUr.Objects,RHr); end;
+if Cur.VECat<>CU2r.VECat then begin  SaveHistoryFix("CUVc",Cur.Code,"VECat",CU2r.VECat,CUr.VECat,RHr); end;
+if Cur.VEPayDeal<>CU2r.VEPayDeal then begin  SaveHistoryFix("CUVc",Cur.Code,"VEPayDeal",CU2r.VEPayDeal,CUr.VEPayDeal,RHr); end;
+if Cur.VEVATCode<>CU2r.VEVATCode then begin  SaveHistoryFix("CUVc",Cur.Code,"VEVATCode",CU2r.VEVATCode,CUr.VEVATCode,RHr); end;
+if Cur.AccCost<>CU2r.AccCost then begin  SaveHistoryFix("CUVc",Cur.Code,"AccCost",CU2r.AccCost,CUr.AccCost,RHr); end;
+if Cur.VEObjects<>CU2r.VEObjects then begin  SaveHistoryFix("CUVc",Cur.Code,"VEObjects",CU2r.VEObjects,CUr.VEObjects,RHr); end;
+if Cur.Name<>CU2r.Name then begin  SaveHistoryFix("CUVc",Cur.Code,"Name",CU2r.Name,CUr.Name,RHr); end;
+if Cur.InvAddr0<>CU2r.InvAddr0 then begin  SaveHistoryFix("CUVc",Cur.Code,"InvAddr0",CU2r.InvAddr0,CUr.InvAddr0,RHr); end;
+if Cur.Phone<>CU2r.Phone then begin  SaveHistoryFix("CUVc",Cur.Code,"Phone",CU2r.Phone,CUr.Phone,RHr); end;
+if Cur.Classification<>CU2r.Classification then begin  SaveHistoryFix("CUVc",Cur.Code,"Classification",CU2r.Classification,CUr.Classification,RHr); end;
+if Cur.DelAddr0<>CU2r.DelAddr0 then begin  SaveHistoryFix("CUVc",Cur.Code,"DelAddr0",CU2r.DelAddr0,CUr.DelAddr0,RHr); end;
+if Cur.SalesMan<>CU2r.SalesMan then begin  SaveHistoryFix("CUVc",Cur.Code,"SalesMan",CU2r.SalesMan,CUr.SalesMan,RHr); end;
+if Cur.RegNr1<>CU2r.RegNr1 then begin  SaveHistoryFix("CUVc",Cur.Code,"RegNr1",CU2r.RegNr1,CUr.RegNr1,RHr); end;
+if Cur.RegNr2<>CU2r.RegNr2 then begin  SaveHistoryFix("CUVc",Cur.Code,"RegNr2",CU2r.RegNr2,CUr.RegNr2,RHr); end;
+if Cur.BankAccount<>CU2r.BankAccount then begin  SaveHistoryFix("CUVc",Cur.Code,"BankAccount",CU2r.BankAccount,CUr.BankAccount,RHr); end;
+if Cur.AccOperator<>CU2r.AccOperator then begin  SaveHistoryFix("CUVc",Cur.Code,"AccOperator",CU2r.AccOperator,CUr.AccOperator,RHr); end;
+if Cur.VATNr<>CU2r.VATNr then begin  SaveHistoryFix("CUVc",Cur.Code,"VATNr",CU2r.VATNr,CUr.VATNr,RHr); end;
+
+return;
+end;
 
 global 
 procedure RecHistCustRn(record RcVc RepSpec) 
@@ -1130,5 +1226,128 @@ begin
 	
 	
 	EndJob;
+return;
+end;
+
+
+global procedure RHistRestoreRn()
+begin
+  record RHistVc RHr;
+  longint firstnr;
+  string 1 c,nul;
+  string 50 recname,compno;
+  integer cter,i,pref,check;
+  boolean TrHs,histexists;
+  record CUVc CUr,orCUr,refCUr;
+  vector boolean vCUChanged;
+  array string 255 atags;
+  
+  StartReportNoHeaderJob("Історія зміни картки контактів");
+  
+  RHr.SerNr = 9999999999;
+  TrHs = true;
+  while(loopbackkey("MainKey",RHr,1,TrHs))begin
+    if(RHr.TransDate<stringtodate("01/01/2026"))then begin
+      TrHs = false;
+    end;
+    
+    if(TrHs)then begin
+      firstnr = RHr.SerNr;
+    end;    
+  end;
+  
+  resetloop(RHr);
+  TrHs = true;
+  RHr.SerNr = firstnr;
+  while(loopmain(RHr,1,TrHs))begin
+    if(RHr.TransDate<stringtodate("01/01/2026"))then begin
+      TrHs = false;
+    end;
+    
+    if(TrHs)then begin
+      c = left(RHr.RecidStr,1);
+      compno = mid(RHr.RecidStr,1,asc(c));
+      recname = "";
+      cter = 0;
+      if(nonblank(RHr.RecidStr))then begin
+        pref = asc(c) + 1;
+        if(pref<len(RHr.RecidStr))then begin
+          for(i=pref;i<len(RHr.RecidStr);i=i+1)begin
+              c = mid(RHr.RecidStr,i,1);
+            if(asc(c)==0)then begin
+              i = len(RHr.RecidStr);
+            end else begin
+              recname = recname & c;
+            end;
+          end;
+        end;        
+      end;
+      if(stringtoint(compno)==currentcompany and recname=="CUVc")then begin
+        if(RHr.accode==kRecordHistoryActionUpdated or RHr.accode==kRecordHistoryActionCreated)then begin
+          ReadOriginalRecord(RHr,orCUr);
+          StartFormat(15);
+            OutString(0,0,RHr.SerNr,false);
+            OutString(50,0,RHr.TransDate,false);
+            OutString(100,0,RHr.TransTime,false);
+            OutString(150,0,RHr.User,false);
+            OutString(200,0,RHr.accode,false);
+            OutString(250,0,orCUr.Code,false);
+            OutString(300,0,orCUr.Name,false);
+            //CUr.Code = orCUr.Code;
+            //readfirstmain(CUr,1,true);
+            //OutString(300,0,orCUr.BankAccount & "->" & CUr.BankAccount,false);
+            vCUChanged[orCUr.Code] = true;
+          endformat;
+        end;
+      end;      
+    end;
+  end;
+  
+  StartFormat(15);
+    OutString (0,0,"Дата",false);
+    OutString (50,0,"Код",false);
+    OutString (100,0,"Найменування",false);
+    OutString (350,0,"Співробітник",false);
+    OutString (400,0,"Поле",false);
+	EndFormat;
+	black_divider(0,1);
+  
+  getvectortags(vCUChanged,atags);
+  for(i=0;i<atags.length;i=i+1)begin
+    resetloop(RHr);
+    TrHs = true;
+    refCUr.Code = atags[i];
+    readfirstmain(refCUr,1,true);
+    
+    RHr.RecidStr = BuildRecordIdStr(refCUr,currentcompany);    
+    recordclear(CUr);
+    recordclear(orCUr);
+    while(loopkey("RecidStr",RHr,1,TrHs))begin
+      if(CompareRecordIdStrings(RHr.RecidStr,BuildRecordIdStr(refCUr,currentcompany))!=0)then begin
+        TrHs = false;
+      end;
+      if(RHr.TransDate>stringtodate("05/09/2026"))then begin
+        TrHs = false;
+      end;
+      
+      histexists = false;
+      if(TrHs)then begin
+        if(RHr.TransDate<stringtodate("01/01/2026"))then begin
+          ReadOriginalRecord(RHr,CUr);
+        end else begin
+          ReadOriginalRecord(RHr,orCUr);
+          CUVcHistoryhcanges(orCUr,CUr,RHr);
+          recordcopy(CUr,orCUr);
+          histexists = true;
+        end;
+      end;
+      if(histexists)then begin
+        CUVcHistoryhcanges(refCUr,CUr,RHr);
+      end;
+    end;
+  end;
+  endjob;
+
+
 return;
 end;
