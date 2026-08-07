@@ -1287,7 +1287,8 @@ begin
       if(stringtoint(compno)==currentcompany and recname=="CUVc")then begin
         if(RHr.accode==kRecordHistoryActionUpdated or RHr.accode==kRecordHistoryActionCreated)then begin
           ReadOriginalRecord(RHr,orCUr);
-          StartFormat(15);
+          if(nonblank(orCUr.Code))then begin
+            StartFormat(15);
             OutString(0,0,RHr.SerNr,false);
             OutString(50,0,RHr.TransDate,false);
             OutString(100,0,RHr.TransTime,false);
@@ -1295,11 +1296,10 @@ begin
             OutString(200,0,RHr.accode,false);
             OutString(250,0,orCUr.Code,false);
             OutString(300,0,orCUr.Name,false);
-            //CUr.Code = orCUr.Code;
-            //readfirstmain(CUr,1,true);
-            //OutString(300,0,orCUr.BankAccount & "->" & CUr.BankAccount,false);
             vCUChanged[orCUr.Code] = true;
-          endformat;
+            endformat;
+          end;
+          
         end;
       end;      
     end;
