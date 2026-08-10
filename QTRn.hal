@@ -1332,7 +1332,7 @@ begin
         if(CompareRecordIdStrings(RHr.RecidStr,BuildRecordIdStr(refCUr,currentcompany))!=0)then begin
           TrHs = false;
         end;
-        if(RHr.TransDate>stringtodate("05-08-2026"))then begin
+        if(RHr.TransDate>stringtodate("05-09-2026"))then begin
           TrHs = false;
         end;
         
