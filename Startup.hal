@@ -47,7 +47,7 @@ begin
 	Report("Реєстр податкових накладних отриманих",VATIVRegUkrRClass,VATIVRegUkrRn,0,modSL);
 	Report("Реєстр отриманих та виданих податкових накладних",VATVIRegUkrRClass,VATVIRegUkrRn,0,modPL);
 	
-	Report("Історія змін контактів 2026",RHistRestoreRCLass,RHistRestoreRn,0,modSY);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 7 August 2026 at 11:04:56
+	//Report("Історія змін контактів 2026",RHistRestoreRCLass,RHistRestoreRn,0,modSY);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 7 August 2026 at 11:04:56
 		
 	Maintenance("Завантажити час з WorkSection",WorkSectionGetCostsVClass,WorkSectionGetCostsMn,modTS);
 	Maintenance("Почистити копії проектів WS",MyVClass,CloaseByCodeWSMn,modTS);
