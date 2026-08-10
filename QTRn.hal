@@ -1059,7 +1059,7 @@ begin
       StartFormat(15);
         OutString (0,0,"‡בונודעט!",false);
       EndFormat;
-      //RecordStore(RecHr,false)
+      RecordStore(RecHr,false)
     end;
   end;
   
