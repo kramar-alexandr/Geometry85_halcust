@@ -1242,8 +1242,12 @@ begin
   record CUVc CUr,orCUr,refCUr,blCUr;
   vector boolean vCUChanged;
   array string 255 atags;
+  longint counter;
   
   StartReportNoHeaderJob("§сторґЯ змґни картки контактґв");
+  
+  logtext(0,"RHistRestoreRn");
+
   
   RHr.SerNr = 9999999999;
   TrHs = true;
@@ -1258,8 +1262,12 @@ begin
     
     if(TrHs and stringtoint(compno)==currentcompany)then begin
       firstnr = RHr.SerNr;
-    end;    
+    end;   
+    counter = counter + 1; 
   end;
+  
+  logtext(0,"counter " & counter);
+
   
   resetloop(RHr);
   TrHs = true;
