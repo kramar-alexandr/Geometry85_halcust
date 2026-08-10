@@ -1267,6 +1267,7 @@ begin
   end;
   
   logtext(0,"counter " & counter);
+  logtext(0,"RHr.SerNr and Date " & RHr.SerNr & " " & RHr.TransDate);
 
   
   resetloop(RHr);
@@ -1321,10 +1322,9 @@ begin
     OutString (400,0,"Поле",false);
 	EndFormat;
 	black_divider(0,1);
-  
-  logtext(0,"atags.length " & atags.length);
-
+    
   getvectortags(vCUChanged,atags);
+  logtext(0,"atags.length " & atags.length);
   for(i=0;i<atags.length;i=i+1)begin
     resetloop(RHr);
     TrHs = true;
