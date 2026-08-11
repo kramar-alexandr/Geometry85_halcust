@@ -3695,8 +3695,9 @@ not supported
 */  
   if (HasAdvancedAccounting) then begin
     CheckBox(h,v,0,"Включати обороти",flags[6]);
-  CheckBox(h,v+=16,0,"Лише рахунки",flags[9]);
+    CheckBox(h,v+=16,0,"Лише рахунки",flags[9]);
   end;
+  CheckBox(h,v+=16,0,"Виключити групу W",flags[11]);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 11 August 2026 at 13:46:19
   if (HasBase2) then begin
   ButtonFrame(h=250,v=vm+10,123,2,"Значення в");
   RadioButton(h,v,0,0,"осн. валюті 1",basecurncy);
@@ -3973,5 +3974,140 @@ begin
   CheckBox(h-20,v+=vs,0,"Припинити зменш. вар-ті",TerminateDpr);
   SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);  
   SpecialMenu("Створити симуляцію",' ',0,"CreateAT2DprSM");
+  EndWindow;
+end;
+
+
+window MBA3RClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vm;
+  WindowBegin("Оборотно-сальдова відомість (фіскальна)",MBA3RClass,CGRcW,RcType);
+  SetWRect(20,80,470,380);
+  PeriodField(h=140,v=6,"Період");
+  EditFieldTL(h,v+=20,150,"Рахунки",M4UStr,Normal,20,AccStr,false,AccSClass);
+  EditFieldTL(h,v+=20,250,"Об'єкт",M4UStr,Normal,60 ,ObjStr,false,ObjSClass);
+  EditFieldTL(h,v+=20,82,"Дата поч.сальдо",M4Date,Normal,0,d2,false,0);
+  CheckBox(h=30,vm=(v+=30),0,"Лише групи",flags[1]);
+  CheckBox(h,v+=16,0,"Не друкувати заголовок",flags[11]);   
+  CheckBox(h,v+=16,0,"Початкове сальдо",flags[12]);
+  CheckBox(h,v+=16,0,"Без найменувань рахунків",flags[14]);
+  CheckBox(h,v+=16,0,"Виключити групу W",flags[24]);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 11 August 2026 at 13:46:19
+
+  ButtonFrame(h=230,v=vm+10,170,4,"Симуляції"); 
+  RadioButton(h,v,0,0,"не включати",SimVerf);
+  RadioButton(h,v+=16,1,0,"включати все",SimVerf);
+  RadioButton(h,v+=16,2,0,"закриття року: стадія 1",SimVerf);
+  RadioButton(h,v+=16,3,0,"закриття року: стадія 1 і 2",SimVerf);
+  ButtonFrame(h=30,vm=(v+=65),170,2,"Значення в");
+  RadioButton(h,v,0,0,"осн. вал. 1",basecurncy);
+  RadioButton(h,v+=16,1,0,"осн. вал. 2",basecurncy);
+  ButtonFrame(h=230,v=vm,170,2,"Представлення");
+  RadioButton(h,v,0,0,"стадартне",ArtMode);
+/* Portugal Specific Report */
+  RadioButton(h,v+=16,1,0,"з рахунками груп",ArtMode);
+  StaticText(20,v+=50,"Цей звіт не вміщується на стандартний аркуш",false);
+  EndWindow;
+end;
+
+window MBARClass:1
+  wtag("language","UKR"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h1,v,vm,vs;
+  WindowBegin("Визначте оборотно-сальдову відомість",MBARClass,CGRcW,RcType);
+  SetWRect(20,80,450,300);
+  v = 6; vs = 20;
+  if (IsEnterprise) then begin
+  Tile(0,20,false,"",Period2Str);
+    PeriodField(h=140,v,"Period"); //!!PRODTRANSLATE
+  TileButtons(v,2);
+    Tile(1,300,false,"1",AccStr);
+  EditFieldTL(h,v,150,"Рахунки",M4UStr,Normal,20,AccStr,false,AccSClass);
+  EditFieldTL(h,v+=20,150,"Об'єкт",M4UStr,Normal,60 ,ObjStr,false,ObjSClass);
+    if (HasLocalization("RUS")) then begin
+      EditFieldTL(h,v+=20,82,"Група рахунку",M4Code,Normal,10,TransStr,false,GroupAccSClass);   
+    end;
+  EditFieldTL(h,v+=20,82,"Дата початков. сальдо",M4Date,Normal,0,d2,false,0);
+    EditFieldTL(h,v+=20,50,"Знаків до субрахунку",M4Str,Normal,20,f4,false,0);
+  EditFieldTL(h,v+=20,50,"Тип об'єкту",M4UStr,Normal,5 ,ObjType,false,OTSClass);
+  EditFieldTL(h,v+=vs,80,"Не включ. об'єкт",M4UStr,Normal,60,f3,false,ObjSClass);
+  ButtonFrame(h=20,vm=(v+=95),170,2,"Значення в");
+  RadioButton(h,v,0,0,"осн. вал. 1",basecurncy);
+  RadioButton(h,v+=16,1,0,"осн. вал. 2",basecurncy);
+  ButtonFrame(h=220,v=vm,170,2,"Представлення");
+  RadioButton(h,v,0,0,"стадартне",ArtMode);
+  RadioButton(h,v+=16,1,0,"з рахунками груп",ArtMode);
+    StaticText(20,v+=50,"Цей звіт не вміщується на стандартний аркуш",false); 
+  Tile(2,280,false,"2",Language);
+  v = 6; h=140;
+  EditFieldTL(h,v,50,"Мова",M4UStr,Normal,5 ,Language,false,LangSClass);
+  CheckBox(h=20,vm=(v+=20),0,"Лише групи",flags[1]);
+  CheckBox(h,v+=16,0,"Відобразити серії записів",flags[4]);
+  CheckBox(h,v+=16,0,"Підсумовувати субрахунки",flags[8]);
+  CheckBox(h,v+=16,0,"Не відображати групи",flags[10]);  
+  CheckBox(h,v+=16,0,"Не друкувати заголовок",flags[11]);  
+  CheckBox(h,v+=16,0,"Початкове сальдо",flags[12]);
+//  CheckBox(h,v+=16,0,"З фіскальною метою",flags[13]);// there is another report for it
+  CheckBox(h,v+=16,0,"Без найменувань рахунків",flags[14]);
+  CheckBox(h,v+=16,0,"Відображати об'єкти",flags[15]);
+    CheckBox(h,v+=16,0,"Відображати нулі замість порожніх рядків",flags[20]);  
+    CheckBox(h,v+=16,0,"Показати кількість",flags[21]);  
+    CheckBox(h,v+=16,0,"Показати баланси за валютами",flags[22]);  
+    CheckBox(h,v+=16,0,"Exclude closed",flags[23]); //!!TRANSLATE
+  CheckBox(h,v+=16,0,"Виключити групу W",flags[24]);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 11 August 2026 at 13:46:19
+
+  ButtonFrame(h=220,v=vm+26,170,4,"Включати симуляції");
+  RadioButton(h,v,0,0,"не включати",SimVerf);
+  RadioButton(h,v+=16,1,0,"всі",SimVerf);
+  RadioButton(h,v+=16,2,0,"закриття року: стадія 1",SimVerf);
+  RadioButton(h,v+=16,3,0,"стадія 1 і 2",SimVerf);
+  end else begin
+    PeriodField(h=140,v=6,"Період"); //!!PRODTRANSLATE
+    EditFieldTL(h,v+=20,150,"Рахунки",M4UStr,Normal,20,AccStr,false,AccSClass); //!!PRODTRANSLATE
+    if (HasObjects) then begin
+      EditFieldTL(h,v+=20,150,"Об''кт",M4UStr,Normal,60 ,ObjStr,false,ObjSClass); //!!PRODTRANSLATE
+    end;
+    EditFieldTL(h,v+=20,82,"Дата поч. сальдо",M4Date,Normal,0,d2,false,0); //!!PRODTRANSLATE
+    if (HasAdvancedAccounting) then begin
+      EditFieldTL(h,v+=20,50,"Довжина субрахунку",M4Long,Normal,0 ,FirstVer,false,0); //!!PRODTRANSLATE
+    end;
+    if (HasObjects) then begin
+      EditFieldTL(h,v+=20,50,"Тип об'єкту",M4UStr,Normal,5 ,ObjType,false,OTSClass); //!!PRODTRANSLATE
+      EditFieldTL(h,v+=vs,80,"Викл. об'єкт",M4UStr,Normal,60,f3,false,ObjSClass); //!!PRODTRANSLATE
+    end;
+      if (HasLanguages) then begin
+        EditFieldTL(h,v+=vs,50,"Мова",M4UStr,Normal,5 ,Language,false,LangSClass); 
+      end;
+    if (HasMultiCurrency or HasBase2) then begin
+      ButtonFrame(h,v+=40,170,2,"Values in"); //!!PRODTRANSLATE
+      RadioButton(h,v,0,0,"Base Currency 1",basecurncy); //!!PRODTRANSLATE
+      RadioButton(h,v+=16,1,0,"Base Currency 2",basecurncy); //!!PRODTRANSLATE
+    end;
+    if (HasAdvancedAccounting or HasLocalization("BRA")) then begin
+      ButtonFrame(h,v+=40,170,2,"Presentation"); //!!PRODTRANSLATE
+      RadioButton(h,v,0,0,"Standard",ArtMode); //!!PRODTRANSLATE
+      RadioButton(h,v+=16,1,0,"With Group Accounts",ArtMode); //!!PRODTRANSLATE
+    end;
+    if (HasSimulations) then begin
+      ButtonFrame(h,v+=40,170,4,"Include Simulations");
+      RadioButton(h,v,0,0,"не включати",SimVerf);
+      RadioButton(h,v+=16,1,0,"всі",SimVerf);
+      RadioButton(h,v+=16,2,0,"закриття року: стадія 1",SimVerf);
+      RadioButton(h,v+=16,3,0,"стадія 1 і 2",SimVerf);
+    end;
+    if (HasAdvancedAccounting) then begin
+      CheckBox(h,v+=24,0,"Sub A/C Totals",flags[8]); //!!PRODTRANSLATE
+      CheckBox(h,vm=(v+=16),0,"Groups only",flags[1]); //!!PRODTRANSLATE
+      if (HasLocalization("PRT")) then begin 
+        CheckBox(h,v+=16,0,"Не друк. загол.",flags[11]);
+      end else begin
+      CheckBox(h,v+=16,0,"Don't print Groups",flags[10]);   //!!PRODTRANSLATE
+      end;
+    end;
+    if (HasObjects) then begin
+      CheckBox(h,v+=16,0,"Показати об'єкти",flags[15]);
+    end;
+    StaticText(30,v+=50,"Цей звіт не вміщується на стандартний аркуш",false); 
+end;
   EndWindow;
 end;
