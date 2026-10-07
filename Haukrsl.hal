@@ -1921,6 +1921,7 @@ RlColKey(-170,-170, "Џроект",PRCode,true,PRCode);// добавление столбца Проект //
    CheckBox(h,v+=16,0,"‹ише нероздрукованґ акти/накл.",flags[17]);
    CheckBox(h,v+=16,0,"‚кюч. орг. клґ№нта",flags[18]);
    CheckBox(h+=hs,v=vm,0,"‚ґдображати офґцґйнґ серґйнґ Ь",flags[16]);
+   CheckBox(h,v+=16,0,"„ата оплати",flags[24]);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 7 October 2026
    EndWindow;
 
   return;
